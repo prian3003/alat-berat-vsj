@@ -1,0 +1,63 @@
+// This is your Prisma schema file for AlatBerat App
+// Documentation: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// Heavy Equipment model
+model HeavyEquipment {
+  id              String   @id @default(uuid()) @db.Uuid
+  name            String   @db.VarChar(255)
+  category        String   @db.VarChar(100)
+  description     String?  @db.Text
+  specifications  Json?    @db.JsonB
+  pricePerHour    Decimal? @map("price_per_hour") @db.Decimal(10, 2)
+  imageUrl        String?  @map("image_url") @db.Text
+  isAvailable     Boolean  @default(true) @map("is_available")
+  createdAt       DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt       DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  // Relations
+  images EquipmentImage[]
+
+  @@map("heavy_equipment")
+  @@index([category])
+  @@index([isAvailable])
+}
+
+// Equipment Images model for multiple images per equipment
+model EquipmentImage {
+  id          String   @id @default(uuid()) @db.Uuid
+  equipmentId String   @map("equipment_id") @db.Uuid
+  imageUrl    String   @map("image_url") @db.Text
+  isPrimary   Boolean  @default(false) @map("is_primary")
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  // Relations
+  equipment HeavyEquipment @relation(fields: [equipmentId], references: [id], onDelete: Cascade)
+
+  @@map("equipment_images")
+  @@index([equipmentId])
+}
+
+// Admin User model for authentication
+model AdminUser {
+  id        String   @id @default(uuid()) @db.Uuid
+  email     String   @unique @db.VarChar(255)
+  password  String   @db.VarChar(255)
+  name      String?  @db.VarChar(255)
+  role      String   @default("admin") @db.VarChar(50)
+  isActive  Boolean  @default(true) @map("is_active")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  @@map("admin_users")
+  @@index([email])
+}
