@@ -48,16 +48,16 @@ export function Navbar() {
       }}
     >
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="flex h-16 items-center justify-between">
+        <div className="flex min-h-20 py-3 items-center justify-between">
           {/* Logo */}
           <div className="flex items-center">
             <Link href="/" className="flex items-center space-x-2">
               <Image
                 src="/logo.png"
                 alt="AlatBerat Logo"
-                width={120}
-                height={40}
-                className="h-10 w-auto"
+                width={200}
+                height={200}
+                className="h-20 w-auto"
               />
             </Link>
           </div>
@@ -172,12 +172,7 @@ export function Navbar() {
             >
               Kontak
             </Link>
-            <Link
-              href="/admin"
-              className="block rounded-md px-3 py-2 text-base font-medium text-slate-700 hover:bg-slate-50"
-            >
-              Admin
-            </Link>
+           
           </div>
         </div>
       )}
