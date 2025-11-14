@@ -27,7 +27,7 @@ export function EquipmentList() {
   }
 
   return (
-    <section id="equipment" className="bg-white py-16 sm:py-24">
+    <section id="equipment" className="bg-gradient-to-b from-white to-slate-50 py-16 sm:py-24">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="text-center">
           <h2 className="text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">

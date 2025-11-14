@@ -10,18 +10,13 @@ export function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false)
 
   useEffect(() => {
-    // Check initial scroll position
     const checkScroll = () => {
       const scrollPosition = window.scrollY || window.pageYOffset
-      const shouldBeScrolled = scrollPosition > 0
-      console.log('Scroll Position:', scrollPosition, 'isScrolled:', shouldBeScrolled)
-      setIsScrolled(shouldBeScrolled)
+      setIsScrolled(scrollPosition > 0)
     }
 
-    // Check on mount
     checkScroll()
 
-    // Add scroll listener with throttle
     let ticking = false
     const handleScroll = () => {
       if (!ticking) {
@@ -37,8 +32,6 @@ export function Navbar() {
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
-  console.log('Navbar render - isScrolled:', isScrolled)
-
   return (
     <nav
       className="sticky top-0 z-50 transition-all duration-300"
@@ -51,7 +44,7 @@ export function Navbar() {
       }}
     >
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8" style={{ backgroundColor: 'transparent' }}>
-        <div className="flex min-h-20 py-3 items-center justify-between" style={{ backgroundColor: 'transparent' }}>
+        <div className="flex min-h-20 py-5 items-center justify-between" style={{ backgroundColor: 'transparent' }}>
           {/* Logo */}
           <div className="flex items-center">
             <Link href="/" className="flex items-center space-x-2">
@@ -60,7 +53,7 @@ export function Navbar() {
                 alt="AlatBerat Logo"
                 width={220}
                 height={250}
-                className="h-20 w-auto"
+                className="h-25 w-auto"
               />
             </Link>
           </div>

@@ -111,7 +111,7 @@ export function HeroSection() {
 
             <span className="relative inline-block">
               <span className="animate-gradient bg-gradient-to-r from-orange-600 via-red-600 to-orange-600 bg-[length:200%_auto] bg-clip-text text-transparent">
-                Terpercaya & Terjangkau
+               {/* Terpercaya & Terjangkau */}
               </span>
               <motion.span
                 className="absolute -bottom-2 left-0 h-1 w-full bg-gradient-to-r from-orange-600 to-red-600"
