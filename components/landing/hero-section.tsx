@@ -20,16 +20,28 @@ export function HeroSection() {
       </div>
 
       <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-2xl text-center">
+        <div className="mx-auto max-w-3xl text-center">
           <h1 className="text-4xl font-bold tracking-tight text-slate-900 sm:text-6xl">
-            Sewa Alat Berat Terpercaya untuk Proyek Anda
+            Sewa Alat Berat di Bali <span className="text-orange-600">Terpercaya & Terjangkau</span>
           </h1>
           <p className="mt-6 text-lg leading-8 text-slate-600">
-            Menyediakan berbagai jenis alat berat berkualitas dengan harga kompetitif.
-            Dari excavator hingga crane, kami siap mendukung keberhasilan proyek konstruksi Anda.
+            <strong>Rental alat berat profesional</strong> di Denpasar, Badung, Gianyar, dan seluruh Bali.
+            Menyediakan <strong>excavator, bulldozer, crane, loader, dump truck</strong> dengan operator berpengalaman.
+            Harga kompetitif, tarif per jam, layanan 24/7 siap mendukung proyek konstruksi Anda.
           </p>
+
+          {/* SEO Keywords Section */}
+          <div className="mt-8 flex flex-wrap items-center justify-center gap-3 text-sm text-slate-500">
+            <span className="rounded-full bg-slate-100 px-4 py-1.5">📍 Denpasar</span>
+            <span className="rounded-full bg-slate-100 px-4 py-1.5">📍 Badung</span>
+            <span className="rounded-full bg-slate-100 px-4 py-1.5">📍 Gianyar</span>
+            <span className="rounded-full bg-slate-100 px-4 py-1.5">📍 Tabanan</span>
+            <span className="rounded-full bg-slate-100 px-4 py-1.5">⏰ 24/7</span>
+            <span className="rounded-full bg-slate-100 px-4 py-1.5">💰 Harga Kompetitif</span>
+          </div>
+
           <div className="mt-10 flex items-center justify-center gap-x-6">
-            <Button asChild size="lg">
+            <Button asChild size="lg" className="bg-orange-600 hover:bg-orange-700">
               <Link href="#equipment">Lihat Alat Berat</Link>
             </Button>
             <Button asChild variant="outline" size="lg">
