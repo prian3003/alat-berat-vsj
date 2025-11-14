@@ -138,11 +138,11 @@
 /* Painting Style Text */
 .text-painted {
   text-shadow:
-    2px 2px 0px rgba(59, 130, 246, 0.15),
-    4px 4px 0px rgba(37, 99, 235, 0.1),
-    -1px -1px 0px rgba(59, 130, 246, 0.05);
+    2px 2px 0px rgba(0, 0, 0, 0.08),
+    4px 4px 0px rgba(0, 0, 0, 0.05),
+    -1px -1px 0px rgba(0, 0, 0, 0.03);
   letter-spacing: 0.02em;
-  filter: drop-shadow(0 4px 6px rgba(59, 130, 246, 0.15));
+  filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1));
 }
 
 .font-kalam {
