@@ -288,10 +288,10 @@ export function HeroSection() {
           />
         </div>
 
-        {/* Excavator Image - Bottom Right */}
+        {/* Excavator Image - Bottom Left */}
         <motion.div
-          className="absolute bottom-0 right-0 w-[300px] h-[300px] sm:w-[450px] sm:h-[450px] lg:w-[550px] lg:h-[550px] pointer-events-none"
-          initial={{ opacity: 0, x: 100, y: 50 }}
+          className="absolute -bottom-60 -left-50 w-[500px] h-[500px] sm:w-[450px] sm:h-[450px] lg:w-[550px] lg:h-[550px] pointer-events-none"
+          initial={{ opacity: 0, x: -100, y: 50 }}
           animate={{ opacity: 1, x: 0, y: 0 }}
           transition={{ duration: 1, delay: 0.5, ease: [0.22, 1, 0.36, 1] }}
         >

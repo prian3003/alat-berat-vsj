@@ -3,13 +3,31 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { Button } from '@/components/ui/button'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 export function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [isScrolled, setIsScrolled] = useState(false)
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 10) {
+        setIsScrolled(true)
+      } else {
+        setIsScrolled(false)
+      }
+    }
+
+    window.addEventListener('scroll', handleScroll)
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
 
   return (
-    <nav className="sticky top-0 z-50 border-b bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60">
+    <nav className={`sticky top-0 z-50 transition-all duration-300 ${
+      isScrolled
+        ? 'bg-white/95 backdrop-blur border-b shadow-sm supports-[backdrop-filter]:bg-white/60'
+        : 'bg-transparent'
+    }`}>
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between">
           {/* Logo */}
@@ -29,25 +47,41 @@ export function Navbar() {
           <div className="hidden md:flex md:items-center md:space-x-8">
             <Link
               href="/"
-              className="text-sm font-medium text-slate-700 transition-colors hover:text-slate-900"
+              className={`text-sm font-medium transition-colors ${
+                isScrolled
+                  ? 'text-slate-700 hover:text-slate-900'
+                  : 'text-slate-800 hover:text-slate-900'
+              }`}
             >
               Beranda
             </Link>
             <Link
               href="/#equipment"
-              className="text-sm font-medium text-slate-700 transition-colors hover:text-slate-900"
+              className={`text-sm font-medium transition-colors ${
+                isScrolled
+                  ? 'text-slate-700 hover:text-slate-900'
+                  : 'text-slate-800 hover:text-slate-900'
+              }`}
             >
               Alat Berat
             </Link>
             <Link
               href="/#about"
-              className="text-sm font-medium text-slate-700 transition-colors hover:text-slate-900"
+              className={`text-sm font-medium transition-colors ${
+                isScrolled
+                  ? 'text-slate-700 hover:text-slate-900'
+                  : 'text-slate-800 hover:text-slate-900'
+              }`}
             >
               Tentang Kami
             </Link>
             <Link
               href="/#contact"
-              className="text-sm font-medium text-slate-700 transition-colors hover:text-slate-900"
+              className={`text-sm font-medium transition-colors ${
+                isScrolled
+                  ? 'text-slate-700 hover:text-slate-900'
+                  : 'text-slate-800 hover:text-slate-900'
+              }`}
             >
               Kontak
             </Link>
@@ -93,7 +127,7 @@ export function Navbar() {
 
       {/* Mobile menu */}
       {mobileMenuOpen && (
-        <div className="md:hidden">
+        <div className="md:hidden bg-white/95 backdrop-blur border-t">
           <div className="space-y-1 px-4 pb-3 pt-2">
             <Link
               href="/"
