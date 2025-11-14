@@ -5,7 +5,7 @@ const JWT_SECRET = new TextEncoder().encode(
   process.env.JWT_SECRET || 'your-secret-key-change-this-in-production'
 )
 
-export interface JWTPayload {
+export interface AdminJWTPayload {
   userId: string
   email: string
   role: string
@@ -17,7 +17,7 @@ export function hashPassword(password: string): string {
 }
 
 // Create JWT token
-export async function createToken(payload: JWTPayload): Promise<string> {
+export async function createToken(payload: AdminJWTPayload): Promise<string> {
   const token = await new SignJWT(payload as any)
     .setProtectedHeader({ alg: 'HS256' })
     .setIssuedAt()
@@ -28,10 +28,10 @@ export async function createToken(payload: JWTPayload): Promise<string> {
 }
 
 // Verify JWT token
-export async function verifyToken(token: string): Promise<JWTPayload | null> {
+export async function verifyToken(token: string): Promise<AdminJWTPayload | null> {
   try {
     const { payload } = await jwtVerify(token, JWT_SECRET)
-    return payload as JWTPayload
+    return payload as unknown as AdminJWTPayload
   } catch (error) {
     return null
   }
