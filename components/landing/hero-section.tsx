@@ -83,9 +83,9 @@ export function HeroSection() {
                 />
                 <defs>
                   <linearGradient id="brush-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                    <stop offset="0%" stopColor="#ea580c" stopOpacity="0.6" />
-                    <stop offset="50%" stopColor="#dc2626" stopOpacity="0.8" />
-                    <stop offset="100%" stopColor="#ea580c" stopOpacity="0.6" />
+                    <stop offset="0%" stopColor="#3b82f6" stopOpacity="0.6" />
+                    <stop offset="50%" stopColor="#2563eb" stopOpacity="0.8" />
+                    <stop offset="100%" stopColor="#3b82f6" stopOpacity="0.6" />
                   </linearGradient>
                   <filter id="brush-texture">
                     <feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="4" result="noise" />
@@ -96,13 +96,13 @@ export function HeroSection() {
 
               {/* Paint splatters */}
               <motion.div
-                className="absolute -right-4 top-0 w-8 h-8 bg-orange-500/20 rounded-full blur-sm"
+                className="absolute -right-4 top-0 w-8 h-8 bg-blue-500/20 rounded-full blur-sm"
                 initial={{ scale: 0, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 transition={{ duration: 0.4, delay: 0.8 }}
               />
               <motion.div
-                className="absolute -left-3 bottom-2 w-6 h-6 bg-red-500/20 rounded-full blur-sm"
+                className="absolute -left-3 bottom-2 w-6 h-6 bg-blue-600/20 rounded-full blur-sm"
                 initial={{ scale: 0, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 transition={{ duration: 0.4, delay: 1 }}
