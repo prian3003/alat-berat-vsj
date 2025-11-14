@@ -37,26 +37,29 @@ export function Navbar() {
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
+  console.log('Navbar render - isScrolled:', isScrolled)
+
   return (
     <nav
-      className={`sticky top-0 z-50 transition-all duration-300`}
+      className="sticky top-0 z-50 transition-all duration-300"
       style={{
-        backgroundColor: isScrolled ? 'rgba(255, 255, 255, 0.95)' : 'transparent',
-        borderBottom: isScrolled ? '1px solid rgba(226, 232, 240, 0.8)' : 'none',
+        backgroundColor: isScrolled ? 'rgba(255, 255, 255, 0.95)' : 'rgba(0, 0, 0, 0)',
+        borderBottom: isScrolled ? '1px solid rgba(226, 232, 240, 0.8)' : '1px solid transparent',
         boxShadow: isScrolled ? '0 1px 3px 0 rgb(0 0 0 / 0.1)' : 'none',
-        backdropFilter: isScrolled ? 'blur(12px)' : 'none'
+        backdropFilter: isScrolled ? 'blur(12px)' : 'none',
+        WebkitBackdropFilter: isScrolled ? 'blur(12px)' : 'none'
       }}
     >
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="flex min-h-20 py-3 items-center justify-between">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8" style={{ backgroundColor: 'transparent' }}>
+        <div className="flex min-h-20 py-3 items-center justify-between" style={{ backgroundColor: 'transparent' }}>
           {/* Logo */}
           <div className="flex items-center">
             <Link href="/" className="flex items-center space-x-2">
               <Image
                 src="/logo.png"
                 alt="AlatBerat Logo"
-                width={200}
-                height={200}
+                width={220}
+                height={250}
                 className="h-20 w-auto"
               />
             </Link>
