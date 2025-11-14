@@ -1,13 +1,13 @@
 'use client'
 
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
-import { HeavyEquipment } from '@/types'
+import { HeavyEquipmentWithImages } from '@/types'
 import Image from 'next/image'
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 
 interface EquipmentDetailModalProps {
-  equipment: HeavyEquipment | null
+  equipment: HeavyEquipmentWithImages | null
   open: boolean
   onOpenChange: (open: boolean) => void
 }
@@ -19,11 +19,11 @@ export function EquipmentDetailModal({ equipment, open, onOpenChange }: Equipmen
 
   // Get all images - primary + additional images
   const allImages = [
-    equipment.imageUrl,
-    ...(equipment.images?.map(img => img.imageUrl) || [])
+    equipment.image_url,
+    ...(equipment.equipment_images?.map(img => img.image_url) || [])
   ].filter(Boolean) as string[]
 
-  const currentImage = allImages[currentImageIndex] || equipment.imageUrl || '/placeholder-equipment.jpg'
+  const currentImage = allImages[currentImageIndex] || equipment.image_url || '/placeholder-equipment.jpg'
 
   // Don't render if no valid image
   const hasValidImage = currentImage && currentImage !== '/placeholder-equipment.jpg'
@@ -160,7 +160,7 @@ export function EquipmentDetailModal({ equipment, open, onOpenChange }: Equipmen
               <div className="mt-2 rounded-lg bg-orange-50 p-6">
                 <p className="text-sm text-orange-600">Tarif Per Jam</p>
                 <p className="mt-1 text-3xl font-bold text-orange-900">
-                  {formatPrice(equipment.pricePerHour)}
+                  {formatPrice(equipment.price_per_hour)}
                 </p>
                 <p className="mt-2 text-xs text-slate-600">*Harga dapat berubah sewaktu-waktu</p>
               </div>
@@ -170,12 +170,12 @@ export function EquipmentDetailModal({ equipment, open, onOpenChange }: Equipmen
             <div className="flex items-center gap-2">
               <span
                 className={`inline-flex rounded-full px-3 py-1 text-sm font-medium ${
-                  equipment.isAvailable
+                  equipment.is_available
                     ? 'bg-green-100 text-green-800'
                     : 'bg-red-100 text-red-800'
                 }`}
               >
-                {equipment.isAvailable ? 'Tersedia' : 'Tidak Tersedia'}
+                {equipment.is_available ? 'Tersedia' : 'Tidak Tersedia'}
               </span>
             </div>
 
