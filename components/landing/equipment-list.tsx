@@ -27,8 +27,21 @@ export function EquipmentList() {
   }
 
   return (
-    <section id="equipment" className="bg-gradient-to-b from-white to-slate-50 py-16 sm:py-24">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    <section id="equipment" className="relative overflow-hidden bg-gradient-to-b from-white to-slate-50 py-16 sm:py-24">
+      {/* Grid Background Pattern - Inverted */}
+      <div className="absolute inset-0 z-0">
+        <div
+          className="absolute inset-0"
+          style={{
+            backgroundImage: 'linear-gradient(to right, #e2e8f0 1px, transparent 1px), linear-gradient(to bottom, #e2e8f0 1px, transparent 1px)',
+            backgroundSize: '20px 30px',
+            maskImage: 'radial-gradient(ellipse 70% 60% at 50% 100%, #000 60%, transparent 100%)',
+            WebkitMaskImage: 'radial-gradient(ellipse 70% 60% at 50% 100%, #000 60%, transparent 100%)',
+          }}
+        />
+      </div>
+
+      <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="text-center">
           <h2 className="text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">
             Sewa Alat Berat Bali - Katalog Lengkap
