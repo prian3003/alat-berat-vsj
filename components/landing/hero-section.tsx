@@ -25,50 +25,25 @@ export function HeroSection() {
             Sewa Alat Berat di Bali <span className="text-orange-600">Terpercaya & Terjangkau</span>
           </h1>
           <p className="mt-6 text-lg leading-8 text-slate-600">
-            <strong>Rental alat berat profesional</strong> di Denpasar, Badung, Gianyar, dan seluruh Bali.
+            <strong>Rental alat berat profesional</strong> melayani seluruh Bali: Denpasar, Badung, Gianyar, Tabanan, Buleleng, Klungkung, Bangli, Karangasem, dan Jembrana.
             Menyediakan <strong>excavator, bulldozer, crane, loader, dump truck</strong> dengan operator berpengalaman.
             Harga kompetitif, tarif per jam, layanan 24/7 siap mendukung proyek konstruksi Anda.
           </p>
 
           {/* SEO Keywords Section - Glassmorphism */}
           <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
-            {/* Location badges */}
-            <span className="group relative overflow-hidden rounded-full border border-white/20 bg-white/10 px-5 py-2 backdrop-blur-md transition-all hover:bg-white/20 hover:shadow-lg">
-              <span className="flex items-center gap-2 text-sm font-medium text-slate-700">
-                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
-                </svg>
-                Denpasar
+            {/* Location badges - All Bali Regencies */}
+            {['Denpasar', 'Badung', 'Gianyar', 'Tabanan', 'Buleleng', 'Klungkung', 'Bangli', 'Karangasem', 'Jembrana'].map((location) => (
+              <span key={location} className="group relative overflow-hidden rounded-full border border-white/20 bg-white/10 px-5 py-2 backdrop-blur-md transition-all hover:bg-white/20 hover:shadow-lg">
+                <span className="flex items-center gap-2 text-sm font-medium text-slate-700">
+                  <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
+                  </svg>
+                  {location}
+                </span>
               </span>
-            </span>
-            <span className="group relative overflow-hidden rounded-full border border-white/20 bg-white/10 px-5 py-2 backdrop-blur-md transition-all hover:bg-white/20 hover:shadow-lg">
-              <span className="flex items-center gap-2 text-sm font-medium text-slate-700">
-                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
-                </svg>
-                Badung
-              </span>
-            </span>
-            <span className="group relative overflow-hidden rounded-full border border-white/20 bg-white/10 px-5 py-2 backdrop-blur-md transition-all hover:bg-white/20 hover:shadow-lg">
-              <span className="flex items-center gap-2 text-sm font-medium text-slate-700">
-                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
-                </svg>
-                Gianyar
-              </span>
-            </span>
-            <span className="group relative overflow-hidden rounded-full border border-white/20 bg-white/10 px-5 py-2 backdrop-blur-md transition-all hover:bg-white/20 hover:shadow-lg">
-              <span className="flex items-center gap-2 text-sm font-medium text-slate-700">
-                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
-                </svg>
-                Tabanan
-              </span>
-            </span>
+            ))}
 
             {/* Feature badges */}
             <span className="group relative overflow-hidden rounded-full border border-orange-200/30 bg-orange-50/40 px-5 py-2 backdrop-blur-md transition-all hover:bg-orange-100/50 hover:shadow-lg">

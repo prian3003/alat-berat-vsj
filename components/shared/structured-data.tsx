@@ -41,7 +41,23 @@ export function StructuredData() {
       },
       {
         "@type": "City",
+        "name": "Buleleng"
+      },
+      {
+        "@type": "City",
         "name": "Klungkung"
+      },
+      {
+        "@type": "City",
+        "name": "Bangli"
+      },
+      {
+        "@type": "City",
+        "name": "Karangasem"
+      },
+      {
+        "@type": "City",
+        "name": "Jembrana"
       },
       {
         "@type": "State",

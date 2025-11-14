@@ -22,7 +22,7 @@ export default function Home() {
               </h2>
               <p className="mt-4 text-lg text-slate-600">
                 Penyedia jasa <strong>rental alat berat terpercaya di Bali</strong> sejak bertahun-tahun.
-                Melayani proyek konstruksi di Denpasar, Badung, Gianyar, Tabanan, dan seluruh Bali dengan komitmen kualitas terbaik.
+                Melayani proyek konstruksi di Denpasar, Badung, Gianyar, Tabanan, Buleleng, Klungkung, Bangli, Karangasem, Jembrana, dan seluruh Bali dengan komitmen kualitas terbaik.
               </p>
             </div>
 
@@ -98,7 +98,7 @@ export default function Home() {
                 </h3>
                 <p className="mt-2 text-sm text-slate-600">
                   Operator profesional bersertifikat dan tim support siap membantu kapan saja.
-                  Layanan cepat untuk area Denpasar, Badung, Gianyar, Tabanan.
+                  Layanan cepat untuk seluruh Bali: Denpasar, Badung, Gianyar, Tabanan, Buleleng, Klungkung, Bangli, Karangasem, Jembrana.
                 </p>
               </div>
             </div>
@@ -113,8 +113,8 @@ export default function Home() {
                 Hubungi VSJ - Sewa Alat Berat Bali
               </h2>
               <p className="mt-4 text-lg text-slate-600">
-                Konsultasi GRATIS untuk kebutuhan rental excavator, bulldozer, crane di Bali.
-                Dapatkan penawaran harga terbaik untuk proyek konstruksi Anda di Denpasar, Badung, Gianyar.
+                Konsultasi GRATIS untuk kebutuhan rental excavator, bulldozer, crane di seluruh Bali.
+                Dapatkan penawaran harga terbaik untuk proyek konstruksi Anda di Denpasar, Badung, Gianyar, Tabanan, Buleleng, Klungkung, Bangli, Karangasem, Jembrana.
               </p>
               <div className="mt-8 flex flex-col gap-4 sm:flex-row sm:justify-center">
                 <a
