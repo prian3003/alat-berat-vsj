@@ -2,6 +2,7 @@
 
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
+import Image from 'next/image'
 import { motion } from 'framer-motion'
 
 export function HeroSection() {
@@ -37,7 +38,7 @@ export function HeroSection() {
           }}
         >
           <motion.h1
-            className="text-4xl font-bold tracking-tight text-slate-900 sm:text-6xl"
+            className="text-4xl font-bold tracking-tight sm:text-6xl"
             variants={{
               hidden: { opacity: 0, y: 20 },
               visible: {
@@ -50,7 +51,64 @@ export function HeroSection() {
               }
             }}
           >
-            Sewa Alat Berat di Bali{' '}
+            <span className="relative inline-block mb-3">
+              <motion.span
+                className="font-kalam text-painted block text-slate-800"
+                initial={{ opacity: 0, scale: 0.9, rotateZ: -2 }}
+                animate={{ opacity: 1, scale: 1, rotateZ: 0 }}
+                transition={{ duration: 1, ease: [0.34, 1.56, 0.64, 1] }}
+              >
+                Sewa Alat Berat di Bali
+              </motion.span>
+
+              {/* Brush stroke decoration */}
+              <motion.svg
+                className="absolute -left-6 -top-4 w-[calc(100%+3rem)] h-[calc(100%+2rem)] pointer-events-none opacity-20 -z-10"
+                viewBox="0 0 500 120"
+                preserveAspectRatio="none"
+                initial={{ pathLength: 0, opacity: 0 }}
+                animate={{ pathLength: 1, opacity: 0.2 }}
+                transition={{ duration: 1.5, delay: 0.2, ease: "easeOut" }}
+              >
+                <motion.path
+                  d="M20,60 Q150,30 250,60 T480,60"
+                  stroke="url(#brush-gradient)"
+                  strokeWidth="20"
+                  fill="none"
+                  strokeLinecap="round"
+                  filter="url(#brush-texture)"
+                  initial={{ pathLength: 0 }}
+                  animate={{ pathLength: 1 }}
+                  transition={{ duration: 1.5, delay: 0.2 }}
+                />
+                <defs>
+                  <linearGradient id="brush-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" stopColor="#ea580c" stopOpacity="0.6" />
+                    <stop offset="50%" stopColor="#dc2626" stopOpacity="0.8" />
+                    <stop offset="100%" stopColor="#ea580c" stopOpacity="0.6" />
+                  </linearGradient>
+                  <filter id="brush-texture">
+                    <feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="4" result="noise" />
+                    <feDisplacementMap in="SourceGraphic" in2="noise" scale="3" />
+                  </filter>
+                </defs>
+              </motion.svg>
+
+              {/* Paint splatters */}
+              <motion.div
+                className="absolute -right-4 top-0 w-8 h-8 bg-orange-500/20 rounded-full blur-sm"
+                initial={{ scale: 0, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ duration: 0.4, delay: 0.8 }}
+              />
+              <motion.div
+                className="absolute -left-3 bottom-2 w-6 h-6 bg-red-500/20 rounded-full blur-sm"
+                initial={{ scale: 0, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ duration: 0.4, delay: 1 }}
+              />
+            </span>
+
             <span className="relative inline-block">
               <span className="animate-gradient bg-gradient-to-r from-orange-600 via-red-600 to-orange-600 bg-[length:200%_auto] bg-clip-text text-transparent">
                 Terpercaya & Terjangkau
@@ -59,7 +117,7 @@ export function HeroSection() {
                 className="absolute -bottom-2 left-0 h-1 w-full bg-gradient-to-r from-orange-600 to-red-600"
                 initial={{ scaleX: 0, originX: 0 }}
                 animate={{ scaleX: 1 }}
-                transition={{ duration: 0.8, delay: 0.8, ease: [0.22, 1, 0.36, 1] }}
+                transition={{ duration: 0.8, delay: 1.2, ease: [0.22, 1, 0.36, 1] }}
               />
             </span>
           </motion.h1>
@@ -98,7 +156,7 @@ export function HeroSection() {
             }}
           >
             {/* Location badges - All Bali Regencies */}
-            {['Denpasar', 'Badung', 'Gianyar', 'Tabanan', 'Buleleng', 'Klungkung', 'Bangli', 'Karangasem', 'Jembrana'].map((location, index) => (
+            {['Denpasar', 'Badung', 'Gianyar', 'Tabanan', 'Buleleng', 'Klungkung', 'Bangli', 'Karangasem', 'Jembrana'].map((location) => (
               <motion.span
                 key={location}
                 className="group relative overflow-hidden rounded-full border border-white/20 bg-white/10 px-5 py-2 backdrop-blur-md transition-all hover:bg-white/20 hover:scale-105 hover:shadow-lg"
@@ -229,6 +287,24 @@ export function HeroSection() {
             }}
           />
         </div>
+
+        {/* Excavator Image - Bottom Right */}
+        <motion.div
+          className="absolute bottom-0 right-0 w-[300px] h-[300px] sm:w-[450px] sm:h-[450px] lg:w-[550px] lg:h-[550px] pointer-events-none"
+          initial={{ opacity: 0, x: 100, y: 50 }}
+          animate={{ opacity: 1, x: 0, y: 0 }}
+          transition={{ duration: 1, delay: 0.5, ease: [0.22, 1, 0.36, 1] }}
+        >
+          <Image
+            src="/exca.png"
+            alt="Excavator - Sewa Alat Berat Bali"
+            width={550}
+            height={550}
+            className="object-contain w-full h-full drop-shadow-2xl"
+            priority
+            quality={85}
+          />
+        </motion.div>
       </div>
     </section>
   )
