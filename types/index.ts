@@ -13,22 +13,14 @@ export interface HeavyEquipmentWithImages extends HeavyEquipment {
 export type EquipmentCategory =
   | 'excavator'
   | 'bulldozer'
-  | 'crane'
   | 'loader'
-  | 'forklift'
   | 'dump_truck'
-  | 'grader'
-  | 'roller'
   | 'other'
 
 export const EQUIPMENT_CATEGORIES: { value: EquipmentCategory; label: string }[] = [
   { value: 'excavator', label: 'Excavator' },
   { value: 'bulldozer', label: 'Bulldozer' },
-  { value: 'crane', label: 'Crane' },
   { value: 'loader', label: 'Loader' },
-  { value: 'forklift', label: 'Forklift' },
   { value: 'dump_truck', label: 'Dump Truck' },
-  { value: 'grader', label: 'Grader' },
-  { value: 'roller', label: 'Roller' },
   { value: 'other', label: 'Lainnya' },
 ]
