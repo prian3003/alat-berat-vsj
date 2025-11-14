@@ -13,7 +13,9 @@ export function Navbar() {
     // Check initial scroll position
     const checkScroll = () => {
       const scrollPosition = window.scrollY || window.pageYOffset
-      setIsScrolled(scrollPosition > 0)
+      const shouldBeScrolled = scrollPosition > 0
+      console.log('Scroll Position:', scrollPosition, 'isScrolled:', shouldBeScrolled)
+      setIsScrolled(shouldBeScrolled)
     }
 
     // Check on mount
@@ -36,11 +38,15 @@ export function Navbar() {
   }, [])
 
   return (
-    <nav className={`sticky top-0 z-50 transition-all duration-300 ${
-      isScrolled
-        ? 'bg-white/95 backdrop-blur border-b shadow-sm supports-[backdrop-filter]:bg-white/60'
-        : 'bg-transparent'
-    }`}>
+    <nav
+      className={`sticky top-0 z-50 transition-all duration-300`}
+      style={{
+        backgroundColor: isScrolled ? 'rgba(255, 255, 255, 0.95)' : 'transparent',
+        borderBottom: isScrolled ? '1px solid rgba(226, 232, 240, 0.8)' : 'none',
+        boxShadow: isScrolled ? '0 1px 3px 0 rgb(0 0 0 / 0.1)' : 'none',
+        backdropFilter: isScrolled ? 'blur(12px)' : 'none'
+      }}
+    >
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between">
           {/* Logo */}
