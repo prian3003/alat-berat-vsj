@@ -30,9 +30,9 @@ export function EquipmentForm({ equipment, onSuccess, onCancel }: EquipmentFormP
     name: equipment?.name || '',
     category: equipment?.category || '',
     description: equipment?.description || '',
-    pricePerHour: equipment?.pricePerHour?.toString() || '',
-    imageUrl: equipment?.imageUrl || '',
-    isAvailable: equipment?.isAvailable ?? true,
+    pricePerHour: equipment?.price_per_hour?.toString() || '',
+    imageUrl: equipment?.image_url || '',
+    isAvailable: equipment?.is_available ?? true,
     specifications: {
       brand: '',
       model: '',
