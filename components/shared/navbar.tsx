@@ -10,15 +10,28 @@ export function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false)
 
   useEffect(() => {
+    // Check initial scroll position
+    const checkScroll = () => {
+      const scrollPosition = window.scrollY || window.pageYOffset
+      setIsScrolled(scrollPosition > 0)
+    }
+
+    // Check on mount
+    checkScroll()
+
+    // Add scroll listener with throttle
+    let ticking = false
     const handleScroll = () => {
-      if (window.scrollY > 10) {
-        setIsScrolled(true)
-      } else {
-        setIsScrolled(false)
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          checkScroll()
+          ticking = false
+        })
+        ticking = true
       }
     }
 
-    window.addEventListener('scroll', handleScroll)
+    window.addEventListener('scroll', handleScroll, { passive: true })
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
