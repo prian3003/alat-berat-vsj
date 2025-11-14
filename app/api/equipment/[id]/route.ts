@@ -6,11 +6,12 @@ const prisma = new PrismaClient()
 // GET single equipment
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const equipment = await prisma.heavyEquipment.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: {
         images: {
           orderBy: {
@@ -40,20 +41,21 @@ export async function GET(
 // PUT update equipment
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const body = await request.json()
     const { images, specifications, pricePerHour, ...data } = body
 
     // Delete existing images and create new ones
     await prisma.equipmentImage.deleteMany({
-      where: { equipmentId: params.id },
+      where: { equipmentId: id },
     })
 
     // Update equipment with new images
     const equipment = await prisma.heavyEquipment.update({
-      where: { id: params.id },
+      where: { id },
       data: {
         ...data,
         pricePerHour: pricePerHour ? parseFloat(pricePerHour) : null,
@@ -85,11 +87,12 @@ export async function PUT(
 // DELETE equipment
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     await prisma.heavyEquipment.delete({
-      where: { id: params.id },
+      where: { id },
     })
 
     return NextResponse.json({ success: true })
