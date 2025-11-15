@@ -141,41 +141,18 @@ export function HeroSection() {
             Harga kompetitif, tarif per jam, layanan 24/7 siap mendukung proyek konstruksi Anda.
           </motion.p>
 
-          {/* SEO Keywords Section - Glassmorphism */}
+          {/* SEO Keywords Section - Simplified */}
           <motion.div
             className="mt-8 flex flex-wrap items-center justify-center gap-3"
-            variants={{
-              hidden: { opacity: 0 },
-              visible: {
-                opacity: 1,
-                transition: {
-                  staggerChildren: 0.05,
-                  delayChildren: 0.2,
-                }
-              }
-            }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.6, delay: 0.4 }}
           >
             {/* Location badges - All Bali Regencies */}
             {['Denpasar', 'Badung', 'Gianyar', 'Tabanan', 'Buleleng', 'Klungkung', 'Bangli', 'Karangasem', 'Jembrana'].map((location) => (
-              <motion.span
+              <span
                 key={location}
-                className="group relative overflow-hidden rounded-full border border-white/20 bg-white/10 px-5 py-2 backdrop-blur-md transition-all hover:bg-white/20 hover:scale-105 hover:shadow-lg"
-                variants={{
-                  hidden: { opacity: 0, scale: 0.8, y: 20 },
-                  visible: {
-                    opacity: 1,
-                    scale: 1,
-                    y: 0,
-                    transition: {
-                      duration: 0.4,
-                      ease: [0.22, 1, 0.36, 1]
-                    }
-                  }
-                }}
-                whileHover={{
-                  y: -2,
-                  transition: { duration: 0.2 }
-                }}
+                className="rounded-full border border-white/20 bg-white/10 px-5 py-2 transition-colors hover:bg-white/20"
               >
                 <span className="flex items-center gap-2 text-sm font-medium text-slate-700">
                   <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor">
@@ -184,28 +161,12 @@ export function HeroSection() {
                   </svg>
                   {location}
                 </span>
-              </motion.span>
+              </span>
             ))}
 
             {/* Feature badges */}
-            <motion.span
-              className="group relative overflow-hidden rounded-full border border-orange-200/30 bg-orange-50/40 px-5 py-2 backdrop-blur-md transition-all hover:bg-orange-100/50 hover:scale-105 hover:shadow-lg"
-              variants={{
-                hidden: { opacity: 0, scale: 0.8, y: 20 },
-                visible: {
-                  opacity: 1,
-                  scale: 1,
-                  y: 0,
-                  transition: {
-                    duration: 0.4,
-                    ease: [0.22, 1, 0.36, 1]
-                  }
-                }
-              }}
-              whileHover={{
-                y: -2,
-                transition: { duration: 0.2 }
-              }}
+            <span
+              className="rounded-full border border-orange-200/30 bg-orange-50/40 px-5 py-2 transition-colors hover:bg-orange-100/50"
             >
               <span className="flex items-center gap-2 text-sm font-medium text-orange-700">
                 <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor">
@@ -213,25 +174,9 @@ export function HeroSection() {
                 </svg>
                 24/7 Service
               </span>
-            </motion.span>
-            <motion.span
-              className="group relative overflow-hidden rounded-full border border-green-200/30 bg-green-50/40 px-5 py-2 backdrop-blur-md transition-all hover:bg-green-100/50 hover:scale-105 hover:shadow-lg"
-              variants={{
-                hidden: { opacity: 0, scale: 0.8, y: 20 },
-                visible: {
-                  opacity: 1,
-                  scale: 1,
-                  y: 0,
-                  transition: {
-                    duration: 0.4,
-                    ease: [0.22, 1, 0.36, 1]
-                  }
-                }
-              }}
-              whileHover={{
-                y: -2,
-                transition: { duration: 0.2 }
-              }}
+            </span>
+            <span
+              className="rounded-full border border-green-200/30 bg-green-50/40 px-5 py-2 transition-colors hover:bg-green-100/50"
             >
               <span className="flex items-center gap-2 text-sm font-medium text-green-700">
                 <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor">
@@ -239,7 +184,7 @@ export function HeroSection() {
                 </svg>
                 Harga Kompetitif
               </span>
-            </motion.span>
+            </span>
           </motion.div>
 
           <motion.div
