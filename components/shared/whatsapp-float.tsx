@@ -18,11 +18,11 @@ export function WhatsAppFloat() {
     <div
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
-      className="fixed bottom-4 right-4 z-50"
+      className="fixed bottom-6 right-6 z-50 sm:bottom-4 sm:right-4"
     >
-      {/* Contact Options - Show on Hover */}
+      {/* Contact Options - Show on Hover (Desktop only) */}
       <div
-        className={`mb-3 flex flex-col gap-2 transition-all duration-300 ${
+        className={`mb-3 hidden sm:flex flex-col gap-2 transition-all duration-300 ${
           isHovered ? 'translate-y-0 opacity-100' : 'pointer-events-none translate-y-2 opacity-0'
         }`}
       >
@@ -51,19 +51,22 @@ export function WhatsAppFloat() {
         ))}
       </div>
 
-      {/* Main WhatsApp Button */}
-      <button
-        className="flex h-14 w-14 items-center justify-center rounded-full bg-green-500 shadow-lg transition-all hover:scale-110 hover:bg-green-600 hover:shadow-xl"
+      {/* Main WhatsApp Button - Larger on mobile */}
+      <Link
+        href={`https://wa.me/${contacts[0].number}?text=${message}`}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="flex h-16 w-16 sm:h-14 sm:w-14 items-center justify-center rounded-full bg-green-500 shadow-lg transition-all hover:scale-110 hover:bg-green-600 hover:shadow-xl"
         aria-label="Contact us on WhatsApp"
       >
         <Image
           src="/whatsapp.svg"
           alt="WhatsApp"
-          width={32}
-          height={32}
-          className="h-8 w-8"
+          width={36}
+          height={36}
+          className="h-9 w-9 sm:h-8 sm:w-8"
         />
-      </button>
+      </Link>
     </div>
   )
 }

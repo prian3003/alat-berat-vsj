@@ -7,7 +7,7 @@ import { motion } from 'framer-motion'
 
 export function HeroSection() {
   return (
-    <section className="relative overflow-hidden bg-gradient-to-b from-slate-50 to-white py-20 sm:py-32 rounded-b-[4rem]">
+    <section className="relative bg-gradient-to-b from-slate-50 to-white py-20 sm:py-32 rounded-b-[4rem] overflow-x-hidden">
       {/* Grid Background Pattern */}
       <div className="absolute inset-0 z-0">
         <div
@@ -290,7 +290,7 @@ export function HeroSection() {
 
         {/* Excavator Image - Bottom Left */}
         <motion.div
-          className="absolute -bottom-60 -left-50 w-[500px] h-[500px] sm:w-[450px] sm:h-[450px] lg:w-[550px] lg:h-[550px] pointer-events-none opacity-0 sm:opacity-100"
+          className="hidden sm:block absolute -bottom-60 -left-50 w-[500px] h-[500px] sm:w-[450px] sm:h-[450px] lg:w-[550px] lg:h-[550px] pointer-events-none"
           initial={{ opacity: 0, x: -100, y: 50 }}
           animate={{ opacity: 1, x: 0, y: 0 }}
           transition={{ duration: 1, delay: 0.5, ease: [0.22, 1, 0.36, 1] }}
