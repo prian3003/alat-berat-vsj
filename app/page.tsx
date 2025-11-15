@@ -2,6 +2,7 @@ import { Navbar } from '@/components/shared/navbar'
 import { Footer } from '@/components/shared/footer'
 import { WhatsAppFloat } from '@/components/shared/whatsapp-float'
 import { HeroSection } from '@/components/landing/hero-section'
+import { StatsSection } from '@/components/landing/stats-section'
 import { EquipmentList } from '@/components/landing/equipment-list'
 
 export default function Home() {
@@ -11,6 +12,7 @@ export default function Home() {
       <WhatsAppFloat />
       <main>
         <HeroSection />
+        <StatsSection />
         <EquipmentList />
 
         {/* About Section */}
