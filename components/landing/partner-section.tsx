@@ -37,9 +37,7 @@ export function PartnerSection() {
           <h2 className="text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">
             Partner Terpercaya Kami
           </h2>
-          <p className="mt-4 text-lg text-slate-600">
-            Dipercaya oleh perusahaan-perusahaan terkemuka di Bali
-          </p>
+
         </motion.div>
 
         {/* Infinite Scrolling Logo Container */}

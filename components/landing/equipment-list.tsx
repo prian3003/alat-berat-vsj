@@ -48,7 +48,7 @@ export function EquipmentList() {
           </h2>
           <p className="mx-auto mt-4 max-w-2xl text-lg text-slate-600">
             Pilih dari berbagai jenis <strong>alat berat berkualitas</strong> untuk proyek konstruksi di Bali.
-            Excavator, bulldozer, crane, loader, dan dump truck tersedia dengan <strong>harga per jam terjangkau</strong>.
+            Excavator, bulldozer, loader, dan dump truck tersedia dengan <strong>harga per jam terjangkau</strong>.
           </p>
         </div>
 
