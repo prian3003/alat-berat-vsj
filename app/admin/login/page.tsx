@@ -51,10 +51,8 @@ export default function LoginPage() {
       <div className="w-full max-w-md">
         <div className="mb-8 text-center">
           <Link href="/" className="inline-flex items-center space-x-2">
-            <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-gradient-to-br from-orange-500 to-yellow-500">
-              <span className="text-2xl font-bold text-white">AB</span>
-            </div>
-            <span className="text-2xl font-bold text-slate-900">AlatBerat</span>
+          
+            <span className="text-2xl font-bold text-slate-900">VSJ</span>
           </Link>
         </div>
 

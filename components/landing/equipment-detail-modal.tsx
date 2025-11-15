@@ -47,12 +47,12 @@ export function EquipmentDetailModal({ equipment, open, onOpenChange }: Equipmen
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[90vh] max-w-4xl overflow-y-auto">
+      <DialogContent className="max-h-[90vh] max-w-4xl overflow-y-auto" aria-describedby="equipment-description">
         <DialogHeader>
           <DialogTitle className="text-2xl">{equipment.name}</DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-6">
+        <div className="space-y-6" id="equipment-description">
           {/* Image Gallery */}
           {hasValidImage && (
             <div className="relative">
@@ -63,7 +63,7 @@ export function EquipmentDetailModal({ equipment, open, onOpenChange }: Equipmen
                   fill
                   className="object-cover"
                   priority
-                  quality={90}
+                  quality={75}
                   sizes="(max-width: 768px) 100vw, 1200px"
                 />
               </div>

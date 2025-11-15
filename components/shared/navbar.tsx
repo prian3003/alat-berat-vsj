@@ -53,7 +53,8 @@ export function Navbar() {
                 alt="AlatBerat Logo"
                 width={220}
                 height={250}
-                className="h-25 w-auto"
+                className="h-20"
+                style={{ width: 'auto', height: '80px' }}
               />
             </Link>
           </div>
