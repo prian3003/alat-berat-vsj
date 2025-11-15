@@ -141,9 +141,9 @@ export function HeroSection() {
             Harga kompetitif, tarif per jam, layanan 24/7 siap mendukung proyek konstruksi Anda.
           </motion.p>
 
-          {/* SEO Keywords Section - Simplified */}
+          {/* SEO Keywords Section - Simplified - Hidden on mobile */}
           <motion.div
-            className="mt-8 flex flex-wrap items-center justify-center gap-3"
+            className="mt-8 hidden sm:flex flex-wrap items-center justify-center gap-3"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.6, delay: 0.4 }}

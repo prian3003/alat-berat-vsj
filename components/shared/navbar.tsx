@@ -92,6 +92,16 @@ export function Navbar() {
               Tentang Kami
             </Link>
             <Link
+              href="/blog"
+              className={`text-sm font-medium transition-colors ${
+                isScrolled
+                  ? 'text-slate-700 hover:text-slate-900'
+                  : 'text-slate-800 hover:text-slate-900'
+              }`}
+            >
+              Blog
+            </Link>
+            <Link
               href="/#contact"
               className={`text-sm font-medium transition-colors ${
                 isScrolled
@@ -162,6 +172,12 @@ export function Navbar() {
               className="block rounded-md px-3 py-2 text-base font-medium text-slate-700 hover:bg-slate-50"
             >
               Tentang Kami
+            </Link>
+            <Link
+              href="/blog"
+              className="block rounded-md px-3 py-2 text-base font-medium text-slate-700 hover:bg-slate-50"
+            >
+              Blog
             </Link>
             <Link
               href="/#contact"

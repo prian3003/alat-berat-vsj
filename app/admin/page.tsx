@@ -94,7 +94,7 @@ export default function AdminPage() {
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-2xl font-bold text-slate-900">Admin Dashboard</h1>
-              <p className="text-sm text-slate-600">Kelola alat berat Anda</p>
+              <p className="text-sm text-slate-600">Kelola alat berat dan konten website</p>
             </div>
             <div className="flex gap-2">
               <Button asChild variant="outline">
@@ -105,6 +105,24 @@ export default function AdminPage() {
               </Button>
             </div>
           </div>
+        </div>
+
+        {/* Navigation Tabs */}
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <nav className="flex gap-4 border-b">
+            <Link
+              href="/admin"
+              className="border-b-2 border-orange-600 px-4 py-3 text-sm font-medium text-orange-600"
+            >
+              Alat Berat
+            </Link>
+            <Link
+              href="/admin/blog"
+              className="border-b-2 border-transparent px-4 py-3 text-sm font-medium text-slate-600 hover:border-slate-300 hover:text-slate-900"
+            >
+              Blog
+            </Link>
+          </nav>
         </div>
       </header>
 

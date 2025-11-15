@@ -16,11 +16,11 @@ export function Footer() {
                 alt="AlatBerat Logo"
                 width={120}
                 height={40}
-                className="h-10 w-auto"
+                className="h-20  w-40"
               />
             </div>
             <p className="mt-4 text-sm text-slate-600">
-              Penyedia layanan sewa alat berat terpercaya dengan pengalaman bertahun-tahun
+              Vania Sugiarta Jaya layanan sewa alat berat terpercaya dengan pengalaman bertahun-tahun
               dalam mendukung proyek konstruksi di seluruh Indonesia.
             </p>
           </div>
@@ -65,15 +65,15 @@ export function Footer() {
             </h3>
             <ul className="mt-4 space-y-3 text-sm text-slate-600">
               <li>Email: info@alatberat.com</li>
-              <li>Telp: +62 21 1234 5678</li>
-              <li>WhatsApp: +62 812 3456 7890</li>
+              <li>Whatsapp Admin: +6285813718988</li>
+              <li>Whatsapp Owner: +6281234567890</li>
             </ul>
           </div>
         </div>
 
         <div className="mt-8 border-t pt-8">
           <p className="text-center text-sm text-slate-600">
-            &copy; {currentYear} AlatBerat. Semua hak dilindungi.
+            &copy; {currentYear} VaniaSugiartaJaya.com Semua hak dilindungi.
           </p>
         </div>
       </div>

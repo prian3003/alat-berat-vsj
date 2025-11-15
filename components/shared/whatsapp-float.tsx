@@ -42,12 +42,12 @@ export function WhatsAppFloat() {
       ref={containerRef}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
-      className="fixed bottom-6 right-6 z-50 sm:bottom-4 sm:right-4"
+      className="fixed bottom-6 right-6 z-50 sm:bottom-4 sm:right-4 flex flex-col items-end"
     >
       {/* Contact Options - Mobile: Click to toggle, Desktop: Show on Hover */}
       <div
         className={`mb-3 flex flex-col gap-2 transition-all duration-300 ${
-          isMobileMenuOpen || isHovered ? 'translate-y-0 opacity-100' : 'pointer-events-none translate-y-2 opacity-0'
+          isMobileMenuOpen || isHovered ? 'translate-y-0 opacity-100 visible' : 'pointer-events-none translate-y-2 opacity-0 invisible'
         }`}
       >
         {contacts.map((contact) => (
@@ -57,7 +57,7 @@ export function WhatsAppFloat() {
             target="_blank"
             rel="noopener noreferrer"
             onClick={() => setIsMobileMenuOpen(false)}
-            className="flex items-center gap-3 rounded-full bg-white px-4 py-2 shadow-md transition-all hover:shadow-lg"
+            className="flex items-center gap-2 rounded-full bg-white px-3 py-2 shadow-lg transition-all hover:shadow-xl whitespace-nowrap sm:gap-3 sm:px-4"
           >
             <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-green-500">
               <Image
@@ -68,7 +68,7 @@ export function WhatsAppFloat() {
                 className="h-6 w-6"
               />
             </div>
-            <div className="pr-2">
+            <div className="pr-1 sm:pr-2">
               <p className="text-sm font-semibold text-slate-900">{contact.name}</p>
               <p className="text-xs text-slate-600">Chat via WhatsApp</p>
             </div>
@@ -103,7 +103,7 @@ export function WhatsAppFloat() {
         <Image
           src="/whatsapp.svg"
           alt="WhatsApp"
-          width={32}
+          width={62}
           height={32}
           className="h-8 w-8"
         />
