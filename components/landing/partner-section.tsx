@@ -46,13 +46,13 @@ export function PartnerSection() {
                   key={`first-${partner.id}-${index}`}
                   className="flex-shrink-0 mx-12 transition-transform duration-300 hover:scale-110"
                 >
-                  <div className="relative h-32 w-56 flex items-center justify-center">
+                  <div className="relative h-40 w-80 flex items-center justify-center">
                     <Image
                       src={partner.logo}
                       alt={partner.name}
                       fill
                       className="object-contain"
-                      sizes="224px"
+                      sizes="320px"
                     />
                   </div>
                 </div>
@@ -63,13 +63,13 @@ export function PartnerSection() {
                   key={`second-${partner.id}-${index}`}
                   className="flex-shrink-0 mx-12 transition-transform duration-300 hover:scale-110"
                 >
-                  <div className="relative h-32 w-56 flex items-center justify-center">
+                  <div className="relative h-40 w-80 flex items-center justify-center">
                     <Image
                       src={partner.logo}
                       alt={partner.name}
                       fill
                       className="object-contain"
-                      sizes="224px"
+                      sizes="320px"
                     />
                   </div>
                 </div>
