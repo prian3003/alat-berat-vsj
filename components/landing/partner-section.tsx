@@ -14,8 +14,19 @@ const partners = [
 
 export function PartnerSection() {
   return (
-    <section className="relative overflow-hidden bg-gradient-to-b from-white to-slate-50 py-16 sm:py-20">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    <section className="relative overflow-hidden bg-gradient-to-b from-slate-50 to-white py-16 sm:py-20">
+      {/* Grid Background Pattern - Subtle */}
+      <div className="absolute inset-0 z-0 opacity-30">
+        <div
+          className="absolute inset-0"
+          style={{
+            backgroundImage: 'linear-gradient(to right, #e2e8f0 1px, transparent 1px), linear-gradient(to bottom, #e2e8f0 1px, transparent 1px)',
+            backgroundSize: '20px 30px',
+          }}
+        />
+      </div>
+
+      <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <motion.div
           className="text-center mb-12"
           initial={{ opacity: 0, y: 20 }}
@@ -34,8 +45,8 @@ export function PartnerSection() {
         {/* Infinite Scrolling Logo Container */}
         <div className="relative">
           {/* Gradient Overlays */}
-          <div className="absolute left-0 top-0 bottom-0 w-32 bg-gradient-to-r from-white to-transparent z-10" />
-          <div className="absolute right-0 top-0 bottom-0 w-32 bg-gradient-to-l from-slate-50 to-transparent z-10" />
+          <div className="absolute left-0 top-0 bottom-0 w-32 bg-gradient-to-r from-slate-50 to-transparent z-10" />
+          <div className="absolute right-0 top-0 bottom-0 w-32 bg-gradient-to-l from-white to-transparent z-10" />
 
           {/* Scrolling Container */}
           <div className="overflow-hidden py-8">
