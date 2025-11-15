@@ -15,6 +15,9 @@ interface BlogPostFormProps {
 export function BlogPostForm({ post, onSuccess, onCancel }: BlogPostFormProps) {
   const [loading, setLoading] = useState(false)
   const [uploading, setUploading] = useState(false)
+  const [imageInputType, setImageInputType] = useState<'upload' | 'url'>('upload')
+  const [imageError, setImageError] = useState<string | null>(null)
+  const [imageLoading, setImageLoading] = useState(false)
   const supabase = createClient()
   const [formData, setFormData] = useState({
     title: post?.title || '',
@@ -44,11 +47,58 @@ export function BlogPostForm({ post, onSuccess, onCancel }: BlogPostFormProps) {
     }))
   }
 
+  const validateImageUrl = async (url: string) => {
+    if (!url) {
+      setImageError(null)
+      return
+    }
+
+    // Basic URL validation
+    try {
+      new URL(url)
+    } catch {
+      setImageError('URL tidak valid')
+      return
+    }
+
+    // Check if URL points to an image
+    setImageLoading(true)
+    setImageError(null)
+
+    try {
+      const response = await fetch(url, { method: 'HEAD' })
+      const contentType = response.headers.get('content-type')
+
+      if (!contentType?.startsWith('image/')) {
+        setImageError('URL bukan gambar yang valid')
+        return
+      }
+
+      setImageError(null)
+    } catch (error) {
+      setImageError('Tidak dapat memuat gambar dari URL ini')
+    } finally {
+      setImageLoading(false)
+    }
+  }
+
+  const handleImageUrlChange = (url: string) => {
+    setFormData(prev => ({ ...prev, featured_image: url }))
+    if (url) {
+      // Debounce validation
+      const timer = setTimeout(() => validateImageUrl(url), 500)
+      return () => clearTimeout(timer)
+    } else {
+      setImageError(null)
+    }
+  }
+
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
 
     setUploading(true)
+    setImageError(null)
     try {
       // Create form data
       const formData = new FormData()
@@ -69,7 +119,7 @@ export function BlogPostForm({ post, onSuccess, onCancel }: BlogPostFormProps) {
       setFormData(prev => ({ ...prev, featured_image: url }))
     } catch (error) {
       console.error('Error uploading image:', error)
-      alert('Gagal mengunggah gambar')
+      setImageError('Gagal mengunggah gambar')
     } finally {
       setUploading(false)
     }
@@ -77,6 +127,13 @@ export function BlogPostForm({ post, onSuccess, onCancel }: BlogPostFormProps) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+
+    // Prevent submission if there's an image error
+    if (imageError) {
+      alert('Harap perbaiki error pada gambar sebelum menyimpan')
+      return
+    }
+
     setLoading(true)
 
     try {
@@ -210,17 +267,23 @@ export function BlogPostForm({ post, onSuccess, onCancel }: BlogPostFormProps) {
         <label className="block text-sm font-medium text-slate-700 mb-2">
           Gambar Utama
         </label>
-        {formData.featured_image && (
-          <div className="mb-4 relative aspect-video w-full max-w-md overflow-hidden rounded-lg">
+
+        {/* Image Preview */}
+        {formData.featured_image && !imageError && (
+          <div className="mb-4 relative aspect-video w-full max-w-md overflow-hidden rounded-lg border border-slate-200">
             <Image
               src={formData.featured_image}
               alt="Preview"
               fill
               className="object-cover"
+              onError={() => setImageError('Gagal memuat gambar')}
             />
             <button
               type="button"
-              onClick={() => setFormData(prev => ({ ...prev, featured_image: '' }))}
+              onClick={() => {
+                setFormData(prev => ({ ...prev, featured_image: '' }))
+                setImageError(null)
+              }}
               className="absolute top-2 right-2 rounded-lg bg-red-600 p-2 text-white hover:bg-red-700"
             >
               <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -229,14 +292,94 @@ export function BlogPostForm({ post, onSuccess, onCancel }: BlogPostFormProps) {
             </button>
           </div>
         )}
-        <input
-          type="file"
-          accept="image/*"
-          onChange={handleImageUpload}
-          disabled={uploading}
-          className="block w-full text-sm text-slate-500 file:mr-4 file:rounded-lg file:border-0 file:bg-orange-50 file:px-4 file:py-2 file:text-sm file:font-medium file:text-orange-700 hover:file:bg-orange-100 disabled:opacity-50"
-        />
-        {uploading && <p className="mt-2 text-sm text-orange-600">Mengunggah gambar...</p>}
+
+        {/* Toggle between Upload and URL */}
+        <div className="mb-3 flex gap-2">
+          <button
+            type="button"
+            onClick={() => setImageInputType('upload')}
+            className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
+              imageInputType === 'upload'
+                ? 'bg-orange-600 text-white'
+                : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+            }`}
+          >
+            Upload File
+          </button>
+          <button
+            type="button"
+            onClick={() => setImageInputType('url')}
+            className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
+              imageInputType === 'url'
+                ? 'bg-orange-600 text-white'
+                : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+            }`}
+          >
+            URL Gambar
+          </button>
+        </div>
+
+        {/* Upload File Input */}
+        {imageInputType === 'upload' && (
+          <>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleImageUpload}
+              disabled={uploading}
+              className="block w-full text-sm text-slate-500 file:mr-4 file:rounded-lg file:border-0 file:bg-orange-50 file:px-4 file:py-2 file:text-sm file:font-medium file:text-orange-700 hover:file:bg-orange-100 disabled:opacity-50"
+            />
+            {uploading && <p className="mt-2 text-sm text-orange-600">Mengunggah gambar...</p>}
+          </>
+        )}
+
+        {/* URL Input */}
+        {imageInputType === 'url' && (
+          <div>
+            <input
+              type="url"
+              value={formData.featured_image}
+              onChange={(e) => handleImageUrlChange(e.target.value)}
+              className={`w-full rounded-lg border px-4 py-2 focus:outline-none focus:ring-2 ${
+                imageError
+                  ? 'border-red-300 focus:border-red-500 focus:ring-red-500/20'
+                  : 'border-slate-300 focus:border-orange-500 focus:ring-orange-500/20'
+              }`}
+              placeholder="https://example.com/image.jpg"
+            />
+            {imageLoading && (
+              <p className="mt-2 text-sm text-slate-600">
+                Memvalidasi URL gambar...
+              </p>
+            )}
+            {imageError && (
+              <p className="mt-2 text-sm text-red-600 flex items-center gap-1">
+                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                {imageError}
+              </p>
+            )}
+            {formData.featured_image && !imageError && !imageLoading && (
+              <p className="mt-2 text-sm text-green-600 flex items-center gap-1">
+                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                URL gambar valid
+              </p>
+            )}
+          </div>
+        )}
+
+        {/* Upload error message */}
+        {imageInputType === 'upload' && imageError && (
+          <p className="mt-2 text-sm text-red-600 flex items-center gap-1">
+            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            {imageError}
+          </p>
+        )}
       </div>
 
       <div className="grid gap-6 sm:grid-cols-2">

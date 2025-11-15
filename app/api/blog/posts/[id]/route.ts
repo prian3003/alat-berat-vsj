@@ -19,7 +19,7 @@ const getSupabaseAdmin = () => {
 // PATCH - Update blog post
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     // Check authentication
@@ -33,6 +33,9 @@ export async function PATCH(
       return NextResponse.json({ error: 'Invalid token' }, { status: 401 })
     }
 
+    // Await params Promise
+    const { id } = await params
+
     // Get request body
     const body = await request.json()
 
@@ -42,7 +45,7 @@ export async function PATCH(
     const { data, error } = await supabase
       .from('blog_posts')
       .update(body)
-      .eq('id', params.id)
+      .eq('id', id)
       .select()
       .single()
 
@@ -61,7 +64,7 @@ export async function PATCH(
 // DELETE - Delete blog post
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     // Check authentication
@@ -75,13 +78,16 @@ export async function DELETE(
       return NextResponse.json({ error: 'Invalid token' }, { status: 401 })
     }
 
+    // Await params Promise
+    const { id } = await params
+
     const supabase = getSupabaseAdmin()
 
     // Delete blog post
     const { error } = await supabase
       .from('blog_posts')
       .delete()
-      .eq('id', params.id)
+      .eq('id', id)
 
     if (error) {
       console.error('Delete error:', error)

@@ -3,227 +3,345 @@
 import { BlogPost } from '@/types'
 import Image from 'next/image'
 import Link from 'next/link'
-import { motion } from 'framer-motion'
+import { useEffect, useState, useCallback, useRef } from 'react'
 
 interface BlogPostDetailProps {
   post: BlogPost
 }
 
+interface TocItem {
+  id: string
+  text: string
+  level: number
+}
+
 export function BlogPostDetail({ post }: BlogPostDetailProps) {
+  const shareUrl = typeof window !== 'undefined' ? window.location.href : ''
+  const shareText = post.title
+  const [toc, setToc] = useState<TocItem[]>([])
+  const [activeId, setActiveId] = useState<string>('')
+
+  // Store heading texts and indices for mapping
+  const headingTextsRef = useRef<Map<string, string>>(new Map())
+
+  // Extract table of contents from HTML content
+  useEffect(() => {
+    const contentElement = document.querySelector('.blog-content')
+
+    if (!contentElement) {
+      return
+    }
+
+    const actualHeadings = contentElement.querySelectorAll('h1, h2, h3, h4')
+
+    const tocItems: TocItem[] = []
+    headingTextsRef.current.clear()
+    let tocIndex = 0
+
+    // Extract headings and store their cleaned text
+    actualHeadings.forEach((heading) => {
+      if (heading.textContent && heading.textContent.trim().length > 0) {
+        const id = `heading-${tocIndex}`
+        const level = parseInt((heading as HTMLElement).tagName.substring(1))
+
+        // Remove numbers like "1.", "2.", "1.2.3", etc. from the beginning
+        let text = heading.textContent
+        text = text.replace(/^[\d.]+\s*[\.)]\s*/, '').trim()
+
+        // Store cleaned text for later lookup
+        headingTextsRef.current.set(id, text)
+
+        tocItems.push({
+          id,
+          text,
+          level
+        })
+
+        tocIndex++
+      }
+    })
+
+    setToc(tocItems)
+  }, [post.content])
+
+
+  const scrollToHeading = useCallback((id: string) => {
+    console.log('scrollToHeading called with id:', id)
+
+    const contentElement = document.querySelector('.blog-content')
+    if (!contentElement) {
+      console.log('Content element not found')
+      return
+    }
+
+    // Get the cleaned text to search for
+    const cleanedText = headingTextsRef.current.get(id)
+    console.log('Looking for text:', cleanedText)
+
+    if (!cleanedText) {
+      console.log('Cleaned text not found for id:', id)
+      return
+    }
+
+    // Find heading by matching cleaned text
+    const headings = contentElement.querySelectorAll('h1, h2, h3, h4')
+    let targetHeading: Element | null = null
+
+    for (let i = 0; i < headings.length; i++) {
+      const heading = headings[i]
+      let headingText = heading.textContent || ''
+      headingText = headingText.replace(/^[\d.]+\s*[\.)]\s*/, '').trim()
+
+      if (headingText === cleanedText) {
+        targetHeading = heading
+        break
+      }
+    }
+
+    console.log('Target heading found:', !!targetHeading)
+
+    if (targetHeading) {
+      // Get position from current DOM element
+      const rect = (targetHeading as HTMLElement).getBoundingClientRect()
+      const scrollTop = window.scrollY + rect.top
+      const navbarHeight = 120
+      const targetScroll = scrollTop - navbarHeight
+
+      console.log('BoundingClientRect.top:', rect.top)
+      console.log('Current window.scrollY:', window.scrollY)
+      console.log('Calculated scrollTop:', scrollTop)
+      console.log('Target scroll position:', targetScroll)
+
+      window.scrollTo({
+        top: Math.max(0, targetScroll),
+        behavior: 'smooth'
+      })
+    }
+  }, [])
+
   return (
-    <article className="relative py-8 sm:py-16">
-      {/* Background Decoration */}
-      <div className="absolute inset-0 -z-10 overflow-hidden">
-        <div className="absolute left-1/2 top-0 -z-10 -translate-x-1/2 blur-3xl xl:-top-6" aria-hidden="true">
-          <div
-            className="aspect-[1155/678] w-[72.1875rem] bg-gradient-to-tr from-orange-100 to-blue-100 opacity-30"
-            style={{
-              clipPath:
-                'polygon(74.1% 44.1%, 100% 61.6%, 97.5% 26.9%, 85.5% 0.1%, 80.7% 2%, 72.5% 32.5%, 60.2% 62.4%, 52.4% 68.1%, 47.5% 58.3%, 45.2% 34.5%, 27.5% 76.7%, 0.1% 64.9%, 17.9% 100%, 27.6% 76.8%, 76.1% 97.7%, 74.1% 44.1%)',
-            }}
-          />
-        </div>
-      </div>
-
-      <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
+    <article className="bg-white py-12">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* Back Button */}
-        <motion.div
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.3 }}
+        <Link
+          href="/blog"
+          className="inline-flex items-center gap-2 text-sm text-slate-600 hover:text-orange-600 transition-colors mb-8"
         >
-          <Link
-            href="/blog"
-            className="group inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium text-slate-600 transition-all hover:bg-slate-100 hover:text-orange-600"
-          >
-            <svg className="h-4 w-4 transition-transform group-hover:-translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-            </svg>
-            Kembali ke Blog
-          </Link>
-        </motion.div>
+          <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+          </svg>
+          Kembali ke Blog
+        </Link>
 
-        {/* Header */}
-        <motion.header
-          className="mb-10 sm:mb-12"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.1 }}
-        >
-          {/* Tags */}
-          {post.tags && post.tags.length > 0 && (
-            <div className="mb-6 flex flex-wrap gap-2">
-              {post.tags.map(tag => (
-                <motion.span
-                  key={tag}
-                  className="inline-flex items-center rounded-full bg-gradient-to-r from-orange-100 to-red-100 px-4 py-1.5 text-xs font-semibold text-orange-700 ring-1 ring-inset ring-orange-600/20"
-                  whileHover={{ scale: 1.05 }}
-                  transition={{ duration: 0.2 }}
-                >
-                  {tag}
-                </motion.span>
-              ))}
-            </div>
+        {/* Main Content with Sidebar Layout */}
+        <div className="lg:grid lg:grid-cols-12 lg:gap-8">
+          {/* Table of Contents - Sidebar (Hidden on mobile) */}
+          {toc.length > 0 && (
+            <aside className="hidden lg:block lg:col-span-3">
+              <div className="sticky top-24 max-h-[calc(100vh-120px)] overflow-y-auto pr-2">
+                <div className="rounded-lg bg-slate-50 p-2.5">
+                  <h4 className="mb-2 flex items-center gap-1.5 text-xs font-semibold text-slate-900">
+                    <svg className="h-3 w-3 flex-shrink-0 text-orange-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                    </svg>
+                    Daftar Isi
+                  </h4>
+                  <nav className="space-y-0">
+                    {toc.map((item) => (
+                      <button
+                        key={item.id}
+                        onClick={() => {
+                          setActiveId(item.id)
+                          scrollToHeading(item.id)
+                        }}
+                        className={`group relative block w-full text-left text-xs transition-all duration-200 ${
+                          item.level === 3 ? 'pl-4' : 'pl-0'
+                        } ${
+                          activeId === item.id
+                            ? 'font-semibold text-orange-600'
+                            : 'text-slate-600 hover:text-slate-900'
+                        }`}
+                      >
+                        <span className={`block py-1 pl-2 border-l-2 transition-all duration-200 truncate ${
+                          activeId === item.id
+                            ? 'border-orange-600 bg-orange-50/50'
+                            : 'border-transparent hover:border-slate-300 hover:bg-white/50'
+                        }`}>
+                          {item.text}
+                        </span>
+                      </button>
+                    ))}
+                  </nav>
+                </div>
+              </div>
+            </aside>
           )}
 
-          {/* Title */}
-          <h1 className="mb-6 bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-4xl font-extrabold tracking-tight text-transparent sm:text-5xl lg:text-6xl">
-            {post.title}
-          </h1>
+          {/* Article Container */}
+          <div className="lg:col-span-9">
+            <div className="mx-auto max-w-3xl">
+              {/* Header */}
+              <header className="mb-10">
+                {/* Tags */}
+                {post.tags && post.tags.length > 0 && (
+                  <div className="mb-4 flex flex-wrap gap-2">
+                    {post.tags.map(tag => (
+                      <span
+                        key={tag}
+                        className="rounded-full bg-orange-50 px-3 py-1 text-xs font-medium text-orange-700"
+                      >
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                )}
 
-          {/* Excerpt */}
-          <p className="mb-8 text-xl leading-relaxed text-slate-600 sm:text-2xl">
-            {post.excerpt}
-          </p>
+                {/* Title */}
+                <h1 className="mb-6 text-4xl font-bold leading-tight text-slate-900 sm:text-5xl">
+                  {post.title}
+                </h1>
 
-          {/* Meta Info */}
-          <div className="flex flex-wrap items-center gap-6 rounded-2xl border border-slate-200 bg-gradient-to-br from-slate-50 to-white p-6 text-sm text-slate-600 shadow-sm">
-            <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-orange-100">
-                <svg className="h-5 w-5 text-orange-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                </svg>
-              </div>
-              <div>
-                <p className="text-xs text-slate-500">Penulis</p>
-                <p className="font-semibold text-slate-900">{post.author_name}</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-100">
-                <svg className="h-5 w-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                </svg>
-              </div>
-              <div>
-                <p className="text-xs text-slate-500">Dipublikasi</p>
-                <time className="font-semibold text-slate-900">
-                  {new Date(post.published_at || post.created_at).toLocaleDateString('id-ID', {
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric'
-                  })}
-                </time>
-              </div>
-            </div>
-            <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-green-100">
-                <svg className="h-5 w-5 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              </div>
-              <div>
-                <p className="text-xs text-slate-500">Waktu Baca</p>
-                <p className="font-semibold text-slate-900">{post.reading_time} menit</p>
-              </div>
-            </div>
-          </div>
-        </motion.header>
+                {/* Meta Info */}
+                <div className="flex flex-wrap items-center gap-4 text-sm text-slate-600 border-b border-slate-200 pb-6">
+                  <div className="flex items-center gap-2">
+                    <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                    </svg>
+                    <span>{post.author_name}</span>
+                  </div>
+                  <span className="text-slate-400">•</span>
+                  <time>
+                    {new Date(post.published_at || post.created_at).toLocaleDateString('id-ID', {
+                      year: 'numeric',
+                      month: 'long',
+                      day: 'numeric'
+                    })}
+                  </time>
+                  <span className="text-slate-400">•</span>
+                  <div className="flex items-center gap-2">
+                    <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span>{post.reading_time} menit baca</span>
+                  </div>
+                </div>
+              </header>
 
-        {/* Featured Image */}
-        {post.featured_image && (
-          <motion.div
-            className="group relative mb-12 overflow-hidden rounded-2xl shadow-2xl"
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-          >
-            <div className="relative aspect-[16/9] overflow-hidden bg-slate-100">
-              <Image
-                src={post.featured_image}
-                alt={post.title}
-                fill
-                className="object-cover transition-transform duration-700 group-hover:scale-105"
-                priority
-                sizes="(max-width: 1024px) 100vw, 896px"
+              {/* Featured Image */}
+              {post.featured_image && (
+                <div className="relative mb-12 overflow-hidden rounded-xl">
+                  <div className="relative aspect-[16/9] bg-slate-100">
+                    <Image
+                      src={post.featured_image}
+                      alt={post.title}
+                      fill
+                      className="object-cover"
+                      priority
+                      sizes="(max-width: 1024px) 100vw, 896px"
+                    />
+                  </div>
+                </div>
+              )}
+
+              {/* Content */}
+              <div
+                className="blog-content prose prose-lg max-w-none
+                  prose-headings:scroll-mt-24 prose-headings:font-bold prose-headings:text-slate-900 prose-headings:tracking-tight
+                  prose-h2:mt-20 prose-h2:mb-8 prose-h2:text-4xl prose-h2:font-black prose-h2:leading-tight prose-h2:border-b-2 prose-h2:border-slate-200 prose-h2:pb-4
+                  prose-h3:mt-14 prose-h3:mb-5 prose-h3:text-2xl prose-h3:font-extrabold prose-h3:text-slate-800 prose-h3:leading-snug
+                  prose-h4:mt-10 prose-h4:mb-4 prose-h4:text-xl prose-h4:font-bold prose-h4:text-slate-700
+                  prose-p:mb-7 prose-p:text-lg prose-p:leading-loose prose-p:text-slate-700
+                  prose-a:font-medium prose-a:text-orange-600 prose-a:underline prose-a:decoration-orange-300 prose-a:decoration-2 prose-a:underline-offset-2 hover:prose-a:text-orange-700 hover:prose-a:decoration-orange-500
+                  prose-strong:font-extrabold prose-strong:text-slate-900
+                  prose-em:italic prose-em:text-slate-600
+                  prose-ul:my-8 prose-ul:list-disc prose-ul:space-y-4 prose-ul:pl-8
+                  prose-ol:my-8 prose-ol:list-decimal prose-ol:space-y-4 prose-ol:pl-8
+                  prose-li:text-lg prose-li:leading-loose prose-li:text-slate-700 prose-li:pl-3
+                  prose-li:marker:text-orange-500 prose-li:marker:font-bold
+                  prose-img:my-12 prose-img:rounded-xl prose-img:shadow-2xl
+                  prose-blockquote:my-10 prose-blockquote:border-l-4 prose-blockquote:border-orange-500 prose-blockquote:bg-orange-50/50 prose-blockquote:py-6 prose-blockquote:pl-8 prose-blockquote:pr-6 prose-blockquote:italic prose-blockquote:text-lg prose-blockquote:text-slate-700
+                  prose-code:rounded-md prose-code:bg-slate-100 prose-code:px-2.5 prose-code:py-1 prose-code:text-base prose-code:font-mono prose-code:text-orange-600 prose-code:before:content-[''] prose-code:after:content-['']
+                  prose-pre:my-10 prose-pre:overflow-x-auto prose-pre:rounded-xl prose-pre:bg-slate-900 prose-pre:p-6
+                  [&>p:first-of-type]:text-xl [&>p:first-of-type]:font-medium [&>p:first-of-type]:text-slate-800 [&>p:first-of-type]:leading-loose"
+                dangerouslySetInnerHTML={{ __html: post.content }}
               />
-              {/* Overlay gradient */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
+
+              {/* Share Section */}
+              <div className="mt-16 border-t border-slate-200 pt-10">
+                <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
+                  <h3 className="text-lg font-semibold text-slate-900">
+                    Bagikan Artikel
+                  </h3>
+                  <div className="flex flex-wrap gap-3">
+                    <a
+                      href={`https://wa.me/?text=${encodeURIComponent(`${shareText} - ${shareUrl}`)}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-green-700"
+                    >
+                      <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z" />
+                      </svg>
+                      WhatsApp
+                    </a>
+                    <a
+                      href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700"
+                    >
+                      <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
+                      </svg>
+                      Facebook
+                    </a>
+                    <button
+                      onClick={() => {
+                        if (typeof window !== 'undefined') {
+                          navigator.clipboard.writeText(window.location.href)
+                          alert('Link berhasil disalin!')
+                        }
+                      }}
+                      className="inline-flex items-center gap-2 rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50"
+                    >
+                      <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                      </svg>
+                      Salin Link
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* CTA */}
+              <div className="mt-16 rounded-xl bg-orange-600 p-8 text-center sm:p-10">
+                <h3 className="mb-3 text-2xl font-bold text-white sm:text-3xl">
+                  Butuh Alat Berat untuk Proyek Anda?
+                </h3>
+                <p className="mb-8 text-lg text-white/90">
+                  Hubungi kami untuk konsultasi dan penawaran terbaik sewa alat berat di Bali.
+                </p>
+                <div className="flex flex-col gap-4 sm:flex-row sm:justify-center">
+                  <Link
+                    href="/#contact"
+                    className="inline-flex items-center justify-center gap-2 rounded-lg bg-white px-6 py-3 font-semibold text-orange-600 transition-colors hover:bg-slate-50"
+                  >
+                    Hubungi Kami
+                    <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                    </svg>
+                  </Link>
+                  <Link
+                    href="/#equipment"
+                    className="inline-flex items-center justify-center gap-2 rounded-lg border-2 border-white px-6 py-3 font-semibold text-white transition-colors hover:bg-white/10"
+                  >
+                    Lihat Katalog
+                  </Link>
+                </div>
+              </div>
             </div>
-          </motion.div>
-        )}
-
-        {/* Content */}
-        <motion.div
-          className="prose prose-lg prose-slate max-w-none
-            prose-headings:font-bold prose-headings:tracking-tight prose-headings:text-slate-900
-            prose-h2:mt-12 prose-h2:text-3xl prose-h2:border-b prose-h2:border-slate-200 prose-h2:pb-3
-            prose-h3:mt-8 prose-h3:text-2xl
-            prose-p:text-slate-600 prose-p:leading-relaxed
-            prose-a:font-semibold prose-a:text-orange-600 prose-a:no-underline hover:prose-a:underline prose-a:transition-colors
-            prose-strong:font-semibold prose-strong:text-slate-900
-            prose-img:rounded-xl prose-img:shadow-lg
-            prose-blockquote:border-l-4 prose-blockquote:border-orange-500 prose-blockquote:bg-orange-50 prose-blockquote:py-1 prose-blockquote:px-6 prose-blockquote:italic prose-blockquote:text-slate-700
-            prose-code:rounded prose-code:bg-slate-100 prose-code:px-2 prose-code:py-1 prose-code:text-sm prose-code:text-orange-600 prose-code:font-mono
-            prose-pre:rounded-xl prose-pre:bg-slate-900 prose-pre:shadow-xl
-            prose-ul:my-6 prose-ul:list-disc prose-ul:pl-6
-            prose-ol:my-6 prose-ol:list-decimal prose-ol:pl-6
-            prose-li:my-2 prose-li:text-slate-600"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.5, delay: 0.3 }}
-          dangerouslySetInnerHTML={{ __html: post.content }}
-        />
-
-        {/* Share Section */}
-        <motion.div
-          className="mt-12 pt-8 border-t border-slate-200"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.5, delay: 0.6 }}
-        >
-          <h3 className="mb-4 text-lg font-semibold text-slate-900">
-            Bagikan Artikel
-          </h3>
-          <div className="flex gap-3">
-            <a
-              href={`https://wa.me/?text=${encodeURIComponent(`${post.title} - ${window.location.href}`)}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-green-700"
-            >
-              <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z" />
-              </svg>
-              WhatsApp
-            </a>
-            <a
-              href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location.href)}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700"
-            >
-              <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
-              </svg>
-              Facebook
-            </a>
           </div>
-        </motion.div>
-
-        {/* CTA */}
-        <motion.div
-          className="mt-12 rounded-2xl bg-gradient-to-r from-orange-50 to-red-50 p-8 text-center"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.8 }}
-        >
-          <h3 className="mb-3 text-2xl font-bold text-slate-900">
-            Butuh Alat Berat untuk Proyek Anda?
-          </h3>
-          <p className="mb-6 text-slate-600">
-            Hubungi kami sekarang untuk konsultasi gratis dan penawaran terbaik sewa alat berat di Bali.
-          </p>
-          <Link
-            href="/#contact"
-            className="inline-flex items-center gap-2 rounded-lg bg-orange-600 px-6 py-3 text-base font-medium text-white transition-colors hover:bg-orange-700"
-          >
-            Hubungi Kami Sekarang
-            <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-            </svg>
-          </Link>
-        </motion.div>
+        </div>
       </div>
     </article>
   )

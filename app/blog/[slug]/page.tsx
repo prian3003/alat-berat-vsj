@@ -1,57 +1,80 @@
+'use client'
+
+import { useEffect, useState } from 'react'
+import { useParams } from 'next/navigation'
 import { Navbar } from '@/components/shared/navbar'
 import { Footer } from '@/components/shared/footer'
 import { WhatsAppFloat } from '@/components/shared/whatsapp-float'
 import { BlogPostDetail } from '@/components/blog/blog-post-detail'
-import { createClient } from '@/lib/supabase/client'
-import { notFound } from 'next/navigation'
+import { BlogPost } from '@/types'
 
-interface BlogPostPageProps {
-  params: {
-    slug: string
-  }
-}
+export default function BlogPostPage() {
+  const params = useParams()
+  const slug = params?.slug as string
+  const [post, setPost] = useState<BlogPost | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(false)
 
-async function getBlogPost(slug: string) {
-  const supabase = createClient()
-  const { data, error } = await supabase
-    .from('blog_posts')
-    .select('*')
-    .eq('slug', slug)
-    .eq('published', true)
-    .single()
+  useEffect(() => {
+    if (!slug) return
 
-  if (error || !data) {
-    return null
-  }
+    const fetchPost = async () => {
+      try {
+        const response = await fetch(`/api/blog/public/${slug}`)
 
-  return data
-}
+        if (!response.ok) {
+          setError(true)
+          setLoading(false)
+          return
+        }
 
-export async function generateMetadata({ params }: BlogPostPageProps) {
-  const post = await getBlogPost(params.slug)
-
-  if (!post) {
-    return {
-      title: 'Post Not Found',
+        const { data } = await response.json()
+        setPost(data)
+      } catch (err) {
+        console.error('Error fetching post:', err)
+        setError(true)
+      } finally {
+        setLoading(false)
+      }
     }
+
+    fetchPost()
+  }, [slug])
+
+  if (loading) {
+    return (
+      <div className="min-h-screen">
+        <Navbar />
+        <div className="flex min-h-screen items-center justify-center">
+          <div className="text-center">
+            <div className="mb-4 inline-block h-12 w-12 animate-spin rounded-full border-4 border-orange-600 border-t-transparent"></div>
+            <p className="text-slate-600">Memuat artikel...</p>
+          </div>
+        </div>
+        <Footer />
+      </div>
+    )
   }
 
-  return {
-    title: `${post.title} - Blog VSJ Sewa Alat Berat Bali`,
-    description: post.excerpt,
-    openGraph: {
-      title: post.title,
-      description: post.excerpt,
-      images: post.featured_image ? [post.featured_image] : [],
-    },
-  }
-}
-
-export default async function BlogPostPage({ params }: BlogPostPageProps) {
-  const post = await getBlogPost(params.slug)
-
-  if (!post) {
-    notFound()
+  if (error || !post) {
+    return (
+      <div className="min-h-screen">
+        <Navbar />
+        <div className="flex min-h-screen items-center justify-center">
+          <div className="text-center">
+            <h1 className="mb-4 text-4xl font-bold text-slate-900">404</h1>
+            <p className="mb-8 text-lg text-slate-600">Artikel tidak ditemukan</p>
+            <a
+              href="/blog"
+              className="inline-flex items-center gap-2 rounded-lg bg-orange-600 px-6 py-3 text-white transition-colors hover:bg-orange-700"
+            >
+              Kembali ke Blog
+            </a>
+          </div>
+        </div>
+        <Footer />
+      </div>
+    )
   }
 
   return (
