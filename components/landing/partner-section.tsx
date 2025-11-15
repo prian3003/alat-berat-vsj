@@ -1,0 +1,102 @@
+'use client'
+
+import Image from 'next/image'
+import { motion } from 'framer-motion'
+
+const partners = [
+  { id: 1, name: 'Partner 1', logo: '/partner1.png' },
+  { id: 2, name: 'Partner 2', logo: '/partner2.png' },
+  { id: 3, name: 'Partner 1', logo: '/partner1.png' },
+  { id: 4, name: 'Partner 2', logo: '/partner2.png' },
+  { id: 5, name: 'Partner 1', logo: '/partner1.png' },
+  { id: 6, name: 'Partner 2', logo: '/partner2.png' },
+]
+
+export function PartnerSection() {
+  return (
+    <section className="relative overflow-hidden bg-gradient-to-b from-white to-slate-50 py-16 sm:py-20">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <motion.div
+          className="text-center mb-12"
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+        >
+          <h2 className="text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">
+            Partner Terpercaya Kami
+          </h2>
+          <p className="mt-4 text-lg text-slate-600">
+            Dipercaya oleh perusahaan-perusahaan terkemuka di Bali
+          </p>
+        </motion.div>
+
+        {/* Infinite Scrolling Logo Container */}
+        <div className="relative">
+          {/* Gradient Overlays */}
+          <div className="absolute left-0 top-0 bottom-0 w-32 bg-gradient-to-r from-white to-transparent z-10" />
+          <div className="absolute right-0 top-0 bottom-0 w-32 bg-gradient-to-l from-slate-50 to-transparent z-10" />
+
+          {/* Scrolling Container */}
+          <div className="overflow-hidden py-8">
+            <div className="flex animate-scroll">
+              {/* First set */}
+              {partners.map((partner, index) => (
+                <div
+                  key={`first-${partner.id}-${index}`}
+                  className="flex-shrink-0 mx-8 grayscale hover:grayscale-0 transition-all duration-300"
+                >
+                  <div className="relative h-24 w-40 flex items-center justify-center">
+                    <Image
+                      src={partner.logo}
+                      alt={partner.name}
+                      fill
+                      className="object-contain opacity-70 hover:opacity-100 transition-opacity"
+                      sizes="160px"
+                    />
+                  </div>
+                </div>
+              ))}
+              {/* Duplicate set for seamless loop */}
+              {partners.map((partner, index) => (
+                <div
+                  key={`second-${partner.id}-${index}`}
+                  className="flex-shrink-0 mx-8 grayscale hover:grayscale-0 transition-all duration-300"
+                >
+                  <div className="relative h-24 w-40 flex items-center justify-center">
+                    <Image
+                      src={partner.logo}
+                      alt={partner.name}
+                      fill
+                      className="object-contain opacity-70 hover:opacity-100 transition-opacity"
+                      sizes="160px"
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <style jsx>{`
+        @keyframes scroll {
+          0% {
+            transform: translateX(0);
+          }
+          100% {
+            transform: translateX(-50%);
+          }
+        }
+
+        .animate-scroll {
+          animation: scroll 30s linear infinite;
+        }
+
+        .animate-scroll:hover {
+          animation-play-state: paused;
+        }
+      `}</style>
+    </section>
+  )
+}
