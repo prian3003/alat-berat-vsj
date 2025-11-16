@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { BlogAdmin } from '@/components/blog/blog-admin'
 import Link from 'next/link'
+import { Toaster } from '@/components/ui/toaster'
 
 export default function AdminBlogPage() {
   const router = useRouter()
@@ -94,6 +95,12 @@ export default function AdminBlogPage() {
             >
               Blog
             </Link>
+            <Link
+              href="/admin/gallery"
+              className="border-b-2 border-transparent px-4 py-3 text-sm font-medium text-slate-600 hover:border-slate-300 hover:text-slate-900"
+            >
+              Galeri
+            </Link>
           </nav>
         </div>
       </header>
@@ -102,6 +109,7 @@ export default function AdminBlogPage() {
       <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
         <BlogAdmin />
       </main>
+      <Toaster />
     </div>
   )
 }

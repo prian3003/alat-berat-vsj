@@ -6,8 +6,12 @@ import { createClient } from '@/lib/supabase/client'
 import { BlogPostForm } from './blog-post-form'
 import { Button } from '@/components/ui/button'
 import Image from 'next/image'
+import { useToast } from '@/hooks/use-toast'
+import { useConfirm } from '@/hooks/use-confirm'
 
 export function BlogAdmin() {
+  const { toast } = useToast()
+  const { confirm } = useConfirm()
   const [posts, setPosts] = useState<BlogPost[]>([])
   const [loading, setLoading] = useState(true)
   const [showForm, setShowForm] = useState(false)
@@ -39,13 +43,25 @@ export function BlogAdmin() {
       setPosts(data || [])
     } catch (error) {
       console.error('Error fetching posts:', error)
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Gagal memuat daftar artikel",
+      })
     } finally {
       setLoading(false)
     }
   }
 
-  const handleDelete = async (id: string) => {
-    if (!confirm('Apakah Anda yakin ingin menghapus artikel ini?')) return
+  const handleDelete = async (id: string, title: string) => {
+    const confirmed = await confirm({
+      title: "Hapus Artikel",
+      description: `Apakah Anda yakin ingin menghapus artikel "${title}"? Tindakan ini tidak dapat dibatalkan.`,
+      confirmText: "Hapus",
+      cancelText: "Batal"
+    })
+
+    if (!confirmed) return
 
     try {
       const response = await fetch(`/api/blog/posts/${id}`, {
@@ -54,13 +70,24 @@ export function BlogAdmin() {
       })
 
       if (!response.ok) {
-        throw new Error('Failed to delete post')
+        const data = await response.json()
+        throw new Error(data.error || 'Failed to delete post')
       }
+
+      toast({
+        variant: "success",
+        title: "Berhasil",
+        description: "Artikel berhasil dihapus",
+      })
 
       fetchPosts()
     } catch (error) {
       console.error('Error deleting post:', error)
-      alert('Gagal menghapus artikel')
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: error instanceof Error ? error.message : "Gagal menghapus artikel",
+      })
     }
   }
 
@@ -275,7 +302,7 @@ export function BlogAdmin() {
                       </a>
                     )}
                     <button
-                      onClick={() => handleDelete(post.id)}
+                      onClick={() => handleDelete(post.id, post.title)}
                       className="ml-auto inline-flex items-center gap-1 rounded-lg bg-red-100 px-3 py-2 text-sm font-medium text-red-700 transition-colors hover:bg-red-200"
                     >
                       <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">

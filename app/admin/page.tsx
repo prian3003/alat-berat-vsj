@@ -9,6 +9,7 @@ import { EquipmentTable } from '@/components/dashboard/equipment-table'
 import { EquipmentForm } from '@/components/dashboard/equipment-form'
 import { HeavyEquipmentWithImages } from '@/types'
 import Link from 'next/link'
+import { Toaster } from '@/components/ui/toaster'
 
 export default function AdminPage() {
   const router = useRouter()
@@ -122,6 +123,12 @@ export default function AdminPage() {
             >
               Blog
             </Link>
+            <Link
+              href="/admin/gallery"
+              className="border-b-2 border-transparent px-4 py-3 text-sm font-medium text-slate-600 hover:border-slate-300 hover:text-slate-900"
+            >
+              Galeri
+            </Link>
           </nav>
         </div>
       </header>
@@ -179,6 +186,7 @@ export default function AdminPage() {
           />
         </DialogContent>
       </Dialog>
+      <Toaster />
     </div>
   )
 }

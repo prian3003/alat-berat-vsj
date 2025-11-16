@@ -8,13 +8,16 @@ import Image from 'next/image'
 import { motion } from 'framer-motion'
 
 export function BlogList() {
-  const [posts, setPosts] = useState<BlogPost[]>([])
+  const [allPosts, setAllPosts] = useState<BlogPost[]>([])
   const [loading, setLoading] = useState(true)
   const [selectedTag, setSelectedTag] = useState<string | null>(null)
+  const [currentPage, setCurrentPage] = useState(1)
+  const postsPerPage = 6
   const supabase = createClient()
 
   useEffect(() => {
     fetchPosts()
+    setCurrentPage(1) // Reset to first page when tag changes
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedTag])
 
@@ -34,7 +37,7 @@ export function BlogList() {
       const { data, error } = await query
 
       if (error) throw error
-      setPosts(data || [])
+      setAllPosts(data || [])
     } catch (error) {
       console.error('Error fetching blog posts:', error)
     } finally {
@@ -42,10 +45,21 @@ export function BlogList() {
     }
   }
 
-  // Extract all unique tags
-  const allTags = Array.from(
-    new Set(posts.flatMap(post => post.tags || []))
-  ).sort()
+  // Pagination logic
+  const totalPages = Math.ceil(allPosts.length / postsPerPage)
+  const startIndex = (currentPage - 1) * postsPerPage
+  const endIndex = startIndex + postsPerPage
+  const posts = allPosts.slice(startIndex, endIndex)
+
+  // Extract all unique tags from all posts and limit to top 12
+  const allTagsWithCount = Array.from(
+    new Set(allPosts.flatMap(post => post.tags || []))
+  ).map(tag => ({
+    name: tag,
+    count: allPosts.filter(post => post.tags?.includes(tag)).length
+  })).sort((a, b) => b.count - a.count)
+
+  const allTags = allTagsWithCount.slice(0, 12).map(t => t.name)
 
   if (loading) {
     return (
@@ -184,6 +198,59 @@ export function BlogList() {
                 </Link>
               </motion.article>
             ))}
+          </div>
+        )}
+
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <div className="mt-16 flex items-center justify-center gap-2">
+            {/* Previous Button */}
+            <button
+              onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+              disabled={currentPage === 1}
+              className="flex items-center gap-2 rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50 hover:enabled:bg-slate-50"
+            >
+              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              </svg>
+              Sebelumnya
+            </button>
+
+            {/* Page Numbers */}
+            <div className="flex gap-1">
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+                <button
+                  key={page}
+                  onClick={() => setCurrentPage(page)}
+                  className={`h-10 w-10 rounded-lg text-sm font-medium transition-colors ${
+                    currentPage === page
+                      ? 'bg-orange-600 text-white'
+                      : 'border border-slate-300 text-slate-700 hover:bg-slate-50'
+                  }`}
+                >
+                  {page}
+                </button>
+              ))}
+            </div>
+
+            {/* Next Button */}
+            <button
+              onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+              disabled={currentPage === totalPages}
+              className="flex items-center gap-2 rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50 hover:enabled:bg-slate-50"
+            >
+              Selanjutnya
+              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </button>
+          </div>
+        )}
+
+        {/* Page Info */}
+        {totalPages > 1 && (
+          <div className="mt-6 text-center text-sm text-slate-600">
+            Halaman {currentPage} dari {totalPages}
           </div>
         )}
       </div>

@@ -9,10 +9,65 @@ interface BlogPostDetailProps {
   post: BlogPost
 }
 
+interface RecentPost {
+  id: string
+  title: string
+  slug: string
+  excerpt: string
+  featured_image: string | null
+  published_at: string
+  reading_time: number
+  tags: string[]
+}
+
 interface TocItem {
   id: string
   text: string
   level: number
+}
+
+// CTA Card Component
+function CTACard() {
+  return (
+    <div
+      className="rounded-xl relative overflow-hidden py-8 sm:py-10 px-6 sm:px-8 flex items-center justify-center"
+      style={{
+        backgroundImage: 'url(/cardimage.png)',
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+      }}
+    >
+      {/* Glassmorphism background with better contrast */}
+      <div className="absolute inset-0 bg-gradient-to-r from-black/50 via-black/40 to-black/50 backdrop-blur-sm"></div>
+
+      {/* Content */}
+      <div className="relative z-10 text-center max-w-2xl">
+        <h3 className="mb-3 text-xl sm:text-2xl font-bold text-white leading-tight">
+          Butuh Alat Berat untuk Proyek Anda?
+        </h3>
+        <p className="mb-6 text-sm sm:text-base text-white/90">
+          Hubungi kami untuk konsultasi dan penawaran terbaik sewa alat berat di Bali.
+        </p>
+        <div className="flex flex-col sm:flex-row gap-3 justify-center">
+          <Link
+            href="/#contact"
+            className="inline-flex items-center justify-center gap-2 rounded-lg bg-white px-6 py-2.5 font-semibold text-orange-600 text-sm sm:text-base transition-all hover:bg-slate-100 hover:shadow-lg shadow-md"
+          >
+            <span>Hubungi Kami</span>
+            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+            </svg>
+          </Link>
+          <Link
+            href="/#equipment"
+            className="inline-flex items-center justify-center gap-2 rounded-lg bg-white/20 backdrop-blur-md border-2 border-white px-6 py-2.5 font-semibold text-white text-sm sm:text-base transition-all hover:bg-white/30 hover:shadow-lg"
+          >
+            Lihat Katalog
+          </Link>
+        </div>
+      </div>
+    </div>
+  )
 }
 
 export function BlogPostDetail({ post }: BlogPostDetailProps) {
@@ -20,9 +75,28 @@ export function BlogPostDetail({ post }: BlogPostDetailProps) {
   const shareText = post.title
   const [toc, setToc] = useState<TocItem[]>([])
   const [activeId, setActiveId] = useState<string>('')
+  const [recentPosts, setRecentPosts] = useState<RecentPost[]>([])
 
   // Store heading texts and indices for mapping
   const headingTextsRef = useRef<Map<string, string>>(new Map())
+
+  // Fetch recent posts
+  useEffect(() => {
+    const fetchRecentPosts = async () => {
+      try {
+        const response = await fetch('/api/blog/recent')
+        if (response.ok) {
+          const { data } = await response.json()
+          // Filter out current post
+          setRecentPosts(data.filter((p: RecentPost) => p.slug !== post.slug).slice(0, 3))
+        }
+      } catch (error) {
+        console.error('Error fetching recent posts:', error)
+      }
+    }
+
+    fetchRecentPosts()
+  }, [post.slug])
 
   // Extract table of contents from HTML content
   useEffect(() => {
@@ -138,13 +212,13 @@ export function BlogPostDetail({ post }: BlogPostDetailProps) {
           {/* Table of Contents - Sidebar (Hidden on mobile) */}
           {toc.length > 0 && (
             <aside className="hidden lg:block lg:col-span-3">
-              <div className="sticky top-24 max-h-[calc(100vh-120px)] overflow-y-auto pr-2">
-                <div className="rounded-lg bg-slate-50 p-2.5">
-                  <h4 className="mb-2 flex items-center gap-1.5 text-xs font-semibold text-slate-900">
-                    <svg className="h-3 w-3 flex-shrink-0 text-orange-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <div className="sticky top-20 max-h-[calc(100vh-140px)] overflow-y-auto pr-1 pt-14">
+                <div className="rounded-md bg-slate-50 p-1.5">
+                  <h4 className="mb-2 flex items-center gap-1 text-sm font-bold text-slate-900 px-2">
+                    <svg className="h-4 w-4 flex-shrink-0 text-orange-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
                     </svg>
-                    Daftar Isi
+                    <span>Daftar Isi</span>
                   </h4>
                   <nav className="space-y-0">
                     {toc.map((item) => (
@@ -154,18 +228,18 @@ export function BlogPostDetail({ post }: BlogPostDetailProps) {
                           setActiveId(item.id)
                           scrollToHeading(item.id)
                         }}
-                        className={`group relative block w-full text-left text-xs transition-all duration-200 ${
-                          item.level === 3 ? 'pl-4' : 'pl-0'
+                        className={`group relative block w-full text-left text-sm transition-all duration-200 ${
+                          item.level === 3 ? 'pl-3' : 'pl-0'
                         } ${
                           activeId === item.id
                             ? 'font-semibold text-orange-600'
                             : 'text-slate-600 hover:text-slate-900'
                         }`}
                       >
-                        <span className={`block py-1 pl-2 border-l-2 transition-all duration-200 truncate ${
+                        <span className={`block py-1.5 px-2 border-l-2 transition-all duration-200 truncate text-xs leading-relaxed ${
                           activeId === item.id
                             ? 'border-orange-600 bg-orange-50/50'
-                            : 'border-transparent hover:border-slate-300 hover:bg-white/50'
+                            : 'border-transparent hover:border-slate-300 hover:bg-white/30'
                         }`}>
                           {item.text}
                         </span>
@@ -243,6 +317,11 @@ export function BlogPostDetail({ post }: BlogPostDetailProps) {
                 </div>
               )}
 
+              {/* Middle CTA */}
+              <div className="my-12">
+                <CTACard />
+              </div>
+
               {/* Content */}
               <div
                 className="blog-content prose prose-lg max-w-none
@@ -313,32 +392,76 @@ export function BlogPostDetail({ post }: BlogPostDetailProps) {
                 </div>
               </div>
 
-              {/* CTA */}
-              <div className="mt-16 rounded-xl bg-orange-600 p-8 text-center sm:p-10">
-                <h3 className="mb-3 text-2xl font-bold text-white sm:text-3xl">
-                  Butuh Alat Berat untuk Proyek Anda?
-                </h3>
-                <p className="mb-8 text-lg text-white/90">
-                  Hubungi kami untuk konsultasi dan penawaran terbaik sewa alat berat di Bali.
-                </p>
-                <div className="flex flex-col gap-4 sm:flex-row sm:justify-center">
-                  <Link
-                    href="/#contact"
-                    className="inline-flex items-center justify-center gap-2 rounded-lg bg-white px-6 py-3 font-semibold text-orange-600 transition-colors hover:bg-slate-50"
-                  >
-                    Hubungi Kami
-                    <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                    </svg>
-                  </Link>
-                  <Link
-                    href="/#equipment"
-                    className="inline-flex items-center justify-center gap-2 rounded-lg border-2 border-white px-6 py-3 font-semibold text-white transition-colors hover:bg-white/10"
-                  >
-                    Lihat Katalog
-                  </Link>
-                </div>
+              {/* Bottom CTA */}
+              <div className="mt-16">
+                <CTACard />
               </div>
+
+              {/* Recent Posts Section */}
+              {recentPosts.length > 0 && (
+                <div className="mt-16 border-t border-slate-200 pt-12">
+                  <h2 className="mb-8 text-2xl font-bold text-slate-900">
+                    Postingan Terakhir
+                  </h2>
+                  <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                    {recentPosts.map((recentPost) => (
+                      <Link
+                        key={recentPost.id}
+                        href={`/blog/${recentPost.slug}`}
+                        className="group relative overflow-hidden rounded-xl border border-slate-200 bg-white transition-all hover:shadow-lg hover:border-orange-200"
+                      >
+                        {/* Featured Image */}
+                        {recentPost.featured_image && (
+                          <div className="relative aspect-[16/9] overflow-hidden bg-slate-100">
+                            <Image
+                              src={recentPost.featured_image}
+                              alt={recentPost.title}
+                              fill
+                              className="object-cover transition-transform duration-300 group-hover:scale-105"
+                              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                            />
+                          </div>
+                        )}
+
+                        {/* Content */}
+                        <div className="p-5">
+                          {/* Tags */}
+                          {recentPost.tags && recentPost.tags.length > 0 && (
+                            <div className="mb-2 flex flex-wrap gap-2">
+                              {recentPost.tags.slice(0, 2).map((tag) => (
+                                <span
+                                  key={tag}
+                                  className="rounded-full bg-orange-50 px-2 py-0.5 text-xs font-medium text-orange-700"
+                                >
+                                  {tag}
+                                </span>
+                              ))}
+                            </div>
+                          )}
+
+                          {/* Title */}
+                          <h3 className="mb-2 text-lg font-bold text-slate-900 line-clamp-2 group-hover:text-orange-600 transition-colors">
+                            {recentPost.title}
+                          </h3>
+
+                          {/* Excerpt */}
+                          <p className="mb-3 text-sm text-slate-600 line-clamp-2">
+                            {recentPost.excerpt}
+                          </p>
+
+                          {/* Meta */}
+                          <div className="flex items-center gap-2 text-xs text-slate-500">
+                            <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <span>{recentPost.reading_time} menit baca</span>
+                          </div>
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>

@@ -21,6 +21,7 @@ const kalam = Kalam({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://vaniasugiartajaya.com'),
   title: "Sewa Alat Berat Bali | Rental Excavator, Bulldozer, Crane - VSJ",
   description: "Sewa alat berat di Bali dengan harga kompetitif. Menyediakan excavator, bulldozer, crane, loader, dump truck untuk proyek konstruksi di Denpasar, Badung, Gianyar, Tabanan, Buleleng, Klungkung, Bangli, Karangasem, Jembrana. Tarif per jam, operator berpengalaman, layanan 24/7.",
   keywords: [

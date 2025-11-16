@@ -18,6 +18,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import { useToast } from '@/hooks/use-toast'
+import { useConfirm } from '@/hooks/use-confirm'
 
 interface EquipmentTableProps {
   equipment: HeavyEquipmentWithImages[]
@@ -26,10 +28,19 @@ interface EquipmentTableProps {
 }
 
 export function EquipmentTable({ equipment, onEdit, onRefresh }: EquipmentTableProps) {
+  const { toast } = useToast()
+  const { confirm } = useConfirm()
   const [deletingId, setDeletingId] = useState<string | null>(null)
 
-  const handleDelete = async (id: string) => {
-    if (!confirm('Apakah Anda yakin ingin menghapus alat berat ini?')) return
+  const handleDelete = async (id: string, name: string) => {
+    const confirmed = await confirm({
+      title: "Hapus Alat Berat",
+      description: `Apakah Anda yakin ingin menghapus "${name}"? Tindakan ini tidak dapat dibatalkan.`,
+      confirmText: "Hapus",
+      cancelText: "Batal"
+    })
+
+    if (!confirmed) return
 
     setDeletingId(id)
     try {
@@ -37,11 +48,25 @@ export function EquipmentTable({ equipment, onEdit, onRefresh }: EquipmentTableP
         method: 'DELETE',
       })
 
-      if (!response.ok) throw new Error('Failed to delete equipment')
+      if (!response.ok) {
+        const data = await response.json()
+        throw new Error(data.error || 'Failed to delete equipment')
+      }
+
+      toast({
+        variant: "success",
+        title: "Berhasil",
+        description: "Alat berat berhasil dihapus",
+      })
+
       onRefresh()
     } catch (error) {
       console.error('Error deleting equipment:', error)
-      alert('Terjadi kesalahan saat menghapus data')
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: error instanceof Error ? error.message : "Terjadi kesalahan saat menghapus data",
+      })
     } finally {
       setDeletingId(null)
     }
@@ -132,7 +157,7 @@ export function EquipmentTable({ equipment, onEdit, onRefresh }: EquipmentTableP
                       Edit
                     </DropdownMenuItem>
                     <DropdownMenuItem
-                      onClick={() => handleDelete(item.id)}
+                      onClick={() => handleDelete(item.id, item.name)}
                       disabled={deletingId === item.id}
                       className="text-red-600"
                     >

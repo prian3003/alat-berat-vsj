@@ -47,9 +47,9 @@ export function EquipmentDetailModal({ equipment, open, onOpenChange }: Equipmen
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[90vh] max-w-4xl overflow-y-auto" aria-describedby="equipment-description">
+      <DialogContent className="max-h-[90vh] w-[95vw] max-w-4xl overflow-y-auto p-4 sm:p-6" aria-describedby="equipment-description">
         <DialogHeader>
-          <DialogTitle className="text-2xl">{equipment.name}</DialogTitle>
+          <DialogTitle className="text-xl sm:text-2xl">{equipment.name}</DialogTitle>
         </DialogHeader>
 
         <div className="space-y-6" id="equipment-description">
@@ -107,7 +107,7 @@ export function EquipmentDetailModal({ equipment, open, onOpenChange }: Equipmen
 
           {/* Thumbnails */}
           {hasValidImage && allImages.length > 1 && (
-            <div className="grid grid-cols-4 gap-2">
+            <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
               {allImages.map((img, idx) => (
                 <button
                   key={idx}

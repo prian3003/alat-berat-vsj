@@ -8,6 +8,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { EQUIPMENT_CATEGORIES, HeavyEquipmentWithImages } from '@/types'
 import Image from 'next/image'
+import { useToast } from '@/hooks/use-toast'
 
 interface EquipmentFormProps {
   equipment?: HeavyEquipmentWithImages
@@ -23,6 +24,7 @@ interface ImageUpload {
 }
 
 export function EquipmentForm({ equipment, onSuccess, onCancel }: EquipmentFormProps) {
+  const { toast } = useToast()
   const [loading, setLoading] = useState(false)
   const [uploading, setUploading] = useState(false)
   const [images, setImages] = useState<ImageUpload[]>([])
@@ -80,9 +82,18 @@ export function EquipmentForm({ equipment, onSuccess, onCancel }: EquipmentFormP
 
       const uploadedImages = await Promise.all(uploadPromises)
       setImages([...images, ...uploadedImages])
+      toast({
+        variant: "success",
+        title: "Berhasil",
+        description: `${uploadedImages.length} gambar berhasil diunggah`,
+      })
     } catch (error) {
       console.error('Error uploading images:', error)
-      alert('Gagal mengupload gambar')
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Gagal mengupload gambar",
+      })
     } finally {
       setUploading(false)
     }
@@ -135,12 +146,25 @@ export function EquipmentForm({ equipment, onSuccess, onCancel }: EquipmentFormP
         body: JSON.stringify(data),
       })
 
-      if (!response.ok) throw new Error('Failed to save equipment')
+      if (!response.ok) {
+        const data = await response.json()
+        throw new Error(data.error || 'Failed to save equipment')
+      }
+
+      toast({
+        variant: "success",
+        title: "Berhasil",
+        description: equipment ? "Alat berat berhasil diupdate" : "Alat berat berhasil ditambahkan",
+      })
 
       onSuccess()
     } catch (error) {
       console.error('Error saving equipment:', error)
-      alert('Terjadi kesalahan saat menyimpan data')
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: error instanceof Error ? error.message : "Terjadi kesalahan saat menyimpan data",
+      })
     } finally {
       setLoading(false)
     }

@@ -11,7 +11,7 @@ export function WhatsAppFloat() {
 
   const contacts = [
     { name: 'Admin', number: '6285813718988' },
-    { name: 'Owner', number: '6282139659136' }
+    { name: 'Owner', number: '6282230958088' }
   ]
 
   const message = encodeURIComponent('Halo, saya tertarik dengan layanan sewa alat berat Anda.')
@@ -42,7 +42,7 @@ export function WhatsAppFloat() {
       ref={containerRef}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
-      className="fixed bottom-6 right-6 z-50 sm:bottom-4 sm:right-4 flex flex-col items-end"
+      className="fixed bottom-4 right-4 z-50 sm:bottom-6 sm:right-6 flex flex-col items-end"
     >
       {/* Contact Options - Mobile: Click to toggle, Desktop: Show on Hover */}
       <div
@@ -76,19 +76,18 @@ export function WhatsAppFloat() {
         ))}
       </div>
 
-      {/* Main WhatsApp Button - Larger on mobile */}
-      {/* Mobile: Button to toggle menu */}
+      {/* Main WhatsApp Button - Mobile: Button to toggle menu */}
       <button
         onClick={toggleMobileMenu}
-        className="flex h-16 w-16 items-center justify-center rounded-full bg-green-500 shadow-lg transition-all hover:scale-110 hover:bg-green-600 hover:shadow-xl sm:hidden"
+        className="flex h-14 w-14 items-center justify-center rounded-full bg-green-500 shadow-lg transition-all hover:scale-110 hover:bg-green-600 hover:shadow-xl sm:hidden"
         aria-label="Contact us on WhatsApp"
       >
         <Image
           src="/whatsapp.svg"
           alt="WhatsApp"
-          width={36}
-          height={36}
-          className="h-9 w-9"
+          width={28}
+          height={28}
+          className="h-7 w-7"
         />
       </button>
 

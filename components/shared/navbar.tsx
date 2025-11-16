@@ -12,7 +12,9 @@ export function Navbar() {
   useEffect(() => {
     const checkScroll = () => {
       const scrollPosition = window.scrollY || window.pageYOffset
-      setIsScrolled(scrollPosition > 0)
+      // Trigger navbar change after scrolling 120px (ensures we're past hero section)
+      const shouldScroll = scrollPosition > 120
+      setIsScrolled(shouldScroll)
     }
 
     checkScroll()
@@ -36,21 +38,30 @@ export function Navbar() {
     <nav
       className="sticky top-0 z-50 transition-all duration-300"
       style={{
-        backgroundColor: isScrolled ? 'rgba(255, 255, 255, 0.95)' : 'rgba(0, 0, 0, 0)',
-        borderBottom: isScrolled ? '1px solid rgba(226, 232, 240, 0.8)' : '1px solid transparent',
-        boxShadow: isScrolled ? '0 1px 3px 0 rgb(0 0 0 / 0.1)' : 'none',
-        backdropFilter: isScrolled ? 'blur(12px)' : 'none',
-        WebkitBackdropFilter: isScrolled ? 'blur(12px)' : 'none'
+        backgroundColor: isScrolled ? 'rgba(255, 255, 255, 0.98)' : 'transparent !important',
+        borderTop: 'none !important',
+        borderLeft: 'none !important',
+        borderRight: 'none !important',
+        borderBottom: isScrolled ? '1px solid rgba(226, 232, 240, 0.8)' : 'none !important',
+        boxShadow: isScrolled ? '0 2px 8px rgba(0, 0, 0, 0.08)' : 'none',
+        backdropFilter: isScrolled ? 'blur(4px)' : 'none',
+        WebkitBackdropFilter: isScrolled ? 'blur(4px)' : 'none'
       }}
+      data-scrolled={isScrolled}
+      data-testid="navbar"
     >
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8" style={{ backgroundColor: 'transparent' }}>
-        <div className="flex min-h-20 py-5 items-center justify-between" style={{ backgroundColor: 'transparent' }}>
+      <div
+        className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8"
+      >
+        <div
+          className="flex min-h-20 py-5 items-center justify-between"
+        >
           {/* Logo */}
           <div className="flex items-center">
             <Link href="/" className="flex items-center space-x-2">
               <Image
                 src="/logo.png"
-                alt="AlatBerat Logo"
+                alt="VSJ - Sewa Alat Berat Bali Logo"
                 width={220}
                 height={250}
                 className="h-20"
@@ -80,6 +91,16 @@ export function Navbar() {
               }`}
             >
               Alat Berat
+            </Link>
+            <Link
+              href="/gallery"
+              className={`text-sm font-medium transition-colors ${
+                isScrolled
+                  ? 'text-slate-700 hover:text-slate-900'
+                  : 'text-slate-800 hover:text-slate-900'
+              }`}
+            >
+              Galeri
             </Link>
             <Link
               href="/#about"
@@ -168,6 +189,12 @@ export function Navbar() {
               Alat Berat
             </Link>
             <Link
+              href="/gallery"
+              className="block rounded-md px-3 py-2 text-base font-medium text-slate-700 hover:bg-slate-50"
+            >
+              Galeri
+            </Link>
+            <Link
               href="/#about"
               className="block rounded-md px-3 py-2 text-base font-medium text-slate-700 hover:bg-slate-50"
             >
@@ -185,7 +212,7 @@ export function Navbar() {
             >
               Kontak
             </Link>
-           
+
           </div>
         </div>
       )}

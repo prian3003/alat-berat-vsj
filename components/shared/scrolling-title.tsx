@@ -5,20 +5,11 @@ import { useEffect } from 'react'
 export function ScrollingTitle() {
   useEffect(() => {
     const baseTitle = 'VSJ - Sewa Alat Berat Bali'
-    const separator = ' • '
-    let position = 0
 
-    const scrollTitle = () => {
-      const scrollText = baseTitle + separator
-      const newTitle = scrollText.substring(position) + scrollText.substring(0, position)
-      document.title = newTitle
-      position = (position + 1) % scrollText.length
-    }
-
-    const interval = setInterval(scrollTitle, 100)
+    // Set static title for better SEO (scrolling title causes performance issues)
+    document.title = baseTitle
 
     return () => {
-      clearInterval(interval)
       document.title = baseTitle
     }
   }, [])

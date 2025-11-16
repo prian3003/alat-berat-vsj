@@ -10,7 +10,7 @@ function Counter({ value, duration = 2 }: { value: number; duration?: number }) 
     damping: 60,
     stiffness: 100,
   })
-  const isInView = useInView(ref, { once: true, margin: '-100px' })
+  const isInView = useInView(ref, { once: true, margin: '100px' })
 
   useEffect(() => {
     if (isInView) {
@@ -31,7 +31,7 @@ function Counter({ value, duration = 2 }: { value: number; duration?: number }) 
 
 export function StatsSection() {
   return (
-    <section className="relative overflow-hidden bg-gradient-to-b from-slate-50 to-white py-12 sm:py-16">
+    <section className="relative overflow-hidden bg-gradient-to-b from-slate-50 to-white py-12 sm:py-16 md:py-24">
       {/* Grid Background Pattern - Subtle */}
       <div className="absolute inset-0 z-0 opacity-30">
         <div
@@ -47,7 +47,7 @@ export function StatsSection() {
         <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-2">
           {/* Year Established */}
           <motion.div
-            className="group relative overflow-hidden rounded-3xl border border-white/40 bg-white/20 p-10 shadow-lg backdrop-blur-xl transition-all hover:border-white/60 hover:bg-white/30 hover:shadow-2xl"
+            className="group relative overflow-hidden rounded-3xl border border-white/40 bg-white/20 p-8 sm:p-10 shadow-lg backdrop-blur-xl transition-all hover:border-white/60 hover:bg-white/30 hover:shadow-2xl"
             style={{
               background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.25), rgba(255, 255, 255, 0.15))',
               boxShadow: '0 8px 32px 0 rgba(31, 38, 135, 0.15), inset 0 0 20px rgba(255, 255, 255, 0.3)',
@@ -58,14 +58,14 @@ export function StatsSection() {
             transition={{ duration: 0.5, delay: 0.1 }}
           >
             <div className="flex flex-col items-center text-center">
-              <div className="text-5xl font-bold text-slate-900 sm:text-6xl">2025</div>
-              <div className="mt-3 text-sm font-medium text-slate-600">Tahun Berdiri</div>
+              <div className="text-4xl sm:text-5xl md:text-6xl font-bold text-slate-900">2025</div>
+              <div className="mt-3 text-xs sm:text-sm font-medium text-slate-600">Tahun Berdiri</div>
             </div>
           </motion.div>
 
           {/* Projects Completed */}
           <motion.div
-            className="group relative overflow-hidden rounded-3xl border border-white/40 bg-white/20 p-10 shadow-lg backdrop-blur-xl transition-all hover:border-white/60 hover:bg-white/30 hover:shadow-2xl"
+            className="group relative overflow-hidden rounded-3xl border border-white/40 bg-white/20 p-8 sm:p-10 shadow-lg backdrop-blur-xl transition-all hover:border-white/60 hover:bg-white/30 hover:shadow-2xl"
             style={{
               background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.25), rgba(255, 255, 255, 0.15))',
               boxShadow: '0 8px 32px 0 rgba(31, 38, 135, 0.15), inset 0 0 20px rgba(255, 255, 255, 0.3)',
@@ -77,12 +77,12 @@ export function StatsSection() {
           >
             <div className="flex flex-col items-center text-center">
               <div className="flex items-baseline">
-                <span className="text-5xl font-bold text-slate-900 sm:text-6xl">
+                <span className="text-4xl sm:text-5xl md:text-6xl font-bold text-slate-900">
                   <Counter value={1000} />
                 </span>
-                <span className="ml-1 text-4xl font-bold text-orange-600">+</span>
+                <span className="ml-1 text-3xl sm:text-4xl md:text-5xl font-bold text-orange-600">+</span>
               </div>
-              <div className="mt-3 text-sm font-medium text-slate-600">Proyek Selesai</div>
+              <div className="mt-3 text-xs sm:text-sm font-medium text-slate-600">Proyek Selesai</div>
             </div>
           </motion.div>
 

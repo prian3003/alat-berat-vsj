@@ -114,11 +114,20 @@
 }
 
 @layer base {
+  html {
+    margin: 0;
+    padding: 0;
+  }
+  body {
+    margin: 0;
+    padding: 0;
+    @apply bg-background text-foreground;
+  }
   * {
     @apply border-border outline-ring/50;
   }
-  body {
-    @apply bg-background text-foreground;
+  nav {
+    border: none !important;
   }
 }
 
