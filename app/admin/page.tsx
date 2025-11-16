@@ -1,8 +1,8 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+import { useState } from 'react'
 import { useEquipment } from '@/hooks/use-equipment'
+import { useAuth } from '@/context/AuthContext'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { EquipmentTable } from '@/components/dashboard/equipment-table'
@@ -12,47 +12,10 @@ import Link from 'next/link'
 import { Toaster } from '@/components/ui/toaster'
 
 export default function AdminPage() {
-  const router = useRouter()
   const { equipment, loading, refetch } = useEquipment()
+  const { isAuthenticated, isLoading, logout, user } = useAuth()
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [selectedEquipment, setSelectedEquipment] = useState<HeavyEquipmentWithImages | undefined>(undefined)
-  const [isAuthenticated, setIsAuthenticated] = useState(false)
-  const [checkingAuth, setCheckingAuth] = useState(true)
-
-  useEffect(() => {
-    checkAuth()
-  }, [])
-
-  const checkAuth = async () => {
-    try {
-      const response = await fetch('/api/admin/me', {
-        credentials: 'include',
-      })
-
-      if (!response.ok) {
-        router.push('/admin/login')
-      } else {
-        setIsAuthenticated(true)
-      }
-    } catch (error) {
-      console.error('Auth check error:', error)
-      router.push('/admin/login')
-    } finally {
-      setCheckingAuth(false)
-    }
-  }
-
-  const handleLogout = async () => {
-    try {
-      await fetch('/api/admin/logout', {
-        method: 'POST',
-        credentials: 'include',
-      })
-    } catch (error) {
-      console.error('Logout error:', error)
-    }
-    router.push('/admin/login')
-  }
 
   const handleAdd = () => {
     setSelectedEquipment(undefined)
@@ -75,7 +38,7 @@ export default function AdminPage() {
     setSelectedEquipment(undefined)
   }
 
-  if (checkingAuth) {
+  if (isLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center">
         <p className="text-slate-600">Memeriksa autentikasi...</p>
@@ -101,7 +64,7 @@ export default function AdminPage() {
               <Button asChild variant="outline">
                 <Link href="/">Kembali ke Website</Link>
               </Button>
-              <Button variant="outline" onClick={handleLogout}>
+              <Button variant="outline" onClick={logout}>
                 Logout
               </Button>
             </div>
@@ -128,6 +91,12 @@ export default function AdminPage() {
               className="border-b-2 border-transparent px-4 py-3 text-sm font-medium text-slate-600 hover:border-slate-300 hover:text-slate-900"
             >
               Galeri
+            </Link>
+            <Link
+              href="/admin/surat"
+              className="border-b-2 border-transparent px-4 py-3 text-sm font-medium text-slate-600 hover:border-slate-300 hover:text-slate-900"
+            >
+              Surat Jalan
             </Link>
           </nav>
         </div>

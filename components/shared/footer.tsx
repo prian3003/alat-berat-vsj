@@ -14,9 +14,9 @@ export function Footer() {
               <Image
                 src="/logo.png"
                 alt="VSJ - Sewa Alat Berat Bali Logo"
-                width={120}
-                height={40}
-                className="h-16 w-32 sm:h-20 sm:w-40"
+                width={180}
+                height={60}
+                className="h-24 w-48 sm:h-28 sm:w-56"
               />
             </div>
             <p className="mt-3 sm:mt-4 text-xs sm:text-sm leading-relaxed text-slate-600">
@@ -34,7 +34,7 @@ export function Footer() {
               <li>
                 <Link
                   href="/#equipment"
-                  className="text-xs sm:text-sm text-slate-600 hover:text-slate-900 transition-colors"
+                  className="text-xs sm:text-sm text-slate-600 hover:text-slate-900 transition-colors inline-block relative after:content-[''] after:absolute after:w-0 after:h-[2px] after:bottom-0 after:left-0 after:bg-slate-900 after:transition-all after:duration-300 hover:after:w-full"
                 >
                   Alat Berat
                 </Link>
@@ -42,7 +42,7 @@ export function Footer() {
               <li>
                 <Link
                   href="/#about"
-                  className="text-xs sm:text-sm text-slate-600 hover:text-slate-900 transition-colors"
+                  className="text-xs sm:text-sm text-slate-600 hover:text-slate-900 transition-colors inline-block relative after:content-[''] after:absolute after:w-0 after:h-[2px] after:bottom-0 after:left-0 after:bg-slate-900 after:transition-all after:duration-300 hover:after:w-full"
                 >
                   Tentang Kami
                 </Link>
@@ -50,7 +50,7 @@ export function Footer() {
               <li>
                 <Link
                   href="/#contact"
-                  className="text-xs sm:text-sm text-slate-600 hover:text-slate-900 transition-colors"
+                  className="text-xs sm:text-sm text-slate-600 hover:text-slate-900 transition-colors inline-block relative after:content-[''] after:absolute after:w-0 after:h-[2px] after:bottom-0 after:left-0 after:bg-slate-900 after:transition-all after:duration-300 hover:after:w-full"
                 >
                   Kontak
                 </Link>
@@ -66,10 +66,10 @@ export function Footer() {
             <ul className="mt-3 sm:mt-4 space-y-2 sm:space-y-3 text-xs sm:text-sm">
               <li>
                 <a
-                  href="mailto:info@alatberat.com"
-                  className="text-slate-600 hover:text-orange-600 transition-colors break-all"
+                  href="mailto:info@vaniasugiarta.com"
+                  className="text-slate-600 hover:text-orange-600 transition-colors break-all inline-block relative after:content-[''] after:absolute after:w-0 after:h-[2px] after:bottom-0 after:left-0 after:bg-orange-600 after:transition-all after:duration-300 hover:after:w-full"
                 >
-                  Email: info@alatberat.com
+                  Email: info@vaniasugiarta.com
                 </a>
               </li>
               <li>
@@ -77,7 +77,7 @@ export function Footer() {
                   href="https://wa.me/6285813718988"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-slate-600 hover:text-green-600 transition-colors break-all"
+                  className="text-slate-600 hover:text-green-600 transition-colors break-all inline-block relative after:content-[''] after:absolute after:w-0 after:h-[2px] after:bottom-0 after:left-0 after:bg-green-600 after:transition-all after:duration-300 hover:after:w-full"
                 >
                   WA Admin: +62 858-1371-8988
                 </a>
@@ -87,7 +87,7 @@ export function Footer() {
                   href="https://wa.me/6282230958088"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-slate-600 hover:text-green-600 transition-colors break-all"
+                  className="text-slate-600 hover:text-green-600 transition-colors break-all inline-block relative after:content-[''] after:absolute after:w-0 after:h-[2px] after:bottom-0 after:left-0 after:bg-green-600 after:transition-all after:duration-300 hover:after:w-full"
                 >
                   WA Owner: +62 822-3095-8088
                 </a>
@@ -98,7 +98,7 @@ export function Footer() {
 
         <div className="mt-6 sm:mt-8 border-t pt-6 sm:pt-8">
           <p className="text-center text-xs sm:text-sm text-slate-600">
-            &copy; {currentYear} VaniaSugiartaJaya.com Semua hak dilindungi.
+            &copy; {currentYear} vaniasugiarta.com Semua hak dilindungi.
           </p>
         </div>
       </div>

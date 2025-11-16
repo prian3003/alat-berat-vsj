@@ -20,7 +20,7 @@ const supabase = createClient(supabaseUrl, supabaseServiceKey, {
 })
 
 // Default admin credentials
-const ADMIN_EMAIL = 'admin@alatberat.com'
+const ADMIN_EMAIL = 'admin@vaniasugiarta.com'
 const ADMIN_PASSWORD = 'admin123456'
 
 async function createAdminUser() {

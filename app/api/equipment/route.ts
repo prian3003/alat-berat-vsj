@@ -1,7 +1,23 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { PrismaClient } from '@prisma/client'
+import { verifyToken } from '@/lib/auth'
+import { getTokenFromCookies } from '@/lib/auth'
 
 const prisma = new PrismaClient()
+
+// Helper function to verify admin auth
+async function verifyAdminAuth(request: NextRequest) {
+  try {
+    const token = getTokenFromCookies(request.cookies)
+    if (!token) {
+      return null
+    }
+    const decoded = await verifyToken(token)
+    return decoded
+  } catch (error) {
+    return null
+  }
+}
 
 // GET all equipment
 export async function GET() {
@@ -31,6 +47,15 @@ export async function GET() {
 
 // POST create new equipment
 export async function POST(request: NextRequest) {
+  // Verify admin authentication
+  const auth = await verifyAdminAuth(request)
+  if (!auth) {
+    return NextResponse.json(
+      { error: 'Unauthorized' },
+      { status: 401 }
+    )
+  }
+
   try {
     const body = await request.json()
     const { images, specifications, pricePerHour, ...data } = body

@@ -9,7 +9,7 @@ function hashPassword(password) {
 }
 
 const adminData = {
-  email: 'admin@alatberat.com',
+  email: 'admin@vaniasugiarta.com',
   password: hashPassword('admin123456'),
   name: 'Admin User',
   role: 'admin',

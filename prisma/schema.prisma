@@ -61,3 +61,46 @@ model AdminUser {
   @@map("admin_users")
   @@index([email])
 }
+
+// Surat Jalan (Delivery Letter) model
+model SuratJalan {
+  id                String          @id @default(uuid()) @db.Uuid
+  noSurat           String          @unique @db.VarChar(50)
+  tanggal           DateTime        @db.Date
+  jenisKendaraan    String          @map("jenis_kendaraan") @db.VarChar(100)
+  noPol             String          @map("no_pol") @db.VarChar(20)
+  sopir             String          @db.VarChar(255)
+  tujuan            String?         @db.Text
+  keterangan        String?         @db.Text
+  status            String          @default("draft") @db.VarChar(50) // draft, printed, completed
+  createdBy         String?         @map("created_by") @db.VarChar(255)
+  createdAt         DateTime        @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt         DateTime        @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  // Relations
+  items SuratJalanItem[]
+
+  @@map("surat_jalan")
+  @@index([tanggal])
+  @@index([noPol])
+  @@index([status])
+}
+
+// Surat Jalan Items model (equipment in each letter)
+model SuratJalanItem {
+  id          String   @id @default(uuid()) @db.Uuid
+  suratId     String   @map("surat_id") @db.Uuid
+  urutan      Int      // Order number (1, 2, 3, etc)
+  jenisUnit   String   @map("jenis_unit") @db.VarChar(255)
+  seri        String   @db.VarChar(255)
+  lokasi      String   @db.VarChar(255)
+  keterangan  String?  @db.Text
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  // Relations
+  surat SuratJalan @relation(fields: [suratId], references: [id], onDelete: Cascade)
+
+  @@map("surat_jalan_items")
+  @@index([suratId])
+  @@unique([suratId, urutan])
+}

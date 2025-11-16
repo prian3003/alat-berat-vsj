@@ -7,17 +7,23 @@ import { StructuredData } from "@/components/shared/structured-data";
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
+  display: "swap",
+  fallback: ["system-ui", "arial"],
 });
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
+  display: "swap",
+  fallback: ["monospace"],
 });
 
 const kalam = Kalam({
   variable: "--font-kalam",
   subsets: ["latin"],
   weight: ["700"],
+  display: "swap",
+  fallback: ["cursive"],
 });
 
 export const metadata: Metadata = {
@@ -89,8 +95,8 @@ export const metadata: Metadata = {
     google: 'your-google-verification-code',
   },
   icons: {
-    icon: '/icon.svg',
-    apple: '/icon.svg',
+    icon: '/A.svg',
+    apple: '/A.svg',
   },
 };
 

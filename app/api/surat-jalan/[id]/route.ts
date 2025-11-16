@@ -4,13 +4,11 @@ import { verifyToken, getTokenFromCookies } from '@/lib/auth'
 
 const prisma = new PrismaClient()
 
-// Helper function to verify admin auth
+// Helper to verify admin auth
 async function verifyAdminAuth(request: NextRequest) {
   try {
     const token = getTokenFromCookies(request.cookies)
-    if (!token) {
-      return null
-    }
+    if (!token) return null
     const decoded = await verifyToken(token)
     return decoded
   } catch (error) {
@@ -18,42 +16,43 @@ async function verifyAdminAuth(request: NextRequest) {
   }
 }
 
-// GET single equipment
+// GET single surat jalan
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const { id } = await params
-    const equipment = await prisma.heavyEquipment.findUnique({
+
+    const surat = await prisma.suratJalan.findUnique({
       where: { id },
       include: {
-        images: {
+        items: {
           orderBy: {
-            isPrimary: 'desc',
+            urutan: 'asc',
           },
         },
       },
     })
 
-    if (!equipment) {
+    if (!surat) {
       return NextResponse.json(
-        { error: 'Equipment not found' },
+        { error: 'Surat jalan not found' },
         { status: 404 }
       )
     }
 
-    return NextResponse.json(equipment)
+    return NextResponse.json(surat)
   } catch (error) {
-    console.error('Error fetching equipment:', error)
+    console.error('Error fetching surat jalan:', error)
     return NextResponse.json(
-      { error: 'Failed to fetch equipment' },
+      { error: 'Failed to fetch surat jalan' },
       { status: 500 }
     )
   }
 }
 
-// PUT update equipment
+// PUT update surat jalan
 export async function PUT(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -61,54 +60,51 @@ export async function PUT(
   // Verify admin authentication
   const auth = await verifyAdminAuth(request)
   if (!auth) {
-    return NextResponse.json(
-      { error: 'Unauthorized' },
-      { status: 401 }
-    )
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
   try {
     const { id } = await params
     const body = await request.json()
-    const { images, specifications, pricePerHour, ...data } = body
+    const { items, ...data } = body
 
-    // Delete existing images and create new ones
-    await prisma.equipmentImage.deleteMany({
-      where: { equipmentId: id },
+    // Delete existing items and create new ones
+    await prisma.suratJalanItem.deleteMany({
+      where: { suratId: id },
     })
 
-    // Update equipment with new images
-    const equipment = await prisma.heavyEquipment.update({
+    // Update surat with new items
+    const surat = await prisma.suratJalan.update({
       where: { id },
       data: {
         ...data,
-        pricePerHour: pricePerHour ? parseFloat(pricePerHour) : null,
-        specifications: specifications || {},
-        images: images?.length
-          ? {
-              create: images.map((img: { url: string; isPrimary: boolean }) => ({
-                imageUrl: img.url,
-                isPrimary: img.isPrimary,
-              })),
-            }
-          : undefined,
+        tanggal: new Date(data.tanggal),
+        items: {
+          create: items.map((item: any, idx: number) => ({
+            urutan: idx + 1,
+            jenisUnit: item.jenisUnit,
+            seri: item.seri,
+            lokasi: item.lokasi,
+            keterangan: item.keterangan || null,
+          })),
+        },
       },
       include: {
-        images: true,
+        items: true,
       },
     })
 
-    return NextResponse.json(equipment)
+    return NextResponse.json(surat)
   } catch (error) {
-    console.error('Error updating equipment:', error)
+    console.error('Error updating surat jalan:', error)
     return NextResponse.json(
-      { error: 'Failed to update equipment' },
+      { error: 'Failed to update surat jalan' },
       { status: 500 }
     )
   }
 }
 
-// DELETE equipment
+// DELETE surat jalan
 export async function DELETE(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -116,23 +112,27 @@ export async function DELETE(
   // Verify admin authentication
   const auth = await verifyAdminAuth(request)
   if (!auth) {
-    return NextResponse.json(
-      { error: 'Unauthorized' },
-      { status: 401 }
-    )
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
   try {
     const { id } = await params
-    await prisma.heavyEquipment.delete({
+
+    // Delete items first (cascade delete)
+    await prisma.suratJalanItem.deleteMany({
+      where: { suratId: id },
+    })
+
+    // Then delete surat
+    await prisma.suratJalan.delete({
       where: { id },
     })
 
     return NextResponse.json({ success: true })
   } catch (error) {
-    console.error('Error deleting equipment:', error)
+    console.error('Error deleting surat jalan:', error)
     return NextResponse.json(
-      { error: 'Failed to delete equipment' },
+      { error: 'Failed to delete surat jalan' },
       { status: 500 }
     )
   }

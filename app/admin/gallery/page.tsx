@@ -3,10 +3,10 @@
 import { useState, useEffect } from 'react'
 import Image from 'next/image'
 import { motion } from 'framer-motion'
-import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
 import { useToast } from '@/hooks/use-toast'
+import { useAuth } from '@/context/AuthContext'
 import { Toaster } from '@/components/ui/toaster'
 import { useConfirm } from '@/hooks/use-confirm'
 
@@ -21,15 +21,13 @@ interface GalleryImage {
 }
 
 export default function AdminGalleryPage() {
-  const router = useRouter()
   const { toast } = useToast()
   const { confirm } = useConfirm()
+  const { isAuthenticated, isLoading, logout } = useAuth()
   const [images, setImages] = useState<GalleryImage[]>([])
   const [loading, setLoading] = useState(true)
   const [uploading, setUploading] = useState(false)
   const [showForm, setShowForm] = useState(false)
-  const [isAuthenticated, setIsAuthenticated] = useState(false)
-  const [checkingAuth, setCheckingAuth] = useState(true)
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -40,45 +38,10 @@ export default function AdminGalleryPage() {
   })
 
   useEffect(() => {
-    checkAuth()
-  }, [])
-
-  useEffect(() => {
     if (isAuthenticated) {
       fetchGalleryImages()
     }
   }, [isAuthenticated])
-
-  const checkAuth = async () => {
-    try {
-      const response = await fetch('/api/admin/me', {
-        credentials: 'include',
-      })
-
-      if (!response.ok) {
-        router.push('/admin/login')
-      } else {
-        setIsAuthenticated(true)
-      }
-    } catch (error) {
-      console.error('Auth check error:', error)
-      router.push('/admin/login')
-    } finally {
-      setCheckingAuth(false)
-    }
-  }
-
-  const handleLogout = async () => {
-    try {
-      await fetch('/api/admin/logout', {
-        method: 'POST',
-        credentials: 'include',
-      })
-    } catch (error) {
-      console.error('Logout error:', error)
-    }
-    router.push('/admin/login')
-  }
 
   const fetchGalleryImages = async () => {
     try {
@@ -210,7 +173,7 @@ export default function AdminGalleryPage() {
     }
   }
 
-  if (checkingAuth) {
+  if (isLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center">
         <p className="text-slate-600">Memeriksa autentikasi...</p>
@@ -236,7 +199,7 @@ export default function AdminGalleryPage() {
               <Button asChild variant="outline">
                 <Link href="/">Kembali ke Website</Link>
               </Button>
-              <Button variant="outline" onClick={handleLogout}>
+              <Button variant="outline" onClick={logout}>
                 Logout
               </Button>
             </div>
@@ -263,6 +226,12 @@ export default function AdminGalleryPage() {
               className="border-b-2 border-orange-600 px-4 py-3 text-sm font-medium text-orange-600"
             >
               Galeri
+            </Link>
+            <Link
+              href="/admin/surat"
+              className="border-b-2 border-transparent px-4 py-3 text-sm font-medium text-slate-600 hover:border-slate-300 hover:text-slate-900"
+            >
+              Surat Jalan
             </Link>
           </nav>
         </div>

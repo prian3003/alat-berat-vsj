@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import sharp from 'sharp'
+import { verifyToken, getTokenFromCookies } from '@/lib/auth'
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!
@@ -13,7 +14,29 @@ const supabase = createClient(supabaseUrl, supabaseServiceKey, {
   }
 })
 
+// Helper function to verify admin auth
+async function verifyAdminAuth(request: NextRequest) {
+  try {
+    const token = getTokenFromCookies(request.cookies)
+    if (!token) {
+      return null
+    }
+    const decoded = await verifyToken(token)
+    return decoded
+  } catch (error) {
+    return null
+  }
+}
+
 export async function POST(request: NextRequest) {
+  // Verify admin authentication
+  const auth = await verifyAdminAuth(request)
+  if (!auth) {
+    return NextResponse.json(
+      { error: 'Unauthorized' },
+      { status: 401 }
+    )
+  }
   try {
     const formData = await request.formData()
     const file = formData.get('file') as File
