@@ -330,38 +330,6 @@ export function SuratPerjanjianTemplate({
           <p className="text-sm mt-3">Kedua belah pihak telah sepakat untuk mengadakan perjanjian sewa pakai alat berat untuk pekerjaan di lokasi {lokasiPekerjaan} dengan ketentuan dan syarat yang diatur dalam pasal – pasal di bawah ini :</p>
         </div>
 
-        {/* Items Table */}
-        <table className="mb-4 w-full border-collapse text-sm">
-          <thead>
-            <tr className="bg-gray-800 text-white">
-              <th className="border border-gray-800 px-3 py-2 text-center font-bold w-8">NO</th>
-              <th className="border border-gray-800 px-3 py-2 text-left font-bold">JENIS ALAT</th>
-              <th className="border border-gray-800 px-3 py-2 text-center font-bold w-12">JUMLAH</th>
-              <th className="border border-gray-800 px-3 py-2 text-left font-bold">HARGA SEWA</th>
-              <th className="border border-gray-800 px-3 py-2 text-left font-bold">KETERANGAN</th>
-            </tr>
-          </thead>
-          <tbody>
-            {items.map((item, idx) => (
-              <tr key={item.urutan} className={idx % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
-                <td className="border border-gray-300 px-3 py-2 text-center">
-                  {item.urutan}
-                </td>
-                <td className="border border-gray-300 px-3 py-2">
-                  {item.jenisAlat}
-                </td>
-                <td className="border border-gray-300 px-3 py-2 text-center">{item.jumlah}</td>
-                <td className="border border-gray-300 px-3 py-2">
-                  {item.hargaSewa}
-                </td>
-                <td className="border border-gray-300 px-3 py-2">
-                  {item.keterangan || '-'}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-
         {/* Pasal Section */}
         <div className="mb-4 text-sm space-y-2">
           <p className="font-bold text-center mb-3" style={{ fontSize: '11pt' }}>DENGAN KETENTUAN DAN SYARAT SEBAGAI BERIKUT :</p>
@@ -370,7 +338,24 @@ export function SuratPerjanjianTemplate({
           <div style={{ pageBreakInside: 'avoid' }}>
             <p className="font-bold mb-2 text-center" style={{ fontSize: '11pt' }}>Pasal 1</p>
             <p className="font-bold mb-3 text-center">Jenis, Jumlah, Harga Sewa dan Lokasi Kerja.</p>
-            <p className="ml-6 mb-1">1. PIHAK PERTAMA bersedia menyewakan alat kepada PIHAK KEDUA dan PIHAK KEDUA setuju untuk menyewa alat berat kepada PIHAK PERTAMA dengan jenis dan harga sewa sebagaimana tercantum dalam tabel di atas.</p>
+            <p className="ml-6 mb-2">1. PIHAK PERTAMA bersedia menyewakan alat kepada PIHAK KEDUA dan PIHAK KEDUA setuju untuk menyewa alat berat kepada PIHAK PERTAMA dengan jenis alat sebagai berikut :</p>
+
+            {/* Sub-point a: Jenis alat berat */}
+            <p className="ml-8 mb-1">a) Jenis alat berat :</p>
+            <div className="ml-12 space-y-0.5 mb-3">
+              {items.map((item) => (
+                <p key={item.urutan}>• {item.urutan} ({item.urutan === 1 ? 'satu' : 'dua'}) Unit {item.jenisAlat}</p>
+              ))}
+            </div>
+
+            {/* Sub-point b: Harga sewa alat berat */}
+            <p className="ml-8 mb-1">b) Harga sewa alat berat :</p>
+            <div className="ml-12 space-y-0.5 mb-3">
+              {items.map((item) => (
+                <p key={item.urutan}>• {item.jenisAlat}     Rp. {item.hargaSewa} / Jam</p>
+              ))}
+            </div>
+
             <p className="ml-6 mb-1">2. Harga sewa alat berat di atas tanpa pemotongan pajak dan kedua belah pihak setuju bahwa tarif sewa alat berat pada Pasal 1 ini tidak akan berubah selama perjanjian belum berakhir.</p>
             <p className="ml-6">3. Lokasi kerja PIHAK KEDUA yaitu terletak di {lokasiPekerjaan}.</p>
           </div>
