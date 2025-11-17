@@ -316,21 +316,45 @@ export function SuratPerjanjianTemplate({
           <p>Pada hari ini, <span className="font-bold">{tanggalPernyataan || 'yang telah ditetapkan'}</span>, yang bertanda tangan di bawah ini :</p>
 
           {/* Pihak Pertama */}
-          <div className="ml-8">
-            <p className="font-bold mb-1">I. <span className="font-bold">Nama</span>: {pihakPertamaNama}</p>
-            <p className="ml-4 text-sm"><span className="font-bold">Jabatan</span>: {pihakPertamaJabatan}</p>
-            <p className="ml-4 text-sm"><span className="font-bold">Perusahaan</span>: {pihakPertamaPerusahaan}</p>
-            <p className="ml-4 text-sm"><span className="font-bold">Alamat</span>: {pihakPertamaAlamat}</p>
-            <p className="ml-4 text-sm">Selanjutnya disebut <span className="font-bold">PIHAK PERTAMA</span></p>
+          <div className="ml-8 mb-4">
+            <div className="flex mb-1">
+              <span className="font-bold w-24">I. Nama</span>
+              <span>: <span className="font-bold">{pihakPertamaNama}</span></span>
+            </div>
+            <div className="flex mb-1">
+              <span className="font-bold w-24">Jabatan</span>
+              <span>: {pihakPertamaJabatan}</span>
+            </div>
+            <div className="flex mb-1">
+              <span className="font-bold w-24">Perusahaan</span>
+              <span>: <span className="font-bold">{pihakPertamaPerusahaan}</span></span>
+            </div>
+            <div className="flex mb-1">
+              <span className="font-bold w-24">Alamat</span>
+              <span>: {pihakPertamaAlamat}</span>
+            </div>
+            <p className="text-sm">Selanjutnya disebut <span className="font-bold">PIHAK PERTAMA</span></p>
           </div>
 
           {/* Pihak Kedua */}
           <div className="ml-8">
-            <p className="font-bold mb-1">II. <span className="font-bold">Nama</span>: {pihakKeduaNama}</p>
-            <p className="ml-4 text-sm"><span className="font-bold">Jabatan</span>: {pihakKeduaJabatan}</p>
-            <p className="ml-4 text-sm"><span className="font-bold">Perusahaan</span>: {pihakKedualPerusahaan}</p>
-            <p className="ml-4 text-sm"><span className="font-bold">Alamat</span>: {pihakKeduaAlamat}</p>
-            <p className="ml-4 text-sm">Selanjutnya disebut <span className="font-bold">PIHAK KEDUA</span></p>
+            <div className="flex mb-1">
+              <span className="font-bold w-24">II. Nama</span>
+              <span>: <span className="font-bold">{pihakKeduaNama}</span></span>
+            </div>
+            <div className="flex mb-1">
+              <span className="font-bold w-24">Jabatan</span>
+              <span>: {pihakKeduaJabatan}</span>
+            </div>
+            <div className="flex mb-1">
+              <span className="font-bold w-24">Perusahaan</span>
+              <span>: <span className="font-bold">{pihakKedualPerusahaan}</span></span>
+            </div>
+            <div className="flex mb-1">
+              <span className="font-bold w-24">Alamat</span>
+              <span>: {pihakKeduaAlamat}</span>
+            </div>
+            <p className="text-sm">Selanjutnya disebut <span className="font-bold">PIHAK KEDUA</span></p>
           </div>
 
           {/* Agreement Statement */}
