@@ -27,6 +27,7 @@ interface SuratPerjanjianTemplateProps {
   lokasiPekerjaan: string
   tanggalMulai: string
   tanggalSelesai: string
+  biayaMobilisasi?: string
   items: SuratPerjanjianItem[]
   keterangan?: string
 }
@@ -53,6 +54,7 @@ export function SuratPerjanjianTemplate({
   lokasiPekerjaan,
   tanggalMulai,
   tanggalSelesai,
+  biayaMobilisasi,
   items,
   keterangan,
 }: SuratPerjanjianTemplateProps) {
@@ -403,8 +405,17 @@ export function SuratPerjanjianTemplate({
           <div style={{ pageBreakInside: 'avoid' }}>
             <p className="font-bold mb-2 text-center" style={{ fontSize: "11pt" }}>Pasal 3</p>
             <p className="font-bold mb-3 text-center">Biaya Mobilisasi Alat Berat</p>
-            <p className="ml-6 mb-1">1. Biaya Mobilisasi dan Demobilisasi alat berat akan ditentukan berdasarkan kesepakatan kedua belah pihak.</p>
-            <p className="ml-6">2. Biaya Mobilisasi ditanggung oleh PIHAK KEDUA.</p>
+            {biayaMobilisasi ? (
+              <>
+                <p className="ml-6 mb-1">1. Biaya Mobilisasi dan Demobilisasi alat berat adalah senilai Rp. {formatCurrency(biayaMobilisasi)} (sesuai kesepakatan kedua belah pihak).</p>
+                <p className="ml-6">2. Biaya Mobilisasi ditanggung oleh PIHAK KEDUA.</p>
+              </>
+            ) : (
+              <>
+                <p className="ml-6 mb-1">1. Biaya Mobilisasi dan Demobilisasi alat berat akan ditentukan berdasarkan kesepakatan kedua belah pihak.</p>
+                <p className="ml-6">2. Biaya Mobilisasi ditanggung oleh PIHAK KEDUA.</p>
+              </>
+            )}
           </div>
 
           {/* Pasal 4 */}

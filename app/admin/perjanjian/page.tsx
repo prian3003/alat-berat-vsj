@@ -33,6 +33,7 @@ interface SuratPerjanjian {
   lokasiPekerjaan: string
   tanggalMulai: string
   tanggalSelesai: string
+  biayaMobilisasi: string
   items: SuratPerjanjianItem[]
   keterangan?: string
   status: string
@@ -80,6 +81,7 @@ export default function PerjanjianPage() {
     lokasiPekerjaan: '',
     tanggalMulai: new Date().toISOString().split('T')[0],
     tanggalSelesai: new Date().toISOString().split('T')[0],
+    biayaMobilisasi: '',
     keterangan: '',
     items: [{ jenisAlat: '', jumlah: 1, hargaSewa: '', keterangan: '' }],
   })
@@ -125,6 +127,7 @@ export default function PerjanjianPage() {
       lokasiPekerjaan: '',
       tanggalMulai: new Date().toISOString().split('T')[0],
       tanggalSelesai: new Date().toISOString().split('T')[0],
+      biayaMobilisasi: '',
       keterangan: '',
       items: [{ jenisAlat: '', jumlah: 1, hargaSewa: '', keterangan: '' }],
     })
@@ -147,6 +150,7 @@ export default function PerjanjianPage() {
       lokasiPekerjaan: perjanjian.lokasiPekerjaan,
       tanggalMulai: perjanjian.tanggalMulai.split('T')[0],
       tanggalSelesai: perjanjian.tanggalSelesai.split('T')[0],
+      biayaMobilisasi: perjanjian.biayaMobilisasi || '',
       keterangan: perjanjian.keterangan || '',
       items: perjanjian.items.map((item) => ({
         jenisAlat: item.jenisAlat,
@@ -587,6 +591,17 @@ export default function PerjanjianPage() {
                       className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-600 text-sm"
                     />
                   </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-slate-900 mb-1">Biaya Mobilisasi</label>
+                  <input
+                    type="text"
+                    placeholder="Contoh: 4000000 atau Rp. 4.000.000,-"
+                    value={formData.biayaMobilisasi}
+                    onChange={(e) => setFormData({ ...formData, biayaMobilisasi: e.target.value })}
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-600 text-sm"
+                  />
                 </div>
               </div>
             </fieldset>
