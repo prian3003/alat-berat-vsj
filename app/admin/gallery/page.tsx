@@ -630,7 +630,7 @@ export default function AdminGalleryPage() {
                   <p className="mt-1 text-sm text-slate-600">{image.description}</p>
                   <div className="mt-3 flex items-center justify-between">
                     <span className="inline-block px-2 py-1 bg-slate-100 text-slate-700 text-xs rounded">
-                      {image.category} {image.media_type && `• ${image.media_type === 'video' ? '🎬' : '🖼️'}`}
+                      {image.category}
                     </span>
                     <button
                       onClick={() => handleDelete(image.id, image.title)}
