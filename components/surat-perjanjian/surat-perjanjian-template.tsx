@@ -294,6 +294,15 @@ export function SuratPerjanjianTemplate({
           padding: '20mm 15mm',
         }}
       >
+        {/* Logo */}
+        <div className="mb-4 text-center">
+          <img
+            src="/logo.png"
+            alt="VSJ Logo"
+            style={{ height: '80px', width: 'auto', margin: '0 auto', display: 'block' }}
+          />
+        </div>
+
         {/* Header */}
         <div className="mb-6 pb-3 border-b-2 border-black text-center">
           <h1 className="text-base font-bold leading-tight">
