@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import Image from 'next/image'
+import { MessageCircle } from 'lucide-react'
 
 interface EquipmentCardProps {
   equipment: HeavyEquipmentWithImages
@@ -42,8 +43,25 @@ export function EquipmentCard({ equipment, onClick }: EquipmentCardProps) {
 
   const specs = equipment.specifications as Record<string, string> | null
 
+  const handleWhatsAppContact = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.stopPropagation()
+
+    // WhatsApp Business Number for VSJ
+    const whatsappNumber = '6282139659136'
+
+    // Build message with equipment details
+    const message = `Halo, saya tertarik dengan alat berat berikut:\n\n*${equipment.name}*\nKategori: ${getCategoryLabel(equipment.category)}\n${specs?.brand ? `Brand: ${specs.brand}\n` : ''}${specs?.model ? `Model: ${specs.model}\n` : ''}Harga: ${formatPrice(equipment.price_per_hour)}/jam\n\nApakah tersedia untuk disewa?`
+
+    // Encode message for URL
+    const encodedMessage = encodeURIComponent(message)
+
+    // Redirect to WhatsApp
+    const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodedMessage}`
+    window.open(whatsappUrl, '_blank')
+  }
+
   return (
-    <Card className="group cursor-pointer overflow-hidden transition-all hover:shadow-lg" onClick={onClick}>
+    <Card className="group cursor-pointer overflow-hidden transition-all hover:shadow-lg flex flex-col h-full" onClick={onClick}>
       <div className="relative aspect-video w-full overflow-hidden bg-slate-100">
         <Image
           src={primaryImage}
@@ -72,7 +90,7 @@ export function EquipmentCard({ equipment, onClick }: EquipmentCardProps) {
         </div>
       </CardHeader>
 
-      <CardContent>
+      <CardContent className="flex-1">
         {equipment.description && (
           <p className="mb-4 line-clamp-2 text-sm text-slate-600">
             {equipment.description}
@@ -104,12 +122,21 @@ export function EquipmentCard({ equipment, onClick }: EquipmentCardProps) {
         </div>
       </CardContent>
 
-      <CardFooter>
+      <CardFooter className="flex flex-col gap-3 mt-auto">
         <Button className="w-full" disabled={!equipment.is_available} onClick={(e) => {
           e.stopPropagation()
           onClick?.()
         }}>
           {equipment.is_available ? 'Lihat Detail' : 'Tidak Tersedia'}
+        </Button>
+        <Button
+          variant="outline"
+          disabled={!equipment.is_available}
+          onClick={handleWhatsAppContact}
+          className="w-full hover:bg-green-50 hover:border-green-600 hover:text-green-600 transition-colors flex items-center justify-center gap-2"
+        >
+          <MessageCircle className="h-4 w-4" />
+          <span>Hubungi Sekarang</span>
         </Button>
       </CardFooter>
     </Card>

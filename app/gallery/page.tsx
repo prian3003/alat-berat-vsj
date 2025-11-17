@@ -5,6 +5,7 @@ import Image from 'next/image'
 import { Navbar } from '@/components/shared/navbar'
 import { Footer } from '@/components/shared/footer'
 import { WhatsAppFloat } from '@/components/shared/whatsapp-float'
+import { FullscreenGallery } from '@/components/gallery/fullscreen-gallery'
 import { motion } from 'framer-motion'
 import Link from 'next/link'
 
@@ -22,6 +23,8 @@ export default function GalleryPage() {
   const [loading, setLoading] = useState(true)
   const [selectedCategory, setSelectedCategory] = useState('all')
   const [categories, setCategories] = useState<string[]>(['all'])
+  const [fullscreenOpen, setFullscreenOpen] = useState(false)
+  const [fullscreenIndex, setFullscreenIndex] = useState(0)
 
   useEffect(() => {
     fetchGalleryImages()
@@ -126,10 +129,14 @@ export default function GalleryPage() {
                 {filteredImages.map((image, index) => (
                   <motion.div
                     key={image.id}
-                    className="group relative overflow-hidden rounded-lg shadow-md hover:shadow-xl transition-shadow"
+                    className="group relative overflow-hidden rounded-lg shadow-md hover:shadow-xl transition-shadow cursor-pointer"
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5, delay: index * 0.05 }}
+                    onClick={() => {
+                      setFullscreenIndex(index)
+                      setFullscreenOpen(true)
+                    }}
                   >
                     <div className="relative aspect-square overflow-hidden bg-slate-100">
                       <Image
@@ -166,6 +173,14 @@ export default function GalleryPage() {
         </section>
       </main>
       <Footer />
+
+      {/* Fullscreen Gallery Modal */}
+      <FullscreenGallery
+        images={filteredImages}
+        initialIndex={fullscreenIndex}
+        isOpen={fullscreenOpen}
+        onClose={() => setFullscreenOpen(false)}
+      />
     </div>
   )
 }

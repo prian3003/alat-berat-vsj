@@ -4,6 +4,15 @@ import { useState, useEffect } from 'react'
 import { useAuth } from '@/context/AuthContext'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog'
 import Link from 'next/link'
 import { Toaster } from '@/components/ui/toaster'
 import { useToast } from '@/hooks/use-toast'
@@ -48,6 +57,9 @@ export default function PerjanjianPage() {
   const [isFormDialogOpen, setIsFormDialogOpen] = useState(false)
   const [selectedPerjanjian, setSelectedPerjanjian] = useState<SuratPerjanjian | undefined>()
   const [isPreviewOpen, setIsPreviewOpen] = useState(false)
+  const [deleteAlertOpen, setDeleteAlertOpen] = useState(false)
+  const [perjanjianToDelete, setPerjanjianToDelete] = useState<SuratPerjanjian | null>(null)
+  const [isDeleting, setIsDeleting] = useState(false)
   const [previewPerjanjian, setPreviewPerjanjian] = useState<SuratPerjanjian | undefined>()
   const [isLoadingPerjanjian, setIsLoadingPerjanjian] = useState(true)
 
@@ -162,11 +174,17 @@ export default function PerjanjianPage() {
     setIsFormDialogOpen(true)
   }
 
-  const handleDeletePerjanjian = async (id: string) => {
-    if (!confirm('Apakah Anda yakin ingin menghapus surat perjanjian ini?')) return
+  const handleDeleteClick = (perjanjian: SuratPerjanjian) => {
+    setPerjanjianToDelete(perjanjian)
+    setDeleteAlertOpen(true)
+  }
+
+  const handleConfirmDelete = async () => {
+    if (!perjanjianToDelete) return
 
     try {
-      const response = await fetch(`/api/surat-perjanjian/${id}`, {
+      setIsDeleting(true)
+      const response = await fetch(`/api/surat-perjanjian/${perjanjianToDelete.id}`, {
         method: 'DELETE',
       })
 
@@ -176,6 +194,8 @@ export default function PerjanjianPage() {
           description: 'Surat perjanjian berhasil dihapus',
         })
         loadPerjanjianList()
+        setDeleteAlertOpen(false)
+        setPerjanjianToDelete(null)
       } else {
         throw new Error('Failed to delete')
       }
@@ -185,6 +205,8 @@ export default function PerjanjianPage() {
         description: 'Gagal menghapus surat perjanjian',
         variant: 'destructive',
       })
+    } finally {
+      setIsDeleting(false)
     }
   }
 
@@ -446,7 +468,7 @@ export default function PerjanjianPage() {
                         Edit
                       </button>
                       <button
-                        onClick={() => handleDeletePerjanjian(perjanjian.id)}
+                        onClick={() => handleDeleteClick(perjanjian)}
                         className="text-red-600 hover:text-red-900 font-medium"
                       >
                         Hapus
@@ -461,7 +483,7 @@ export default function PerjanjianPage() {
       </main>
 
       <Dialog open={isFormDialogOpen} onOpenChange={setIsFormDialogOpen}>
-        <DialogContent className="max-h-[90vh] max-w-4xl overflow-y-auto">
+        <DialogContent className="max-h-[95vh] max-w-6xl overflow-y-auto w-[95vw]">
           <DialogHeader>
             <DialogTitle>
               {selectedPerjanjian ? 'Edit Surat Perjanjian' : 'Tambah Surat Perjanjian Baru'}
@@ -469,7 +491,8 @@ export default function PerjanjianPage() {
           </DialogHeader>
 
           <div className="space-y-6">
-            <div className="grid grid-cols-2 gap-4">
+            {/* Tanggal Section */}
+            <div className="grid grid-cols-3 gap-4">
               <div>
                 <label className="block text-sm font-medium text-slate-900 mb-1">Tanggal</label>
                 <input
@@ -479,11 +502,11 @@ export default function PerjanjianPage() {
                   className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-600"
                 />
               </div>
-              <div>
+              <div className="col-span-2">
                 <label className="block text-sm font-medium text-slate-900 mb-1">Tanggal Pernyataan</label>
                 <input
                   type="text"
-                  placeholder="Delapan Belas bulan Oktober..."
+                  placeholder="Delapan Belas bulan Oktober Tahun Dua Ribu Dua Puluh Empat"
                   value={formData.tanggalPernyataan}
                   onChange={(e) => setFormData({ ...formData, tanggalPernyataan: e.target.value })}
                   className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-600 text-sm"
@@ -491,88 +514,117 @@ export default function PerjanjianPage() {
               </div>
             </div>
 
-            <fieldset className="border rounded-lg p-4">
-              <legend className="text-sm font-semibold text-slate-900">Pihak Pertama</legend>
-              <div className="mt-4 space-y-3">
-                <input
-                  type="text"
-                  placeholder="Nama"
-                  value={formData.pihakPertamaNama}
-                  onChange={(e) => setFormData({ ...formData, pihakPertamaNama: e.target.value })}
-                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-600 text-sm"
-                />
-                <input
-                  type="text"
-                  placeholder="Jabatan"
-                  value={formData.pihakPertamaJabatan}
-                  onChange={(e) => setFormData({ ...formData, pihakPertamaJabatan: e.target.value })}
-                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-600 text-sm"
-                />
-                <input
-                  type="text"
-                  placeholder="Perusahaan"
-                  value={formData.pihakPertamaPerusahaan}
-                  onChange={(e) => setFormData({ ...formData, pihakPertamaPerusahaan: e.target.value })}
-                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-600 text-sm"
-                />
-                <textarea
-                  placeholder="Alamat"
-                  value={formData.pihakPertamaAlamat}
-                  onChange={(e) => setFormData({ ...formData, pihakPertamaAlamat: e.target.value })}
-                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-600 text-sm"
-                  rows={3}
-                />
-              </div>
-            </fieldset>
+            {/* Two Column Layout for Pihak Pertama and Pihak Kedua */}
+            <div className="grid grid-cols-2 gap-6">
+              {/* Pihak Pertama */}
+              <fieldset className="border rounded-lg p-4 bg-slate-50">
+                <legend className="text-sm font-semibold text-slate-900 px-2">Pihak Pertama (VSJ)</legend>
+                <div className="mt-4 space-y-3">
+                  <div>
+                    <label className="block text-xs font-medium text-slate-700 mb-1">Nama</label>
+                    <input
+                      type="text"
+                      placeholder="Nama"
+                      value={formData.pihakPertamaNama}
+                      onChange={(e) => setFormData({ ...formData, pihakPertamaNama: e.target.value })}
+                      className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-600 text-sm"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-slate-700 mb-1">Jabatan</label>
+                    <input
+                      type="text"
+                      placeholder="Jabatan"
+                      value={formData.pihakPertamaJabatan}
+                      onChange={(e) => setFormData({ ...formData, pihakPertamaJabatan: e.target.value })}
+                      className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-600 text-sm"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-slate-700 mb-1">Perusahaan</label>
+                    <input
+                      type="text"
+                      placeholder="Perusahaan"
+                      value={formData.pihakPertamaPerusahaan}
+                      onChange={(e) => setFormData({ ...formData, pihakPertamaPerusahaan: e.target.value })}
+                      className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-600 text-sm"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-slate-700 mb-1">Alamat</label>
+                    <textarea
+                      placeholder="Alamat"
+                      value={formData.pihakPertamaAlamat}
+                      onChange={(e) => setFormData({ ...formData, pihakPertamaAlamat: e.target.value })}
+                      className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-600 text-sm"
+                      rows={2}
+                    />
+                  </div>
+                </div>
+              </fieldset>
 
-            <fieldset className="border rounded-lg p-4">
-              <legend className="text-sm font-semibold text-slate-900">Pihak Kedua (Wajib)</legend>
-              <div className="mt-4 space-y-3">
-                <input
-                  type="text"
-                  placeholder="Nama"
-                  value={formData.pihakKeduaNama}
-                  onChange={(e) => setFormData({ ...formData, pihakKeduaNama: e.target.value })}
-                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-600 text-sm"
-                />
-                <input
-                  type="text"
-                  placeholder="Jabatan"
-                  value={formData.pihakKeduaJabatan}
-                  onChange={(e) => setFormData({ ...formData, pihakKeduaJabatan: e.target.value })}
-                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-600 text-sm"
-                />
-                <input
-                  type="text"
-                  placeholder="Perusahaan"
-                  value={formData.pihakKedualPerusahaan}
-                  onChange={(e) => setFormData({ ...formData, pihakKedualPerusahaan: e.target.value })}
-                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-600 text-sm"
-                />
-                <textarea
-                  placeholder="Alamat"
-                  value={formData.pihakKeduaAlamat}
-                  onChange={(e) => setFormData({ ...formData, pihakKeduaAlamat: e.target.value })}
-                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-600 text-sm"
-                  rows={3}
-                />
-              </div>
-            </fieldset>
+              {/* Pihak Kedua */}
+              <fieldset className="border rounded-lg p-4 bg-blue-50">
+                <legend className="text-sm font-semibold text-slate-900 px-2">Pihak Kedua (Penyewa) <span className="text-red-600">*</span></legend>
+                <div className="mt-4 space-y-3">
+                  <div>
+                    <label className="block text-xs font-medium text-slate-700 mb-1">Nama</label>
+                    <input
+                      type="text"
+                      placeholder="Nama Penyewa"
+                      value={formData.pihakKeduaNama}
+                      onChange={(e) => setFormData({ ...formData, pihakKeduaNama: e.target.value })}
+                      className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-600 text-sm"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-slate-700 mb-1">Jabatan</label>
+                    <input
+                      type="text"
+                      placeholder="Jabatan"
+                      value={formData.pihakKeduaJabatan}
+                      onChange={(e) => setFormData({ ...formData, pihakKeduaJabatan: e.target.value })}
+                      className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-600 text-sm"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-slate-700 mb-1">Perusahaan</label>
+                    <input
+                      type="text"
+                      placeholder="Perusahaan Penyewa"
+                      value={formData.pihakKedualPerusahaan}
+                      onChange={(e) => setFormData({ ...formData, pihakKedualPerusahaan: e.target.value })}
+                      className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-600 text-sm"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-slate-700 mb-1">Alamat</label>
+                    <textarea
+                      placeholder="Alamat Penyewa"
+                      value={formData.pihakKeduaAlamat}
+                      onChange={(e) => setFormData({ ...formData, pihakKeduaAlamat: e.target.value })}
+                      className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-600 text-sm"
+                      rows={2}
+                    />
+                  </div>
+                </div>
+              </fieldset>
+            </div>
 
-            <fieldset className="border rounded-lg p-4">
-              <legend className="text-sm font-semibold text-slate-900">Detail Perjanjian</legend>
-              <div className="mt-4 space-y-3">
+            <fieldset className="border rounded-lg p-4 bg-green-50">
+              <legend className="text-sm font-semibold text-slate-900 px-2">Detail Perjanjian</legend>
+              <div className="mt-4 space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-slate-900 mb-1">Lokasi Pekerjaan (Wajib)</label>
+                  <label className="block text-sm font-medium text-slate-900 mb-1">Lokasi Pekerjaan <span className="text-red-600">*</span></label>
                   <textarea
-                    placeholder="Lokasi"
+                    placeholder="Jalan, Kota, Provinsi - Deskripsi Lokasi Pekerjaan"
                     value={formData.lokasiPekerjaan}
                     onChange={(e) => setFormData({ ...formData, lokasiPekerjaan: e.target.value })}
                     className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-600 text-sm"
                     rows={2}
                   />
                 </div>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-3 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-slate-900 mb-1">Tanggal Mulai</label>
                     <input
@@ -591,17 +643,16 @@ export default function PerjanjianPage() {
                       className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-600 text-sm"
                     />
                   </div>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-slate-900 mb-1">Biaya Mobilisasi</label>
-                  <input
-                    type="text"
-                    placeholder="Contoh: 4000000 atau Rp. 4.000.000,-"
-                    value={formData.biayaMobilisasi}
-                    onChange={(e) => setFormData({ ...formData, biayaMobilisasi: e.target.value })}
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-600 text-sm"
-                  />
+                  <div>
+                    <label className="block text-sm font-medium text-slate-900 mb-1">Biaya Mobilisasi</label>
+                    <input
+                      type="text"
+                      placeholder="4000000"
+                      value={formData.biayaMobilisasi}
+                      onChange={(e) => setFormData({ ...formData, biayaMobilisasi: e.target.value })}
+                      className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-600 text-sm"
+                    />
+                  </div>
                 </div>
               </div>
             </fieldset>
@@ -735,6 +786,44 @@ export default function PerjanjianPage() {
           </div>
         </div>
       )}
+
+      {/* Delete Confirmation Alert Dialog */}
+      <AlertDialog open={deleteAlertOpen} onOpenChange={setDeleteAlertOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Hapus Surat Perjanjian?</AlertDialogTitle>
+            <AlertDialogDescription>
+              {perjanjianToDelete && (
+                <div className="space-y-2 mt-4">
+                  <p>Apakah Anda yakin ingin menghapus surat perjanjian ini?</p>
+                  <div className="bg-slate-50 p-3 rounded-md border border-slate-200">
+                    <p className="font-semibold text-sm text-slate-900">No. Perjanjian: {perjanjianToDelete.noPerjanjian}</p>
+                    <p className="text-sm text-slate-600">Pihak Pertama: {perjanjianToDelete.pihakPertamaNama}</p>
+                    <p className="text-sm text-slate-600">Pihak Kedua: {perjanjianToDelete.pihakKeduaNama}</p>
+                    <p className="text-sm text-slate-600">
+                      Tanggal: {new Date(perjanjianToDelete.tanggal).toLocaleDateString('id-ID')}
+                    </p>
+                    <p className="text-sm text-slate-600">
+                      Periode: {new Date(perjanjianToDelete.tanggalMulai).toLocaleDateString('id-ID')} - {new Date(perjanjianToDelete.tanggalSelesai).toLocaleDateString('id-ID')}
+                    </p>
+                  </div>
+                  <p className="text-sm text-red-600 font-medium">Tindakan ini tidak dapat dibatalkan.</p>
+                </div>
+              )}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <div className="flex gap-3 justify-end">
+            <AlertDialogCancel disabled={isDeleting}>Batal</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleConfirmDelete}
+              disabled={isDeleting}
+              className="bg-red-600 hover:bg-red-700 text-white"
+            >
+              {isDeleting ? 'Menghapus...' : 'Hapus'}
+            </AlertDialogAction>
+          </div>
+        </AlertDialogContent>
+      </AlertDialog>
 
       <Toaster />
     </div>

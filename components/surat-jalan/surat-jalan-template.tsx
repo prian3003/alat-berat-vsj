@@ -261,7 +261,7 @@ export function SuratJalanTemplate({
               </p>
               <p className="text-center text-xs text-gray-600 mt-3 space-y-1">
                 <span className="block">Jln. Werdi Bhuwana, Kec. Mengwi, Kab. Badung-Bali, 80351</span>
-                <span className="block">Telp. (+62) 821-3965-9136 | Email: vaniasugiartajaya25@gmail.com</span>
+                <span className="block">Telp. (+62) 813-7026-6314 | Email: vaniasugiartajaya25@gmail.com</span>
                 <span className="block">www.vaniasugiarta.com</span>
               </p>
             </div>
@@ -363,7 +363,7 @@ export function SuratJalanTemplate({
         <div className="mt-8 pt-2 border-t border-gray-300 text-center text-xs text-gray-600 print:mt-2 print:pt-1">
           <p className="font-semibold text-xs">PT. VANIA SUGIARTA JAYA</p>
           <p className="text-xs">Jln. Werdi Bhuwana, Kec. Mengwi, Kab. Badung-Bali, 80351</p>
-          <p className="text-xs">Telp. (+62) 821-3965-9136 | www.vaniasugiarta.com</p>
+          <p className="text-xs">Telp. (+62) 813-7026-6314 | www.vaniasugiarta.com</p>
         </div>
 
         {/* Print-specific styles */}

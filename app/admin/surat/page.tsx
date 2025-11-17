@@ -3,6 +3,15 @@
 import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog'
 import { useAuth } from '@/context/AuthContext'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
@@ -39,6 +48,8 @@ export default function SuratJalanPage() {
   const [isPreviewOpen, setIsPreviewOpen] = useState(false)
   const [selectedSurat, setSelectedSurat] = useState<SuratJalan | null>(null)
   const [previewSurat, setPreviewSurat] = useState<SuratJalan | null>(null)
+  const [deleteAlertOpen, setDeleteAlertOpen] = useState(false)
+  const [suratToDelete, setSuratToDelete] = useState<SuratJalan | null>(null)
 
   // Robust search function - case insensitive, searches across multiple fields
   const filteredSuratList = suratList.filter((surat) => {
@@ -165,8 +176,16 @@ export default function SuratJalanPage() {
 
   const handleEditSurat = (surat: SuratJalan) => {
     setSelectedSurat(surat)
+
+    // Convert ISO date string to YYYY-MM-DD format for input field
+    const formatDateForInput = (dateString: string) => {
+      if (!dateString) return new Date().toISOString().split('T')[0]
+      const date = new Date(dateString)
+      return date.toISOString().split('T')[0]
+    }
+
     setFormData({
-      tanggal: surat.tanggal,
+      tanggal: formatDateForInput(surat.tanggal),
       jenisKendaraan: surat.jenisKendaraan,
       noPol: surat.noPol,
       sopir: surat.sopir,
@@ -183,12 +202,17 @@ export default function SuratJalanPage() {
     setIsFormDialogOpen(true)
   }
 
-  const handleDeleteSurat = async (id: string) => {
-    if (!confirm('Apakah Anda yakin ingin menghapus surat jalan ini?')) return
+  const handleDeleteClick = (surat: SuratJalan) => {
+    setSuratToDelete(surat)
+    setDeleteAlertOpen(true)
+  }
+
+  const handleConfirmDelete = async () => {
+    if (!suratToDelete) return
 
     try {
       setLoading(true)
-      const response = await fetch(`/api/surat-jalan/${id}`, {
+      const response = await fetch(`/api/surat-jalan/${suratToDelete.id}`, {
         method: 'DELETE',
       })
 
@@ -197,6 +221,8 @@ export default function SuratJalanPage() {
       }
 
       await fetchSuratList()
+      setDeleteAlertOpen(false)
+      setSuratToDelete(null)
     } catch (error) {
       console.error('Error deleting surat jalan:', error)
       alert('Gagal menghapus surat jalan')
@@ -420,7 +446,7 @@ export default function SuratJalanPage() {
                         Edit
                       </button>
                       <button
-                        onClick={() => handleDeleteSurat(surat.id)}
+                        onClick={() => handleDeleteClick(surat)}
                         className="text-red-600 hover:text-red-900 font-medium"
                       >
                         Hapus
@@ -663,6 +689,41 @@ export default function SuratJalanPage() {
           </div>
         </div>
       )}
+
+      {/* Delete Confirmation Alert Dialog */}
+      <AlertDialog open={deleteAlertOpen} onOpenChange={setDeleteAlertOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Hapus Surat Jalan?</AlertDialogTitle>
+            <AlertDialogDescription>
+              {suratToDelete && (
+                <div className="space-y-2 mt-4">
+                  <p>Apakah Anda yakin ingin menghapus surat jalan ini?</p>
+                  <div className="bg-slate-50 p-3 rounded-md border border-slate-200">
+                    <p className="font-semibold text-sm text-slate-900">No. Surat: {suratToDelete.noSurat}</p>
+                    <p className="text-sm text-slate-600">Kendaraan: {suratToDelete.jenisKendaraan} ({suratToDelete.noPol})</p>
+                    <p className="text-sm text-slate-600">Sopir: {suratToDelete.sopir}</p>
+                    <p className="text-sm text-slate-600">
+                      Tanggal: {new Date(suratToDelete.tanggal).toLocaleDateString('id-ID')}
+                    </p>
+                  </div>
+                  <p className="text-sm text-red-600 font-medium">Tindakan ini tidak dapat dibatalkan.</p>
+                </div>
+              )}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <div className="flex gap-3 justify-end">
+            <AlertDialogCancel disabled={loading}>Batal</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleConfirmDelete}
+              disabled={loading}
+              className="bg-red-600 hover:bg-red-700 text-white"
+            >
+              {loading ? 'Menghapus...' : 'Hapus'}
+            </AlertDialogAction>
+          </div>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }

@@ -5,6 +5,7 @@ import { HeavyEquipmentWithImages } from '@/types'
 import Image from 'next/image'
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
+import { MessageCircle } from 'lucide-react'
 
 interface EquipmentDetailModalProps {
   equipment: HeavyEquipmentWithImages | null
@@ -16,6 +17,52 @@ export function EquipmentDetailModal({ equipment, open, onOpenChange }: Equipmen
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
 
   if (!equipment) return null
+
+  const handleWhatsAppContact = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.stopPropagation()
+
+    // WhatsApp Business Number for VSJ
+    const whatsappNumber = '6282139659136'
+
+    // Get specs
+    const specs = equipment.specifications as Record<string, string> | null
+
+    // Format price
+    const formatPriceForMessage = (price: number | null | undefined) => {
+      if (!price) return 'Hubungi Kami'
+      return new Intl.NumberFormat('id-ID', {
+        style: 'currency',
+        currency: 'IDR',
+        minimumFractionDigits: 0,
+      }).format(Number(price))
+    }
+
+    // Get category label
+    const getCategoryLabel = (category: string) => {
+      const categories: Record<string, string> = {
+        excavator: 'Excavator',
+        bulldozer: 'Bulldozer',
+        crane: 'Crane',
+        loader: 'Loader',
+        forklift: 'Forklift',
+        dump_truck: 'Dump Truck',
+        grader: 'Grader',
+        roller: 'Roller',
+        other: 'Lainnya',
+      }
+      return categories[category] || category
+    }
+
+    // Build message with equipment details
+    const message = `Halo, saya tertarik dengan alat berat berikut:\n\n*${equipment.name}*\nKategori: ${getCategoryLabel(equipment.category)}\n${specs?.brand ? `Brand: ${specs.brand}\n` : ''}${specs?.model ? `Model: ${specs.model}\n` : ''}Harga: ${formatPriceForMessage(equipment.price_per_hour)}/jam\n\nApakah tersedia untuk disewa?`
+
+    // Encode message for URL
+    const encodedMessage = encodeURIComponent(message)
+
+    // Redirect to WhatsApp
+    const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodedMessage}`
+    window.open(whatsappUrl, '_blank')
+  }
 
   // Get all images - primary + additional images
   const allImages = [
@@ -180,19 +227,15 @@ export function EquipmentDetailModal({ equipment, open, onOpenChange }: Equipmen
             </div>
 
             {/* Contact Button */}
-            <div className="flex gap-2">
-              <Button asChild className="flex-1">
-                <a
-                  href={`https://wa.me/6285813718988?text=${encodeURIComponent(
-                    `Halo, saya tertarik dengan ${equipment.name}`
-                  )}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  Hubungi via WhatsApp
-                </a>
-              </Button>
-            </div>
+            <Button
+              disabled={!equipment.is_available}
+              onClick={handleWhatsAppContact}
+              className="w-full hover:bg-green-50 hover:border-green-600 hover:text-green-600 transition-colors flex items-center justify-center gap-2"
+              variant="outline"
+            >
+              <MessageCircle className="h-4 w-4" />
+              <span>Hubungi Sekarang</span>
+            </Button>
           </div>
         </div>
       </DialogContent>
