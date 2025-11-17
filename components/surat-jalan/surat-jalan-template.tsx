@@ -230,99 +230,230 @@ export function SuratJalanTemplate({
       {/* Document */}
       <div
         ref={printRef}
-        className="mx-auto w-full bg-white"
+        className="mx-auto bg-white"
         style={{
           fontSize: '10pt',
           lineHeight: 1.3,
           maxWidth: '8.5in',
           margin: '0 auto',
           padding: '20mm 15mm',
+          width: '100%'
         }}
       >
-        {/* Header */}
-        <div className="mb-4 pb-2 border-b border-gray-300 print:mb-2 print:pb-1">
-          <div className="flex items-start gap-3">
-            {/* Logo */}
-            <div className="flex-shrink-0">
-              <img
-                src="/logo.png"
-                alt="VSJ Logo"
-                style={{ height: '80px', width: 'auto' }}
-              />
-            </div>
+        {/* Logo - At very top, centered - ISOLATED SECTION */}
+        <div style={{
+          textAlign: 'center',
+          marginBottom: '12px',
+          width: '100%',
+          display: 'block',
+          clear: 'both'
+        }}>
+          <img
+            src="/logo.png"
+            alt="VSJ Logo"
+            style={{
+              height: '70px',
+              width: 'auto',
+              margin: '0 auto',
+              display: 'block',
+              maxWidth: '100%',
+              clear: 'both'
+            }}
+          />
+        </div>
 
-            {/* Company Info */}
-            <div className="flex-1">
-              <h1 className="text-center text-xl font-bold leading-tight">
-                PT. VANIA SUGIARTA JAYA
-              </h1>
-              <p className="text-center text-sm font-semibold text-gray-700 mt-1">
-                Sewa Alat Berat Terpercaya
-              </p>
-              <p className="text-center text-xs text-gray-600 mt-3 space-y-1">
-                <span className="block">Jln. Werdi Bhuwana, Kec. Mengwi, Kab. Badung-Bali, 80351</span>
-                <span className="block">Telp. (+62) 813-7026-6314 | Email: vaniasugiartajaya25@gmail.com</span>
-                <span className="block">www.vaniasugiarta.com</span>
-              </p>
-            </div>
-          </div>
+        {/* Header */}
+        <div style={{
+          marginBottom: '16px',
+          paddingBottom: '8px',
+          borderBottom: '1px solid #d1d5db',
+          textAlign: 'center',
+          width: '100%',
+          display: 'block',
+          clear: 'both'
+        }}>
+          {/* Company Info - Centered */}
+          <h1 style={{
+            fontSize: '18pt',
+            fontWeight: 'bold',
+            lineHeight: 1.2,
+            margin: '0 0 4px 0'
+          }}>
+            PT. VANIA SUGIARTA JAYA
+          </h1>
+          <p style={{
+            fontSize: '11pt',
+            fontWeight: '600',
+            color: '#374151',
+            margin: '4px 0'
+          }}>
+            Sewa Alat Berat Terpercaya
+          </p>
+          <p style={{
+            fontSize: '9pt',
+            color: '#4b5563',
+            margin: '8px 0 0 0'
+          }}>
+            <span style={{ display: 'block', margin: '2px 0' }}>Jln. Werdi Bhuwana, Kec. Mengwi, Kab. Badung-Bali, 80351</span>
+            <span style={{ display: 'block', margin: '2px 0' }}>Telp. (+62) 813-7026-6314 | Email: vaniasugiartajaya25@gmail.com</span>
+            <span style={{ display: 'block', margin: '2px 0' }}>www.vaniasugiarta.com</span>
+          </p>
         </div>
 
         {/* Document Title */}
-        <h2 className="mb-8 text-center text-lg font-bold border-b-2 border-black pb-2">
+        <h2 style={{
+          marginBottom: '32px',
+          textAlign: 'center',
+          fontSize: '14pt',
+          fontWeight: 'bold',
+          borderBottom: '2px solid #000',
+          paddingBottom: '8px',
+          width: '100%',
+          display: 'block',
+          clear: 'both'
+        }}>
           SURAT JALAN
         </h2>
 
         {/* Document Info */}
-        <div className="mb-6 grid grid-cols-2 gap-6 text-xs">
-          <div className="flex justify-between items-center border-b border-black pb-1">
-            <span className="font-bold">Jenis Kendaraan:</span>
+        <div style={{
+          marginBottom: '24px',
+          display: 'grid',
+          gridTemplateColumns: '1fr 1fr',
+          gap: '24px',
+          fontSize: '9pt',
+          width: '100%'
+        }}>
+          <div style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            borderBottom: '1px solid #000',
+            paddingBottom: '4px'
+          }}>
+            <span style={{ fontWeight: 'bold' }}>Jenis Kendaraan:</span>
             <span>{jenisKendaraan}</span>
           </div>
-          <div className="flex justify-between items-center border-b border-black pb-1">
-            <span className="font-bold">Tanggal:</span>
+          <div style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            borderBottom: '1px solid #000',
+            paddingBottom: '4px'
+          }}>
+            <span style={{ fontWeight: 'bold' }}>Tanggal:</span>
             <span>{formatDate(tanggal)}</span>
           </div>
-          <div className="flex justify-between items-center border-b border-black pb-1">
-            <span className="font-bold">No Pol:</span>
+          <div style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            borderBottom: '1px solid #000',
+            paddingBottom: '4px'
+          }}>
+            <span style={{ fontWeight: 'bold' }}>No Pol:</span>
             <span>{noPol}</span>
           </div>
-          <div className="flex justify-between items-center border-b border-black pb-1">
-            <span className="font-bold">Sopir:</span>
+          <div style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            borderBottom: '1px solid #000',
+            paddingBottom: '4px'
+          }}>
+            <span style={{ fontWeight: 'bold' }}>Sopir:</span>
             <span>{sopir}</span>
           </div>
         </div>
 
         {/* Surat Number */}
-        <div className="mb-6 text-center text-sm font-bold bg-gray-100 py-2 rounded">
-          No. Surat: <span className="text-base">{noSurat}</span>
+        <div style={{
+          marginBottom: '24px',
+          textAlign: 'center',
+          fontSize: '11pt',
+          fontWeight: 'bold',
+          backgroundColor: '#f3f4f6',
+          padding: '8px',
+          borderRadius: '4px',
+          width: '100%'
+        }}>
+          No. Surat: <span style={{ fontSize: '12pt' }}>{noSurat}</span>
         </div>
 
         {/* Items Table */}
-        <table className="mb-8 w-full border-collapse text-xs">
+        <table style={{
+          marginBottom: '32px',
+          width: '100%',
+          borderCollapse: 'collapse',
+          fontSize: '9pt'
+        }}>
           <thead>
-            <tr className="bg-gray-800 text-white">
-              <th className="border border-gray-800 px-3 py-2 text-center font-bold w-8">NO</th>
-              <th className="border border-gray-800 px-3 py-2 text-left font-bold">JENIS UNIT</th>
-              <th className="border border-gray-800 px-3 py-2 text-left font-bold">SERI</th>
-              <th className="border border-gray-800 px-3 py-2 text-left font-bold">LOKASI</th>
-              <th className="border border-gray-800 px-3 py-2 text-left font-bold">KETERANGAN</th>
+            <tr style={{ backgroundColor: '#1f2937', color: '#fff' }}>
+              <th style={{
+                border: '1px solid #1f2937',
+                padding: '8px 12px',
+                textAlign: 'center',
+                fontWeight: 'bold',
+                width: '8%'
+              }}>NO</th>
+              <th style={{
+                border: '1px solid #1f2937',
+                padding: '8px 12px',
+                textAlign: 'left',
+                fontWeight: 'bold'
+              }}>JENIS UNIT</th>
+              <th style={{
+                border: '1px solid #1f2937',
+                padding: '8px 12px',
+                textAlign: 'left',
+                fontWeight: 'bold'
+              }}>SERI</th>
+              <th style={{
+                border: '1px solid #1f2937',
+                padding: '8px 12px',
+                textAlign: 'left',
+                fontWeight: 'bold'
+              }}>LOKASI</th>
+              <th style={{
+                border: '1px solid #1f2937',
+                padding: '8px 12px',
+                textAlign: 'left',
+                fontWeight: 'bold'
+              }}>KETERANGAN</th>
             </tr>
           </thead>
           <tbody>
             {items.map((item, idx) => (
-              <tr key={item.urutan} className={idx % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
-                <td className="border border-gray-300 px-3 py-2 text-center">
+              <tr key={item.urutan} style={{
+                backgroundColor: idx % 2 === 0 ? '#fff' : '#f9fafb'
+              }}>
+                <td style={{
+                  border: '1px solid #d1d5db',
+                  padding: '8px 12px',
+                  textAlign: 'center'
+                }}>
                   {item.urutan}
                 </td>
-                <td className="border border-gray-300 px-3 py-2">
+                <td style={{
+                  border: '1px solid #d1d5db',
+                  padding: '8px 12px'
+                }}>
                   {item.jenisUnit}
                 </td>
-                <td className="border border-gray-300 px-3 py-2">{item.seri}</td>
-                <td className="border border-gray-300 px-3 py-2">
+                <td style={{
+                  border: '1px solid #d1d5db',
+                  padding: '8px 12px'
+                }}>{item.seri}</td>
+                <td style={{
+                  border: '1px solid #d1d5db',
+                  padding: '8px 12px'
+                }}>
                   {item.lokasi}
                 </td>
-                <td className="border border-gray-300 px-3 py-2">
+                <td style={{
+                  border: '1px solid #d1d5db',
+                  padding: '8px 12px'
+                }}>
                   {item.keterangan || '-'}
                 </td>
               </tr>
@@ -331,39 +462,63 @@ export function SuratJalanTemplate({
         </table>
 
         {/* Notes Section */}
-        <div className="mb-8 text-xs border-l-4 border-gray-400 pl-3 py-2 bg-gray-50">
-          <p className="font-bold mb-1">Keterangan:</p>
-          <p className="mb-1">Mohon untuk dicek dan diterima oleh pihak yang berwenang</p>
-          {tujuan && <p className="mb-1"><span className="font-bold">Tujuan:</span> {tujuan}</p>}
-          {keterangan && <p><span className="font-bold">Catatan:</span> {keterangan}</p>}
+        <div style={{
+          marginBottom: '32px',
+          fontSize: '9pt',
+          borderLeft: '4px solid #9ca3af',
+          paddingLeft: '12px',
+          paddingTop: '8px',
+          paddingBottom: '8px',
+          backgroundColor: '#f9fafb',
+          width: '100%'
+        }}>
+          <p style={{ fontWeight: 'bold', marginBottom: '4px' }}>Keterangan:</p>
+          <p style={{ marginBottom: '4px' }}>Mohon untuk dicek dan diterima oleh pihak yang berwenang</p>
+          {tujuan && <p style={{ marginBottom: '4px' }}><span style={{ fontWeight: 'bold' }}>Tujuan:</span> {tujuan}</p>}
+          {keterangan && <p><span style={{ fontWeight: 'bold' }}>Catatan:</span> {keterangan}</p>}
         </div>
 
         {/* Signature Section */}
-        <div className="grid grid-cols-3 gap-4 text-center text-xs">
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: '1fr 1fr 1fr',
+          gap: '16px',
+          textAlign: 'center',
+          fontSize: '9pt',
+          width: '100%'
+        }}>
           <div>
-            <p className="font-bold mb-16">PENGEMUDI</p>
-            <div className="border-t-2 border-black pt-1 h-12 mb-1"></div>
-            <p className="text-xs">Tanda Tangan</p>
+            <p style={{ fontWeight: 'bold', marginBottom: '64px' }}>PENGEMUDI</p>
+            <div style={{ borderTop: '2px solid #000', paddingTop: '4px', height: '48px', marginBottom: '4px' }}></div>
+            <p style={{ fontSize: '9pt' }}>Tanda Tangan</p>
           </div>
 
           <div>
-            <p className="font-bold mb-16">PERUSAHAAN</p>
-            <div className="border-t-2 border-black pt-1 h-12 mb-1"></div>
-            <p className="text-xs">Tanda Tangan</p>
+            <p style={{ fontWeight: 'bold', marginBottom: '64px' }}>PERUSAHAAN</p>
+            <div style={{ borderTop: '2px solid #000', paddingTop: '4px', height: '48px', marginBottom: '4px' }}></div>
+            <p style={{ fontSize: '9pt' }}>Tanda Tangan</p>
           </div>
 
           <div>
-            <p className="font-bold mb-16">PENERIMA</p>
-            <div className="border-t-2 border-black pt-1 h-12 mb-1"></div>
-            <p className="text-xs">Tanda Tangan</p>
+            <p style={{ fontWeight: 'bold', marginBottom: '64px' }}>PENERIMA</p>
+            <div style={{ borderTop: '2px solid #000', paddingTop: '4px', height: '48px', marginBottom: '4px' }}></div>
+            <p style={{ fontSize: '9pt' }}>Tanda Tangan</p>
           </div>
         </div>
 
         {/* Footer */}
-        <div className="mt-8 pt-2 border-t border-gray-300 text-center text-xs text-gray-600 print:mt-2 print:pt-1">
-          <p className="font-semibold text-xs">PT. VANIA SUGIARTA JAYA</p>
-          <p className="text-xs">Jln. Werdi Bhuwana, Kec. Mengwi, Kab. Badung-Bali, 80351</p>
-          <p className="text-xs">Telp. (+62) 813-7026-6314 | www.vaniasugiarta.com</p>
+        <div style={{
+          marginTop: '32px',
+          paddingTop: '8px',
+          borderTop: '1px solid #d1d5db',
+          textAlign: 'center',
+          fontSize: '9pt',
+          color: '#4b5563',
+          width: '100%'
+        }}>
+          <p style={{ fontWeight: '600', fontSize: '9pt', margin: '4px 0' }}>PT. VANIA SUGIARTA JAYA</p>
+          <p style={{ fontSize: '9pt', margin: '2px 0' }}>Jln. Werdi Bhuwana, Kec. Mengwi, Kab. Badung-Bali, 80351</p>
+          <p style={{ fontSize: '9pt', margin: '2px 0' }}>Telp. (+62) 813-7026-6314 | www.vaniasugiarta.com</p>
         </div>
 
         {/* Print-specific styles */}
