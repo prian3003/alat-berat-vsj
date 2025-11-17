@@ -31,6 +31,13 @@ interface SuratPerjanjianTemplateProps {
   keterangan?: string
 }
 
+// Function to format currency with dot separators (Indonesian format)
+// 300000 -> 300.000, 3000000 -> 3.000.000
+const formatCurrency = (value: string | number): string => {
+  const numStr = String(value).replace(/\D/g, '') // Remove non-digits
+  return numStr.replace(/\B(?=(\d{3})+(?!\d))/g, '.')
+}
+
 export function SuratPerjanjianTemplate({
   noPerjanjian,
   tanggal,
@@ -352,7 +359,7 @@ export function SuratPerjanjianTemplate({
             <p className="ml-8 mb-1">b) Harga sewa alat berat :</p>
             <div className="ml-12 space-y-0.5 mb-3">
               {items.map((item) => (
-                <p key={item.urutan}>• {item.jenisAlat}     Rp. {item.hargaSewa} / Jam</p>
+                <p key={item.urutan}>• {item.jenisAlat}     Rp. {formatCurrency(item.hargaSewa)} / Jam</p>
               ))}
             </div>
 
