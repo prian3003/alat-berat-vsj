@@ -286,35 +286,21 @@ export function SuratPerjanjianTemplate({
         }}
       >
         {/* Header */}
-        <div className="mb-4 pb-2 border-b border-gray-400">
-          <div className="flex items-start gap-3">
-            {/* Logo */}
-            <div className="flex-shrink-0">
-              <img
-                src="/logo.png"
-                alt="VSJ Logo"
-                style={{ height: '60px', width: 'auto' }}
-              />
-            </div>
-
-            {/* Company Info */}
-            <div className="flex-1">
-              <h1 className="text-center text-base font-bold leading-tight">
-                PT. VANIA SUGIARTA JAYA
-              </h1>
-              <p className="text-center text-sm font-semibold text-gray-700 mt-0.5">
-                Sewa Alat Berat Terpercaya
-              </p>
-              <p className="text-center text-xs text-gray-600 mt-1">
-                <span className="block">Jln. Werdi Bhuwana, Kec. Mengwi, Kab. Badung-Bali, 80351</span>
-                <span className="block">Telp. (+62) 821-3965-9136 | www.vaniasugiarta.com</span>
-              </p>
-            </div>
-          </div>
+        <div className="mb-6 pb-3 border-b-2 border-black text-center">
+          <h1 className="text-base font-bold leading-tight">
+            PT. VANIA SUGIARTA JAYA
+          </h1>
+          <p className="text-sm font-semibold text-gray-700 mt-0.5">
+            Sewa Alat Berat Terpercaya
+          </p>
+          <p className="text-xs text-gray-600 mt-1">
+            <span className="block">Jln. Werdi Bhuwana, Kec. Mengwi, Kab. Badung-Bali, 80351</span>
+            <span className="block">Telp. (+62) 821-3965-9136 | www.vaniasugiarta.com</span>
+          </p>
         </div>
 
         {/* Document Title */}
-        <h2 className="mb-4 text-center text-base font-bold border-b-2 border-black pb-2">
+        <h2 className="mb-6 text-center text-base font-bold border-b-2 border-black pb-3">
           SURAT PERJANJIAN SEWA PAKAI ALAT BERAT
         </h2>
 
@@ -323,7 +309,7 @@ export function SuratPerjanjianTemplate({
           <p>Pada hari ini, <span className="font-bold">{tanggalPernyataan || 'yang telah ditetapkan'}</span>, yang bertanda tangan di bawah ini :</p>
 
           {/* Pihak Pertama */}
-          <div>
+          <div className="ml-8">
             <p className="font-bold mb-1">I. <span className="font-bold">Nama</span>: {pihakPertamaNama}</p>
             <p className="ml-4 text-sm"><span className="font-bold">Jabatan</span>: {pihakPertamaJabatan}</p>
             <p className="ml-4 text-sm"><span className="font-bold">Perusahaan</span>: {pihakPertamaPerusahaan}</p>
@@ -332,7 +318,7 @@ export function SuratPerjanjianTemplate({
           </div>
 
           {/* Pihak Kedua */}
-          <div>
+          <div className="ml-8">
             <p className="font-bold mb-1">II. <span className="font-bold">Nama</span>: {pihakKeduaNama}</p>
             <p className="ml-4 text-sm"><span className="font-bold">Jabatan</span>: {pihakKeduaJabatan}</p>
             <p className="ml-4 text-sm"><span className="font-bold">Perusahaan</span>: {pihakKedualPerusahaan}</p>
