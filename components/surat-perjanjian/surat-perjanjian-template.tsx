@@ -276,7 +276,7 @@ export function SuratPerjanjianTemplate({
               </p>
               <p className="text-center text-xs text-gray-600 mt-1 space-y-0">
                 <span className="block text-xs">Jln. Werdi Bhuwana, Kec. Mengwi, Kab. Badung-Bali, 80351</span>
-                <span className="block text-xs">Telp. (+62) 821-3965-9136 | Email: info@vaniasugiarta.com</span>
+                <span className="block text-xs">Telp. (+62) 821-3965-9136 | Email: vaniasugiartajaya25@gmail.com</span>
                 <span className="block text-xs">www.vaniasugiarta.com</span>
               </p>
             </div>
