@@ -383,7 +383,7 @@ export function SuratPerjanjianTemplate({
           {/* Pasal 1 */}
           <div style={{ pageBreakInside: 'avoid' }}>
             <p className="font-bold mb-2 text-center" style={{ fontSize: '11pt' }}>Pasal 1</p>
-            <p className="font-bold mb-1 text-center">Jenis, Jumlah, Harga Sewa dan Lokasi Kerja.</p>
+            <p className="font-bold mb-3 text-center">Jenis, Jumlah, Harga Sewa dan Lokasi Kerja.</p>
             <p className="ml-6 mb-1">1. PIHAK PERTAMA bersedia menyewakan alat kepada PIHAK KEDUA dan PIHAK KEDUA setuju untuk menyewa alat berat kepada PIHAK PERTAMA dengan jenis dan harga sewa sebagaimana tercantum dalam tabel di atas.</p>
             <p className="ml-6 mb-1">2. Harga sewa alat berat di atas tanpa pemotongan pajak dan kedua belah pihak setuju bahwa tarif sewa alat berat pada Pasal 1 ini tidak akan berubah selama perjanjian belum berakhir.</p>
             <p className="ml-6">3. Lokasi kerja PIHAK KEDUA yaitu terletak di {lokasiPekerjaan}.</p>
@@ -392,7 +392,7 @@ export function SuratPerjanjianTemplate({
           {/* Pasal 2 */}
           <div style={{ pageBreakInside: "avoid" }}>
             <p className="font-bold mb-2 text-center" style={{ fontSize: "11pt" }}>Pasal 2</p>
-            <p className="font-bold mb-1 text-center">Tempat, Waktu dan Kondisi Penyerahan Alat Berat</p>
+            <p className="font-bold mb-3 text-center">Tempat, Waktu dan Kondisi Penyerahan Alat Berat</p>
             <p className="ml-6 mb-1">1. Alat diangkut oleh PIHAK PERTAMA ke lokasi yang telah ditentukan oleh PIHAK KEDUA setelah PIHAK KEDUA menyelesaikan administrasi sewa menyewa.</p>
             <p className="ml-6">2. Waktu penyerahan alat berat selambat lambatnya tiga hari setelah surat perjanjian kerja ini ditandatangani.</p>
           </div>
@@ -400,7 +400,7 @@ export function SuratPerjanjianTemplate({
           {/* Pasal 3 */}
           <div style={{ pageBreakInside: 'avoid' }}>
             <p className="font-bold mb-2 text-center" style={{ fontSize: "11pt" }}>Pasal 3</p>
-            <p className="font-bold mb-1 text-center">Biaya Mobilisasi Alat Berat</p>
+            <p className="font-bold mb-3 text-center">Biaya Mobilisasi Alat Berat</p>
             <p className="ml-6 mb-1">1. Biaya Mobilisasi dan Demobilisasi alat berat akan ditentukan berdasarkan kesepakatan kedua belah pihak.</p>
             <p className="ml-6">2. Biaya Mobilisasi ditanggung oleh PIHAK KEDUA.</p>
           </div>
@@ -408,7 +408,7 @@ export function SuratPerjanjianTemplate({
           {/* Pasal 4 */}
           <div style={{ pageBreakInside: "avoid" }}>
             <p className="font-bold mb-2 text-center" style={{ fontSize: "11pt" }}>Pasal 4</p>
-            <p className="font-bold mb-1 text-center">Biaya Operasi, Pemeliharaan dan Perbaikan Alat</p>
+            <p className="font-bold mb-3 text-center">Biaya Operasi, Pemeliharaan dan Perbaikan Alat</p>
             <p className="ml-6 mb-1">1. Selama masa penyewaan alat berat, keperluan olie, perbaikan kerusakan, penggantian sparepart dan Mekanik menjadi tanggung jawab PIHAK PERTAMA.</p>
             <p className="ml-6">2. Pemakaian BBM (Bahan Bakar Minyak) untuk keperluan operasi menjadi tanggung jawab PIHAK KEDUA.</p>
           </div>
@@ -416,21 +416,21 @@ export function SuratPerjanjianTemplate({
           {/* Pasal 5 */}
           <div style={{ pageBreakInside: "avoid" }}>
             <p className="font-bold mb-2 text-center" style={{ fontSize: "11pt" }}>Pasal 5</p>
-            <p className="font-bold mb-1 text-center">Operasi dan Operator</p>
+            <p className="font-bold mb-3 text-center">Operasi dan Operator</p>
             <p className="ml-6">Pengadaan Operator menjadi tanggung jawab PIHAK PERTAMA, kebutuhan operator seperti makan, minum, tempat tinggal dan transportasi menjadi tanggung jawab PIHAK KEDUA.</p>
           </div>
 
           {/* Pasal 6 */}
           <div style={{ pageBreakInside: "avoid" }}>
             <p className="font-bold mb-2 text-center" style={{ fontSize: "11pt" }}>Pasal 6</p>
-            <p className="font-bold mb-1 text-center">Laporan Operasi Alat (Time Sheet)</p>
+            <p className="font-bold mb-3 text-center">Laporan Operasi Alat (Time Sheet)</p>
             <p className="ml-6">Laporan harian operasi alat diisi oleh operator dan ditandatangani oleh Pengawas Kerja dari PIHAK KEDUA atau atas nama penyewa alat.</p>
           </div>
 
           {/* Pasal 7 */}
           <div style={{ pageBreakInside: "avoid" }}>
             <p className="font-bold mb-2 text-center" style={{ fontSize: "11pt" }}>Pasal 7</p>
-            <p className="font-bold mb-1 text-center">Pembayaran Sewa</p>
+            <p className="font-bold mb-3 text-center">Pembayaran Sewa</p>
             <p className="ml-6 mb-1">1. PIHAK KEDUA berkewajiban menyelesaikan pembayaran sewa alat berat dimuka sebesar 100 jam/unitnya serta ditambah biaya mobilisasi.</p>
             <p className="ml-6 mb-1">2. Uang pembayaran sewa alat berat dibayarkan secara tunai atau sesuai kesepakatan kedua belah pihak.</p>
             <p className="ml-6">3. Jika pekerjaan sudah hampir mencapai nilai dari dana masuk dan PIHAK KEDUA masih akan memperpanjang masa sewa maka harus memberitahukan kepada PIHAK PERTAMA minimal dua (2) hari sebelum habis masa sewa alat berat.</p>
@@ -439,7 +439,7 @@ export function SuratPerjanjianTemplate({
           {/* Pasal 8 */}
           <div style={{ pageBreakInside: "avoid" }}>
             <p className="font-bold mb-2 text-center" style={{ fontSize: "11pt" }}>Pasal 8</p>
-            <p className="font-bold mb-1 text-center">Keamanan Alat Berat</p>
+            <p className="font-bold mb-3 text-center">Keamanan Alat Berat</p>
             <p className="ml-6 mb-1">1. PIHAK KEDUA wajib menyediakan security untuk menjaga keamanan alat di lokasi kerja.</p>
             <p className="ml-6 mb-1">2. PIHAK KEDUA wajib membayar ganti rugi terhadap unit kerja jika terjadi pencurian, perusakan dalam bentuk apapun juga yang dilakukan secara sengaja maupun tidak sengaja.</p>
             <p className="ml-6">3. Apabila alat tenggelam/mengalami kecelakaan pada saat di lokasi kerja maka biaya yang timbul akibat hal tersebut akan menjadi tanggungan PIHAK KEDUA.</p>
@@ -448,7 +448,7 @@ export function SuratPerjanjianTemplate({
           {/* Pasal 9 */}
           <div style={{ pageBreakInside: "avoid" }}>
             <p className="font-bold mb-2 text-center" style={{ fontSize: "11pt" }}>Pasal 9</p>
-            <p className="font-bold mb-1 text-center">Masa Perjanjian</p>
+            <p className="font-bold mb-3 text-center">Masa Perjanjian</p>
             <p className="ml-6 mb-1">1. Perjanjian ini berlaku sejak ditandatangani oleh kedua belah pihak hingga alat dianggap telah selesai bekerja.</p>
             <p className="ml-6">2. Perjanjian sewa akan diperpanjang kembali jika ada kesepakatan oleh kedua belah pihak baik pembayaran maupun hal lainnya.</p>
           </div>
@@ -456,7 +456,7 @@ export function SuratPerjanjianTemplate({
           {/* Pasal 10 */}
           <div style={{ pageBreakInside: "avoid" }}>
             <p className="font-bold mb-2 text-center" style={{ fontSize: "11pt" }}>Pasal 10</p>
-            <p className="font-bold mb-1 text-center">Pemindahan, Pengambilan dan Penggunaan Alat</p>
+            <p className="font-bold mb-3 text-center">Pemindahan, Pengambilan dan Penggunaan Alat</p>
             <p className="ml-6 mb-1">1. Alat tidak boleh dipindahkan ke lokasi lain oleh PIHAK KEDUA sebelum masa jam perjanjian habis terkecuali ada persetujuan dari PIHAK PERTAMA.</p>
             <p className="ml-6 mb-1">2. Apabila PIHAK KEDUA akan menggunakan alat keluar lokasi yang telah ditentukan dalam perjanjian ini maka PIHAK KEDUA wajib memberitahukan kepada PIHAK PERTAMA sebelumnya.</p>
             <p className="ml-6">3. Apabila PIHAK KEDUA memerlukan alat untuk dipakai ke lokasi lain diluar dari lokasi perjanjian maka semua biaya pemindahan alat menjadi tanggung jawab PIHAK KEDUA.</p>
@@ -465,7 +465,7 @@ export function SuratPerjanjianTemplate({
           {/* Pasal 11 */}
           <div style={{ pageBreakInside: "avoid" }}>
             <p className="font-bold mb-2 text-center" style={{ fontSize: "11pt" }}>Pasal 11</p>
-            <p className="font-bold mb-1 text-center">Perselisihan</p>
+            <p className="font-bold mb-3 text-center">Perselisihan</p>
             <p className="ml-6 mb-1">1. Jika timbul perselisihan antara PIHAK PERTAMA dengan PIHAK KEDUA maka sebisa mungkin akan diselesaikan secara musyawarah dan kekeluargaan.</p>
             <p className="ml-6">2. Apabila perselisihan tidak bisa diselesaikan secara musyawarah maka kedua belah pihak sepakat untuk menyelesaikan masalah tersebut sesuai hukum yang berlaku.</p>
           </div>
@@ -473,7 +473,7 @@ export function SuratPerjanjianTemplate({
           {/* Pasal 12 */}
           <div style={{ pageBreakInside: "avoid" }}>
             <p className="font-bold mb-2 text-center" style={{ fontSize: "11pt" }}>Pasal 12</p>
-            <p className="font-bold mb-1 text-center">Penutup</p>
+            <p className="font-bold mb-3 text-center">Penutup</p>
             <p className="ml-6">Demikian surat perjanjian sewa pakai alat berat ini dibuat dan ditandatangani oleh kedua belah pihak dalam rangkap dua (2) bermatrai cukup dan berkekuatan hukum yang sama dan dibuat tanpa paksaan dari pihak manapun.</p>
           </div>
 
