@@ -110,61 +110,80 @@ export function SuratPerjanjianTemplate({
       console.log = originalLog
 
       // Use html2canvas-pro which supports modern CSS colors (lab, oklch, etc)
-      // CRITICAL FIX: Lower scale, remove windowHeight/Width, use proper scrolling settings
+      // Use standard A4 dimensions for proper page splitting
+      const A4_MM = { width: 210, height: 297 }
+      const MARGIN_MM = 10
+      const CONTENT_WIDTH_MM = A4_MM.width - MARGIN_MM * 2
+
       const canvas = await html2canvas(element, {
-        scale: 1, // Set to 1 for cleaner rendering without artifacts
+        scale: 2, // Higher scale for better quality
         logging: false,
         allowTaint: true,
         useCORS: true,
         backgroundColor: '#ffffff',
         imageTimeout: 15000,
         ignoreElements: (el) => {
-          // Don't ignore any elements - we need everything including images
           return false
         },
-        scrollY: 0, // Prevent capture with scroll offset
-        scrollX: 0, // Prevent horizontal scroll offset
-        // REMOVED: windowHeight and windowWidth - let html2canvas auto-detect dimensions
-        // This prevents the double-capture issue where setting these to scrollHeight causes problems
+        scrollY: 0,
+        scrollX: 0,
       })
 
       setDownloadProgress(60)
 
+      // Convert mm to px (at scale 2)
+      const MM_TO_PX = (mmValue: number) => (mmValue * 96) / 25.4 * 2
+      const pageHeightPx = MM_TO_PX(A4_MM.height)
+      const contentHeightPerPagePx = pageHeightPx - MM_TO_PX(MARGIN_MM * 2)
+
       // Create PDF from canvas
-      const imgData = canvas.toDataURL('image/png', 0.98)
       const pdf = new jsPDF({
         orientation: 'portrait',
         unit: 'mm',
         format: 'a4',
       })
 
-      const pageWidth = pdf.internal.pageSize.getWidth() // 210mm for A4
-      const pageHeight = pdf.internal.pageSize.getHeight() // 297mm for A4
-      const margin = 10 // 10mm margins
+      const imgWidth = CONTENT_WIDTH_MM
+      const canvasWidth = canvas.width
+      const canvasHeight = canvas.height
 
-      const imgWidth = pageWidth - margin * 2 // 190mm
-      const imgHeight = (canvas.height * imgWidth) / canvas.width
+      // Calculate how many pages we need
+      const totalPages = Math.ceil(canvasHeight / contentHeightPerPagePx)
 
-      // FIXED: Proper pagination logic that doesn't create overlap
-      // For each page, position the image so the correct section is visible
-      const pageContentHeight = pageHeight - margin * 2 // 277mm per page
-      let yOffset = 0 // Track vertical offset within the full image
-      let isFirstPage = true
-
-      while (yOffset < imgHeight) {
-        if (!isFirstPage) {
+      for (let pageIdx = 0; pageIdx < totalPages; pageIdx++) {
+        if (pageIdx > 0) {
           pdf.addPage()
         }
 
-        // Position calculation: start at margin, then shift up by yOffset to show the right section
-        const yPosition = margin - (yOffset * (canvas.height / imgHeight))
+        // Calculate crop area for this page
+        const cropStartPx = pageIdx * contentHeightPerPagePx
+        const cropEndPx = Math.min(cropStartPx + contentHeightPerPagePx, canvasHeight)
+        const cropHeightPx = cropEndPx - cropStartPx
 
-        // Add the full image with calculated offset
-        // PDF will automatically clip content to page bounds
-        pdf.addImage(imgData, 'PNG', margin, yPosition, imgWidth, imgHeight)
+        // Create a temporary canvas for this page's content
+        const pageCanvas = document.createElement('canvas')
+        pageCanvas.width = canvasWidth
+        pageCanvas.height = cropHeightPx
 
-        yOffset += pageContentHeight
-        isFirstPage = false
+        const ctx = pageCanvas.getContext('2d')
+        if (ctx) {
+          ctx.drawImage(
+            canvas,
+            0, cropStartPx, // Source position (crop)
+            canvasWidth, cropHeightPx, // Source size
+            0, 0, // Destination position
+            canvasWidth, cropHeightPx // Destination size
+          )
+        }
+
+        // Convert page canvas to image data
+        const pageImgData = pageCanvas.toDataURL('image/png', 0.98)
+
+        // Calculate image height based on width scaling
+        const imgHeight = (cropHeightPx * imgWidth) / canvasWidth
+
+        // Add image to PDF
+        pdf.addImage(pageImgData, 'PNG', MARGIN_MM, MARGIN_MM, imgWidth, imgHeight)
       }
 
       setDownloadProgress(90)
