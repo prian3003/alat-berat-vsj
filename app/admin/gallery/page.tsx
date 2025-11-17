@@ -10,14 +10,18 @@ import { useAuth } from '@/context/AuthContext'
 import { Toaster } from '@/components/ui/toaster'
 import { useConfirm } from '@/hooks/use-confirm'
 
-interface GalleryImage {
+interface GalleryItem {
   id: string
   title: string
   description: string
   image_url: string
+  video_url?: string
   category: string
   sort_order: number
   published: boolean
+  media_type?: 'image' | 'video'
+  thumbnail_url?: string
+  duration?: number
 }
 
 export default function AdminGalleryPage() {
@@ -25,20 +29,25 @@ export default function AdminGalleryPage() {
   const { confirm } = useConfirm()
   const { isAuthenticated, isLoading, logout } = useAuth()
   const fileInputRef = useRef<HTMLInputElement>(null)
-  const [images, setImages] = useState<GalleryImage[]>([])
+  const [images, setImages] = useState<GalleryItem[]>([])
   const [loading, setLoading] = useState(true)
   const [uploading, setUploading] = useState(false)
   const [uploadProgress, setUploadProgress] = useState(0)
   const [showForm, setShowForm] = useState(false)
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [filePreviewUrl, setFilePreviewUrl] = useState<string | null>(null)
+  const [mediaType, setMediaType] = useState<'image' | 'video' | null>(null)
   const [formData, setFormData] = useState({
     title: '',
     description: '',
     image_url: '',
+    video_url: '',
     category: 'general',
     sort_order: 0,
-    published: true
+    published: true,
+    media_type: 'image' as 'image' | 'video',
+    thumbnail_url: '',
+    duration: 0
   })
 
   useEffect(() => {
@@ -69,23 +78,25 @@ export default function AdminGalleryPage() {
 
   const handleFileSelect = (file: File) => {
     // Validate file type
-    const validTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/webp']
-    if (!validTypes.includes(file.type)) {
+    const isImage = ['image/png', 'image/jpeg', 'image/jpg', 'image/webp'].includes(file.type)
+    const isVideo = ['video/mp4', 'video/webm', 'video/quicktime'].includes(file.type)
+
+    if (!isImage && !isVideo) {
       toast({
         variant: "destructive",
         title: "Error",
-        description: "Format file tidak didukung. Gunakan PNG, JPEG, atau WebP.",
+        description: "Format file tidak didukung. Gunakan PNG, JPEG, WebP, MP4, atau WebM.",
       })
       return
     }
 
-    // Validate file size (allow up to 100MB for processing, will be compressed to WebP)
-    const maxSize = 100 * 1024 * 1024 // 100MB
+    // Validate file size (500MB for videos, 100MB for images)
+    const maxSize = isVideo ? 500 * 1024 * 1024 : 100 * 1024 * 1024
     if (file.size > maxSize) {
       toast({
         variant: "destructive",
         title: "Error",
-        description: `Ukuran file terlalu besar (${(file.size / 1024 / 1024).toFixed(2)}MB). Maksimal 100MB.`,
+        description: `Ukuran file terlalu besar (${(file.size / 1024 / 1024).toFixed(2)}MB). Maksimal ${isVideo ? '500MB' : '100MB'}.`,
       })
       return
     }
@@ -98,6 +109,8 @@ export default function AdminGalleryPage() {
     reader.readAsDataURL(file)
 
     setSelectedFile(file)
+    setMediaType(isVideo ? 'video' : 'image')
+    setFormData(prev => ({ ...prev, media_type: isVideo ? 'video' : 'image' }))
   }
 
   const handleFileUpload = async () => {
@@ -141,14 +154,27 @@ export default function AdminGalleryPage() {
       const data = await response.json()
       setUploadProgress(100)
 
-      setFormData(prev => ({ ...prev, image_url: data.url }))
+      if (mediaType === 'video') {
+        setFormData(prev => ({
+          ...prev,
+          video_url: data.url,
+          thumbnail_url: data.metadata?.thumbnailUrl || '',
+          duration: data.metadata?.duration || 0
+        }))
+        toast({
+          variant: "success",
+          title: "Berhasil",
+          description: `Video berhasil diunggah (${data.metadata?.originalSize}MB → ${data.metadata?.compressedSize}MB MP4 terkompresi)`,
+        })
+      } else {
+        setFormData(prev => ({ ...prev, image_url: data.url }))
+        toast({
+          variant: "success",
+          title: "Berhasil",
+          description: `Gambar berhasil diunggah (${(selectedFile.size / 1024 / 1024).toFixed(2)}MB → WebP terkompresi)`,
+        })
+      }
       setSelectedFile(null)
-
-      toast({
-        variant: "success",
-        title: "Berhasil",
-        description: `Gambar berhasil diunggah (${(selectedFile.size / 1024 / 1024).toFixed(2)}MB → WebP terkompresi)`,
-      })
 
       // Reset progress after success
       setTimeout(() => setUploadProgress(0), 1000)
@@ -192,10 +218,17 @@ export default function AdminGalleryPage() {
         title: '',
         description: '',
         image_url: '',
+        video_url: '',
         category: 'general',
         sort_order: 0,
-        published: true
+        published: true,
+        media_type: 'image',
+        thumbnail_url: '',
+        duration: 0
       })
+      setSelectedFile(null)
+      setFilePreviewUrl(null)
+      setMediaType(null)
       setShowForm(false)
     } catch (error) {
       console.error('Error creating gallery image:', error)
@@ -431,7 +464,7 @@ export default function AdminGalleryPage() {
                 <input
                   ref={fileInputRef}
                   type="file"
-                  accept="image/png,image/jpeg,image/jpg,image/webp"
+                  accept="image/png,image/jpeg,image/jpg,image/webp,video/mp4,video/webm,video/quicktime"
                   onChange={e => e.target.files && handleFileSelect(e.target.files[0])}
                   className="hidden"
                 />
@@ -465,9 +498,9 @@ export default function AdminGalleryPage() {
                 )}
 
                 {/* File preview */}
-                {filePreviewUrl && (
+                {filePreviewUrl && mediaType === 'image' && (
                   <div className="mt-4">
-                    <p className="text-xs font-medium text-slate-600 mb-2">Preview:</p>
+                    <p className="text-xs font-medium text-slate-600 mb-2">Preview Gambar:</p>
                     <div className="relative w-48 h-48 rounded-lg overflow-hidden border border-slate-300">
                       <Image
                         src={filePreviewUrl}
@@ -479,8 +512,20 @@ export default function AdminGalleryPage() {
                   </div>
                 )}
 
+                {/* Video preview */}
+                {filePreviewUrl && mediaType === 'video' && (
+                  <div className="mt-4">
+                    <p className="text-xs font-medium text-slate-600 mb-2">Preview Video:</p>
+                    <video
+                      controls
+                      className="w-48 h-auto rounded-lg border border-slate-300 bg-black"
+                      src={filePreviewUrl}
+                    />
+                  </div>
+                )}
+
                 {/* Uploaded image preview */}
-                {formData.image_url && !selectedFile && (
+                {formData.image_url && !selectedFile && formData.media_type === 'image' && (
                   <div className="mt-4">
                     <p className="text-xs font-medium text-slate-600 mb-2">Gambar Terupload (WebP):</p>
                     <div className="relative w-48 h-48 rounded-lg overflow-hidden border border-slate-300 bg-slate-100">
@@ -493,16 +538,32 @@ export default function AdminGalleryPage() {
                     </div>
                   </div>
                 )}
+
+                {/* Uploaded video preview */}
+                {formData.video_url && !selectedFile && formData.media_type === 'video' && (
+                  <div className="mt-4">
+                    <p className="text-xs font-medium text-slate-600 mb-2">Video Terupload (MP4):</p>
+                    <video
+                      controls
+                      className="w-48 h-auto rounded-lg border border-slate-300 bg-black"
+                      src={formData.video_url}
+                      poster={formData.thumbnail_url}
+                    />
+                    {formData.duration > 0 && (
+                      <p className="text-xs text-slate-600 mt-2">Durasi: {Math.floor(formData.duration)}s</p>
+                    )}
+                  </div>
+                )}
               </div>
             </div>
 
             <div className="mt-6 flex gap-3">
               <button
                 type="submit"
-                disabled={uploading || !formData.image_url}
+                disabled={uploading || (!formData.image_url && !formData.video_url)}
                 className="rounded-lg bg-orange-600 px-4 py-2 text-white font-medium hover:bg-orange-700 transition-colors disabled:opacity-50"
               >
-                {uploading ? 'Menyimpan...' : 'Simpan Gambar'}
+                {uploading ? 'Menyimpan...' : `Simpan ${formData.media_type === 'video' ? 'Video' : 'Gambar'}`}
               </button>
               <button
                 type="button"
@@ -537,21 +598,39 @@ export default function AdminGalleryPage() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: index * 0.05 }}
               >
-                <div className="relative aspect-square overflow-hidden bg-slate-100">
-                  <Image
-                    src={image.image_url}
-                    alt={image.title}
-                    fill
-                    className="object-cover"
-                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                  />
+                <div className="relative aspect-square overflow-hidden bg-slate-100 group">
+                  {image.media_type === 'video' && image.video_url ? (
+                    <>
+                      <video
+                        src={image.video_url}
+                        poster={image.thumbnail_url}
+                        className="w-full h-full object-cover"
+                      />
+                      <div className="absolute inset-0 flex items-center justify-center bg-black/30 group-hover:bg-black/40 transition-colors">
+                        <svg className="h-12 w-12 text-white" fill="currentColor" viewBox="0 0 24 24">
+                          <path d="M8 5v14l11-7z" />
+                        </svg>
+                      </div>
+                      <div className="absolute top-2 right-2 bg-blue-600 text-white text-xs px-2 py-1 rounded">
+                        Video {image.duration && `(${Math.floor(image.duration)}s)`}
+                      </div>
+                    </>
+                  ) : (
+                    <Image
+                      src={image.image_url}
+                      alt={image.title}
+                      fill
+                      className="object-cover"
+                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                    />
+                  )}
                 </div>
                 <div className="p-4">
                   <h3 className="font-semibold text-slate-900">{image.title}</h3>
                   <p className="mt-1 text-sm text-slate-600">{image.description}</p>
                   <div className="mt-3 flex items-center justify-between">
                     <span className="inline-block px-2 py-1 bg-slate-100 text-slate-700 text-xs rounded">
-                      {image.category}
+                      {image.category} {image.media_type && `• ${image.media_type === 'video' ? '🎬' : '🖼️'}`}
                     </span>
                     <button
                       onClick={() => handleDelete(image.id, image.title)}

@@ -5,16 +5,20 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
 
-interface GalleryImage {
+interface GalleryItem {
   id: string
   title: string
   description: string
   image_url: string
+  video_url?: string
   category: string
+  media_type?: 'image' | 'video'
+  thumbnail_url?: string
+  duration?: number
 }
 
 export function GallerySection() {
-  const [images, setImages] = useState<GalleryImage[]>([])
+  const [images, setImages] = useState<GalleryItem[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -116,19 +120,37 @@ export function GallerySection() {
             >
               <Link href={`/gallery`}>
                 <div className="relative h-48 sm:h-56 overflow-hidden bg-slate-100">
-                  <Image
-                    src={image.image_url}
-                    alt={image.title}
-                    fill
-                    className="object-cover transition-transform duration-300 group-hover:scale-110"
-                    sizes="50vw"
-                  />
+                  {image.media_type === 'video' && image.video_url ? (
+                    <>
+                      <video
+                        src={image.video_url}
+                        poster={image.thumbnail_url}
+                        className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
+                      />
+                      <div className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/40 transition-colors">
+                        <svg className="h-16 w-16 text-white drop-shadow-lg" fill="currentColor" viewBox="0 0 24 24">
+                          <path d="M8 5v14l11-7z" />
+                        </svg>
+                      </div>
+                    </>
+                  ) : (
+                    <Image
+                      src={image.image_url}
+                      alt={image.title}
+                      fill
+                      className="object-cover transition-transform duration-300 group-hover:scale-110"
+                      sizes="50vw"
+                    />
+                  )}
                   {/* Overlay */}
                   <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors duration-300 flex items-end p-4">
                     <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                       <h3 className="text-white font-semibold text-sm">{image.title}</h3>
                       {image.description && (
                         <p className="text-white/90 text-xs mt-1 line-clamp-1">{image.description}</p>
+                      )}
+                      {image.media_type === 'video' && image.duration && (
+                        <p className="text-white/80 text-xs mt-1">🎬 {Math.floor(image.duration)}s video</p>
                       )}
                     </div>
                   </div>
