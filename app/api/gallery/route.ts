@@ -79,21 +79,37 @@ export async function POST(request: NextRequest) {
     const supabase = getSupabaseAdmin()
     const body = await request.json()
 
+    // Map form data to database fields, only include fields that should be persisted
+    const galleryData = {
+      title: body.title,
+      description: body.description,
+      image_url: body.media_type === 'video' ? null : body.image_url,
+      video_url: body.media_type === 'video' ? body.video_url : null,
+      category: body.category,
+      sort_order: body.sort_order,
+      published: body.published,
+      media_type: body.media_type || 'image',
+      thumbnail_url: body.media_type === 'video' ? body.thumbnail_url : null,
+      duration: body.media_type === 'video' ? body.duration : null
+    }
+
     const { data, error } = await supabase
       .from('gallery')
-      .insert([body])
+      .insert([galleryData])
       .select()
 
     if (error) {
       console.error('Supabase INSERT error:', error)
+      console.error('Attempted data:', galleryData)
       throw error
     }
 
     return NextResponse.json(data[0], { status: 201 })
   } catch (error) {
     console.error('Gallery POST error:', error)
+    const errorMessage = error instanceof Error ? error.message : 'Failed to create gallery image'
     return NextResponse.json(
-      { error: 'Failed to create gallery image' },
+      { error: errorMessage },
       { status: 500 }
     )
   }
