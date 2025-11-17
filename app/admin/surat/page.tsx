@@ -33,11 +33,28 @@ export default function SuratJalanPage() {
   const { isAuthenticated, isLoading, logout } = useAuth()
   const router = useRouter()
   const [suratList, setSuratList] = useState<SuratJalan[]>([])
+  const [searchQuery, setSearchQuery] = useState('')
   const [loading, setLoading] = useState(false)
   const [isFormDialogOpen, setIsFormDialogOpen] = useState(false)
   const [isPreviewOpen, setIsPreviewOpen] = useState(false)
   const [selectedSurat, setSelectedSurat] = useState<SuratJalan | null>(null)
   const [previewSurat, setPreviewSurat] = useState<SuratJalan | null>(null)
+
+  // Robust search function - case insensitive, searches across multiple fields
+  const filteredSuratList = suratList.filter((surat) => {
+    const query = searchQuery.toLowerCase().trim()
+    if (!query) return true
+
+    // Search across multiple fields
+    return (
+      surat.noSurat.toLowerCase().includes(query) ||
+      surat.jenisKendaraan.toLowerCase().includes(query) ||
+      surat.noPol.toLowerCase().includes(query) ||
+      surat.sopir.toLowerCase().includes(query) ||
+      (surat.tujuan && surat.tujuan.toLowerCase().includes(query)) ||
+      new Date(surat.tanggal).toLocaleDateString('id-ID').includes(query)
+    )
+  })
 
   const [formData, setFormData] = useState({
     tanggal: new Date().toISOString().split('T')[0],
@@ -296,6 +313,37 @@ export default function SuratJalanPage() {
           </Button>
         </div>
 
+        {/* Search Box */}
+        {suratList.length > 0 && (
+          <div className="mb-6 flex gap-2">
+            <div className="flex-1 relative">
+              <input
+                type="text"
+                placeholder="Cari berdasarkan No. Surat, Kendaraan, No. Polisi, Sopir, atau Tanggal..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-600 text-sm"
+              />
+              {searchQuery && (
+                <button
+                  onClick={() => setSearchQuery('')}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                  aria-label="Clear search"
+                >
+                  <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M6 18L18 6M6 6l12 12"
+                    />
+                  </svg>
+                </button>
+              )}
+            </div>
+          </div>
+        )}
+
         {/* Surat List */}
         {loading && !suratList.length ? (
           <div className="text-center py-12">
@@ -305,8 +353,24 @@ export default function SuratJalanPage() {
           <div className="rounded-lg border-2 border-dashed border-slate-300 p-12 text-center">
             <p className="text-slate-600">Belum ada surat jalan. Buat surat baru untuk memulai.</p>
           </div>
+        ) : filteredSuratList.length === 0 ? (
+          <div className="rounded-lg border-2 border-dashed border-slate-300 p-12 text-center">
+            <p className="text-slate-600">Tidak ada hasil pencarian untuk "{searchQuery}"</p>
+            <button
+              onClick={() => setSearchQuery('')}
+              className="mt-4 text-orange-600 hover:text-orange-700 font-medium text-sm"
+            >
+              Hapus filter pencarian
+            </button>
+          </div>
         ) : (
           <div className="rounded-lg bg-white shadow overflow-hidden">
+            <div className="px-6 py-4 border-b border-slate-200 bg-slate-50 flex items-center justify-between">
+              <p className="text-sm text-slate-600">
+                Menampilkan <span className="font-semibold">{filteredSuratList.length}</span> dari{' '}
+                <span className="font-semibold">{suratList.length}</span> surat jalan
+              </p>
+            </div>
             <table className="min-w-full divide-y divide-slate-200">
               <thead className="bg-slate-50">
                 <tr>
@@ -328,7 +392,7 @@ export default function SuratJalanPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-200">
-                {suratList.map((surat) => (
+                {filteredSuratList.map((surat) => (
                   <tr key={surat.id} className="hover:bg-slate-50 transition-colors">
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-slate-900">
                       {surat.noSurat}

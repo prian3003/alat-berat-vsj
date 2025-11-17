@@ -111,16 +111,18 @@ export function SuratPerjanjianTemplate({
 
       // Use html2canvas-pro which supports modern CSS colors (lab, oklch, etc)
       const canvas = await html2canvas(element, {
-        scale: 2,
+        scale: 1.5, // Reduced from 2 for better rendering stability
         logging: false,
         allowTaint: true,
         useCORS: true,
         backgroundColor: '#ffffff',
-        imageTimeout: 15000, // Increase timeout to 15 seconds for logo loading
+        imageTimeout: 15000,
         ignoreElements: (el) => {
           // Don't ignore any elements - we need everything including images
           return false
         },
+        scrollY: 0, // CRITICAL: Prevent double-capture due to scroll
+        scrollX: 0, // Also set scroll X to avoid horizontal offset
         windowHeight: element.scrollHeight, // Capture full height of content
         windowWidth: element.scrollWidth, // Capture full width of content
       })
@@ -247,16 +249,16 @@ export function SuratPerjanjianTemplate({
         ref={templateRef}
         className="mx-auto w-full bg-white"
         style={{
-          fontSize: '10pt',
-          lineHeight: 1.3,
+          fontSize: '11pt',
+          lineHeight: 1.4,
           maxWidth: '8.5in',
           margin: '0 auto',
           padding: '20mm 15mm',
         }}
       >
         {/* Header */}
-        <div className="mb-3 pb-1 border-b border-gray-300 print:mb-2 print:pb-0.5">
-          <div className="flex items-start gap-2">
+        <div className="mb-4 pb-2 border-b border-gray-400">
+          <div className="flex items-start gap-3">
             {/* Logo */}
             <div className="flex-shrink-0">
               <img
@@ -271,75 +273,55 @@ export function SuratPerjanjianTemplate({
               <h1 className="text-center text-base font-bold leading-tight">
                 PT. VANIA SUGIARTA JAYA
               </h1>
-              <p className="text-center text-xs font-semibold text-gray-700 mt-0.5">
+              <p className="text-center text-sm font-semibold text-gray-700 mt-0.5">
                 Sewa Alat Berat Terpercaya
               </p>
-              <p className="text-center text-xs text-gray-600 mt-1 space-y-0">
-                <span className="block text-xs">Jln. Werdi Bhuwana, Kec. Mengwi, Kab. Badung-Bali, 80351</span>
-                <span className="block text-xs">Telp. (+62) 821-3965-9136 | Email: vaniasugiartajaya25@gmail.com</span>
-                <span className="block text-xs">www.vaniasugiarta.com</span>
+              <p className="text-center text-xs text-gray-600 mt-1">
+                <span className="block">Jln. Werdi Bhuwana, Kec. Mengwi, Kab. Badung-Bali, 80351</span>
+                <span className="block">Telp. (+62) 821-3965-9136 | www.vaniasugiarta.com</span>
               </p>
             </div>
           </div>
         </div>
 
         {/* Document Title */}
-        <h2 className="mb-4 text-center text-base font-bold border-b-2 border-black pb-1">
-          SURAT PERJANJIAN SEWA ALAT BERAT
+        <h2 className="mb-4 text-center text-base font-bold border-b-2 border-black pb-2">
+          SURAT PERJANJIAN SEWA PAKAI ALAT BERAT
         </h2>
 
-        {/* Document Info */}
-        <div className="mb-4 grid grid-cols-2 gap-3 text-xs">
-          <div className="flex justify-between items-center border-b border-black pb-0.5">
-            <span className="font-bold">No. Perjanjian:</span>
-            <span>{noPerjanjian}</span>
-          </div>
-          <div className="flex justify-between items-center border-b border-black pb-0.5">
-            <span className="font-bold">Tanggal:</span>
-            <span>{formatDate(tanggal)}</span>
-          </div>
-          <div className="flex justify-between items-center border-b border-black pb-0.5">
-            <span className="font-bold">Lokasi Pekerjaan:</span>
-            <span>{lokasiPekerjaan}</span>
-          </div>
-          <div className="flex justify-between items-center border-b border-black pb-0.5">
-            <span className="font-bold">Jangka Waktu:</span>
-            <span>{formatDate(tanggalMulai)} s/d {formatDate(tanggalSelesai)}</span>
-          </div>
-        </div>
-
         {/* Pihak Information Section */}
-        <div className="mb-3 text-xs space-y-2">
+        <div className="mb-4 text-sm space-y-3">
+          <p>Pada hari ini, <span className="font-bold">{tanggalPernyataan || 'yang telah ditetapkan'}</span>, yang bertanda tangan di bawah ini :</p>
+
           {/* Pihak Pertama */}
           <div>
-            <p className="font-bold mb-0.5">Pihak Pertama (Penyedia):</p>
-            <div className="ml-3 space-y-0">
-              <p><span className="font-bold">Nama:</span> {pihakPertamaNama}</p>
-              <p><span className="font-bold">Jabatan:</span> {pihakPertamaJabatan}</p>
-              <p><span className="font-bold">Perusahaan:</span> {pihakPertamaPerusahaan}</p>
-              <p><span className="font-bold">Alamat:</span> {pihakPertamaAlamat}</p>
-            </div>
+            <p className="font-bold mb-1">I. <span className="font-bold">Nama</span>: {pihakPertamaNama}</p>
+            <p className="ml-4 text-sm"><span className="font-bold">Jabatan</span>: {pihakPertamaJabatan}</p>
+            <p className="ml-4 text-sm"><span className="font-bold">Perusahaan</span>: {pihakPertamaPerusahaan}</p>
+            <p className="ml-4 text-sm"><span className="font-bold">Alamat</span>: {pihakPertamaAlamat}</p>
+            <p className="ml-4 text-sm">Selanjutnya disebut <span className="font-bold">PIHAK PERTAMA</span></p>
           </div>
 
           {/* Pihak Kedua */}
           <div>
-            <p className="font-bold mb-0.5">Pihak Kedua (Penyewa):</p>
-            <div className="ml-3 space-y-0">
-              <p><span className="font-bold">Nama:</span> {pihakKeduaNama}</p>
-              <p><span className="font-bold">Jabatan:</span> {pihakKeduaJabatan}</p>
-              <p><span className="font-bold">Perusahaan:</span> {pihakKedualPerusahaan}</p>
-              <p><span className="font-bold">Alamat:</span> {pihakKeduaAlamat}</p>
-            </div>
+            <p className="font-bold mb-1">II. <span className="font-bold">Nama</span>: {pihakKeduaNama}</p>
+            <p className="ml-4 text-sm"><span className="font-bold">Jabatan</span>: {pihakKeduaJabatan}</p>
+            <p className="ml-4 text-sm"><span className="font-bold">Perusahaan</span>: {pihakKedualPerusahaan}</p>
+            <p className="ml-4 text-sm"><span className="font-bold">Alamat</span>: {pihakKeduaAlamat}</p>
+            <p className="ml-4 text-sm">Selanjutnya disebut <span className="font-bold">PIHAK KEDUA</span></p>
           </div>
+
+          {/* Agreement Statement */}
+          <p className="text-sm mt-3">Kedua belah pihak telah sepakat untuk mengadakan perjanjian sewa pakai alat berat untuk pekerjaan di lokasi {lokasiPekerjaan} dengan ketentuan dan syarat yang diatur dalam pasal – pasal di bawah ini :</p>
         </div>
 
         {/* Items Table */}
-        <table className="mb-4 w-full border-collapse text-xs">
+        <table className="mb-4 w-full border-collapse text-sm">
           <thead>
             <tr className="bg-gray-800 text-white">
               <th className="border border-gray-800 px-3 py-2 text-center font-bold w-8">NO</th>
               <th className="border border-gray-800 px-3 py-2 text-left font-bold">JENIS ALAT</th>
-              <th className="border border-gray-800 px-3 py-2 text-center font-bold">JUMLAH</th>
+              <th className="border border-gray-800 px-3 py-2 text-center font-bold w-12">JUMLAH</th>
               <th className="border border-gray-800 px-3 py-2 text-left font-bold">HARGA SEWA</th>
               <th className="border border-gray-800 px-3 py-2 text-left font-bold">KETERANGAN</th>
             </tr>
@@ -365,31 +347,137 @@ export function SuratPerjanjianTemplate({
           </tbody>
         </table>
 
-        {/* Notes Section */}
-        <div className="mb-4 text-xs border-l-4 border-gray-400 pl-2 py-1 bg-gray-50">
-          <p className="font-bold mb-0.5">Keterangan:</p>
-          <p className="mb-0.5">Kedua belah pihak setuju dengan syarat dan ketentuan yang telah ditetapkan</p>
-          {keterangan && <p><span className="font-bold">Catatan:</span> {keterangan}</p>}
+        {/* Pasal Section */}
+        <div className="mb-4 text-sm space-y-2">
+          <p className="font-bold text-center mb-3" style={{ fontSize: '11pt' }}>DENGAN KETENTUAN DAN SYARAT SEBAGAI BERIKUT :</p>
+
+          {/* Pasal 1 */}
+          <div style={{ pageBreakInside: 'avoid' }}>
+            <p className="font-bold mb-2 text-center" style={{ fontSize: '11pt' }}>Pasal 1</p>
+            <p className="font-bold mb-1">Jenis, Jumlah, Harga Sewa dan Lokasi Kerja.</p>
+            <p className="ml-6 mb-1">1. PIHAK PERTAMA bersedia menyewakan alat kepada PIHAK KEDUA dan PIHAK KEDUA setuju untuk menyewa alat berat kepada PIHAK PERTAMA dengan jenis dan harga sewa sebagaimana tercantum dalam tabel di atas.</p>
+            <p className="ml-6 mb-1">2. Harga sewa alat berat di atas tanpa pemotongan pajak dan kedua belah pihak setuju bahwa tarif sewa alat berat pada Pasal 1 ini tidak akan berubah selama perjanjian belum berakhir.</p>
+            <p className="ml-6">3. Lokasi kerja PIHAK KEDUA yaitu terletak di {lokasiPekerjaan}.</p>
+          </div>
+
+          {/* Pasal 2 */}
+          <div style={{ pageBreakInside: "avoid" }}>
+            <p className="font-bold mb-2 text-center" style={{ fontSize: "11pt" }}>Pasal 2</p>
+            <p className="font-bold mb-1">Tempat, Waktu dan Kondisi Penyerahan Alat Berat</p>
+            <p className="ml-6 mb-1">1. Alat diangkut oleh PIHAK PERTAMA ke lokasi yang telah ditentukan oleh PIHAK KEDUA setelah PIHAK KEDUA menyelesaikan administrasi sewa menyewa.</p>
+            <p className="ml-6">2. Waktu penyerahan alat berat selambat lambatnya tiga hari setelah surat perjanjian kerja ini ditandatangani.</p>
+          </div>
+
+          {/* Pasal 3 */}
+          <div style={{ pageBreakInside: 'avoid' }}>
+            <p className="font-bold mb-2 text-center" style={{ fontSize: "11pt" }}>Pasal 3</p>
+            <p className="font-bold mb-1">Biaya Mobilisasi Alat Berat</p>
+            <p className="ml-6 mb-1">1. Biaya Mobilisasi dan Demobilisasi alat berat akan ditentukan berdasarkan kesepakatan kedua belah pihak.</p>
+            <p className="ml-6">2. Biaya Mobilisasi ditanggung oleh PIHAK KEDUA.</p>
+          </div>
+
+          {/* Pasal 4 */}
+          <div style={{ pageBreakInside: "avoid" }}>
+            <p className="font-bold mb-2 text-center" style={{ fontSize: "11pt" }}>Pasal 4</p>
+            <p className="font-bold mb-1">Biaya Operasi, Pemeliharaan dan Perbaikan Alat</p>
+            <p className="ml-6 mb-1">1. Selama masa penyewaan alat berat, keperluan olie, perbaikan kerusakan, penggantian sparepart dan Mekanik menjadi tanggung jawab PIHAK PERTAMA.</p>
+            <p className="ml-6">2. Pemakaian BBM (Bahan Bakar Minyak) untuk keperluan operasi menjadi tanggung jawab PIHAK KEDUA.</p>
+          </div>
+
+          {/* Pasal 5 */}
+          <div style={{ pageBreakInside: "avoid" }}>
+            <p className="font-bold mb-2 text-center" style={{ fontSize: "11pt" }}>Pasal 5</p>
+            <p className="font-bold mb-1">Operasi dan Operator</p>
+            <p className="ml-6">Pengadaan Operator menjadi tanggung jawab PIHAK PERTAMA, kebutuhan operator seperti makan, minum, tempat tinggal dan transportasi menjadi tanggung jawab PIHAK KEDUA.</p>
+          </div>
+
+          {/* Pasal 6 */}
+          <div style={{ pageBreakInside: "avoid" }}>
+            <p className="font-bold mb-2 text-center" style={{ fontSize: "11pt" }}>Pasal 6</p>
+            <p className="font-bold mb-1">Laporan Operasi Alat (Time Sheet)</p>
+            <p className="ml-6">Laporan harian operasi alat diisi oleh operator dan ditandatangani oleh Pengawas Kerja dari PIHAK KEDUA atau atas nama penyewa alat.</p>
+          </div>
+
+          {/* Pasal 7 */}
+          <div style={{ pageBreakInside: "avoid" }}>
+            <p className="font-bold mb-2 text-center" style={{ fontSize: "11pt" }}>Pasal 7</p>
+            <p className="font-bold mb-1">Pembayaran Sewa</p>
+            <p className="ml-6 mb-1">1. PIHAK KEDUA berkewajiban menyelesaikan pembayaran sewa alat berat dimuka sebesar 100 jam/unitnya serta ditambah biaya mobilisasi.</p>
+            <p className="ml-6 mb-1">2. Uang pembayaran sewa alat berat dibayarkan secara tunai atau sesuai kesepakatan kedua belah pihak.</p>
+            <p className="ml-6">3. Jika pekerjaan sudah hampir mencapai nilai dari dana masuk dan PIHAK KEDUA masih akan memperpanjang masa sewa maka harus memberitahukan kepada PIHAK PERTAMA minimal dua (2) hari sebelum habis masa sewa alat berat.</p>
+          </div>
+
+          {/* Pasal 8 */}
+          <div style={{ pageBreakInside: "avoid" }}>
+            <p className="font-bold mb-2 text-center" style={{ fontSize: "11pt" }}>Pasal 8</p>
+            <p className="font-bold mb-1">Keamanan Alat Berat</p>
+            <p className="ml-6 mb-1">1. PIHAK KEDUA wajib menyediakan security untuk menjaga keamanan alat di lokasi kerja.</p>
+            <p className="ml-6 mb-1">2. PIHAK KEDUA wajib membayar ganti rugi terhadap unit kerja jika terjadi pencurian, perusakan dalam bentuk apapun juga yang dilakukan secara sengaja maupun tidak sengaja.</p>
+            <p className="ml-6">3. Apabila alat tenggelam/mengalami kecelakaan pada saat di lokasi kerja maka biaya yang timbul akibat hal tersebut akan menjadi tanggungan PIHAK KEDUA.</p>
+          </div>
+
+          {/* Pasal 9 */}
+          <div style={{ pageBreakInside: "avoid" }}>
+            <p className="font-bold mb-2 text-center" style={{ fontSize: "11pt" }}>Pasal 9</p>
+            <p className="font-bold mb-1">Masa Perjanjian</p>
+            <p className="ml-6 mb-1">1. Perjanjian ini berlaku sejak ditandatangani oleh kedua belah pihak hingga alat dianggap telah selesai bekerja.</p>
+            <p className="ml-6">2. Perjanjian sewa akan diperpanjang kembali jika ada kesepakatan oleh kedua belah pihak baik pembayaran maupun hal lainnya.</p>
+          </div>
+
+          {/* Pasal 10 */}
+          <div style={{ pageBreakInside: "avoid" }}>
+            <p className="font-bold mb-2 text-center" style={{ fontSize: "11pt" }}>Pasal 10</p>
+            <p className="font-bold mb-1">Pemindahan, Pengambilan dan Penggunaan Alat</p>
+            <p className="ml-6 mb-1">1. Alat tidak boleh dipindahkan ke lokasi lain oleh PIHAK KEDUA sebelum masa jam perjanjian habis terkecuali ada persetujuan dari PIHAK PERTAMA.</p>
+            <p className="ml-6 mb-1">2. Apabila PIHAK KEDUA akan menggunakan alat keluar lokasi yang telah ditentukan dalam perjanjian ini maka PIHAK KEDUA wajib memberitahukan kepada PIHAK PERTAMA sebelumnya.</p>
+            <p className="ml-6">3. Apabila PIHAK KEDUA memerlukan alat untuk dipakai ke lokasi lain diluar dari lokasi perjanjian maka semua biaya pemindahan alat menjadi tanggung jawab PIHAK KEDUA.</p>
+          </div>
+
+          {/* Pasal 11 */}
+          <div style={{ pageBreakInside: "avoid" }}>
+            <p className="font-bold mb-2 text-center" style={{ fontSize: "11pt" }}>Pasal 11</p>
+            <p className="font-bold mb-1">Perselisihan</p>
+            <p className="ml-6 mb-1">1. Jika timbul perselisihan antara PIHAK PERTAMA dengan PIHAK KEDUA maka sebisa mungkin akan diselesaikan secara musyawarah dan kekeluargaan.</p>
+            <p className="ml-6">2. Apabila perselisihan tidak bisa diselesaikan secara musyawarah maka kedua belah pihak sepakat untuk menyelesaikan masalah tersebut sesuai hukum yang berlaku.</p>
+          </div>
+
+          {/* Pasal 12 */}
+          <div style={{ pageBreakInside: "avoid" }}>
+            <p className="font-bold mb-2 text-center" style={{ fontSize: "11pt" }}>Pasal 12</p>
+            <p className="font-bold mb-1">Penutup</p>
+            <p className="ml-6">Demikian surat perjanjian sewa pakai alat berat ini dibuat dan ditandatangani oleh kedua belah pihak dalam rangkap dua (2) bermatrai cukup dan berkekuatan hukum yang sama dan dibuat tanpa paksaan dari pihak manapun.</p>
+          </div>
+
+          {keterangan && (
+            <div style={{ pageBreakInside: "avoid" }}>
+              <p className="font-bold mb-1">Catatan Tambahan:</p>
+              <p className="ml-6">{keterangan}</p>
+            </div>
+          )}
         </div>
 
         {/* Signature Section */}
-        <div className="grid grid-cols-2 gap-4 text-center text-xs">
+        <div className="grid grid-cols-2 gap-8 text-center text-sm mt-6" style={{ pageBreakInside: "avoid" }}>
           <div>
-            <p className="font-bold mb-8">PIHAK PERTAMA</p>
-            <div className="border-t-2 border-black pt-0.5 h-8 mb-0.5"></div>
-            <p className="text-xs">Tanda Tangan</p>
+            <p className="font-bold mb-2">{pihakPertamaPerusahaan}</p>
+            <p className="font-bold mb-16">PIHAK PERTAMA</p>
+            <div className="border-t-2 border-black pt-1 h-12 mb-1"></div>
+            <p className="font-semibold mt-2">{pihakPertamaNama}</p>
+            <p className="text-sm">{pihakPertamaJabatan}</p>
           </div>
 
           <div>
-            <p className="font-bold mb-8">PIHAK KEDUA</p>
-            <div className="border-t-2 border-black pt-0.5 h-8 mb-0.5"></div>
-            <p className="text-xs">Tanda Tangan</p>
+            <p className="font-bold mb-2">{pihakKedualPerusahaan}</p>
+            <p className="font-bold mb-16">PIHAK KEDUA</p>
+            <div className="border-t-2 border-black pt-1 h-12 mb-1"></div>
+            <p className="font-semibold mt-2">{pihakKeduaNama}</p>
+            <p className="text-sm">{pihakKeduaJabatan}</p>
           </div>
         </div>
 
         {/* Footer */}
-        <div className="mt-3 pt-1 border-t border-gray-300 text-center text-xs text-gray-600 print:mt-2 print:pt-0.5">
-          <p className="font-semibold text-xs">PT. VANIA SUGIARTA JAYA</p>
+        <div className="mt-6 pt-2 border-t border-gray-400 text-center text-xs text-gray-600">
+          <p className="font-semibold">PT. VANIA SUGIARTA JAYA</p>
           <p className="text-xs">Jln. Werdi Bhuwana, Kec. Mengwi, Kab. Badung-Bali, 80351</p>
           <p className="text-xs">Telp. (+62) 821-3965-9136 | www.vaniasugiarta.com</p>
         </div>
@@ -406,10 +494,12 @@ export function SuratPerjanjianTemplate({
               padding: 0;
               width: 100%;
               height: 100%;
+              background: white;
+              overflow: visible !important;
             }
             body {
-              font-size: 10pt;
-              line-height: 1.3;
+              font-size: 11pt;
+              line-height: 1.4;
               color: #000;
             }
             .print\\:hidden {
@@ -418,25 +508,54 @@ export function SuratPerjanjianTemplate({
             * {
               -webkit-print-color-adjust: exact !important;
               print-color-adjust: exact !important;
+              overflow: visible !important;
             }
-            h1, h2, h3, h4 {
+            h1, h2 {
               page-break-after: avoid;
-              margin: 0.1em 0 0.05em 0;
+              page-break-inside: avoid;
+              margin: 0.2em 0 0.1em 0;
               padding: 0;
             }
             p {
-              margin: 0.05em 0;
+              margin: 0;
               padding: 0;
-              line-height: 1.3;
+              line-height: 1.4;
+              orphans: 4;
+              widows: 4;
+              page-break-inside: avoid;
+            }
+            /* Prevent page breaks within pasal divs */
+            div[style*="pageBreakInside"] {
+              page-break-inside: avoid;
+              break-inside: avoid-page;
+              overflow: visible !important;
+            }
+            /* Keep pasal number on same page as content */
+            div[style*="pageBreakInside"] > p:first-child {
+              page-break-after: avoid;
+              break-after: avoid-page;
+              margin-bottom: 0.2cm;
+            }
+            div[style*="pageBreakInside"] > p:nth-child(2) {
+              page-break-after: avoid;
+              break-after: avoid-page;
+              margin-bottom: 0.1cm;
             }
             table {
               page-break-inside: avoid;
               border-collapse: collapse;
               width: 100%;
-              font-size: 9pt;
+              font-size: 11pt;
+              overflow: visible !important;
             }
             tr {
               page-break-inside: avoid;
+              break-inside: avoid-page;
+            }
+            td, th {
+              padding: 3pt 4pt;
+              page-break-inside: avoid;
+              overflow: visible !important;
             }
           }
         `}</style>
