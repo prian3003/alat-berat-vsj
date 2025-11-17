@@ -110,8 +110,9 @@ export function SuratPerjanjianTemplate({
       console.log = originalLog
 
       // Use html2canvas-pro which supports modern CSS colors (lab, oklch, etc)
+      // CRITICAL FIX: Lower scale, remove windowHeight/Width, use proper scrolling settings
       const canvas = await html2canvas(element, {
-        scale: 1.5, // Reduced from 2 for better rendering stability
+        scale: 1, // Set to 1 for cleaner rendering without artifacts
         logging: false,
         allowTaint: true,
         useCORS: true,
@@ -121,10 +122,10 @@ export function SuratPerjanjianTemplate({
           // Don't ignore any elements - we need everything including images
           return false
         },
-        scrollY: 0, // CRITICAL: Prevent double-capture due to scroll
-        scrollX: 0, // Also set scroll X to avoid horizontal offset
-        windowHeight: element.scrollHeight, // Capture full height of content
-        windowWidth: element.scrollWidth, // Capture full width of content
+        scrollY: 0, // Prevent capture with scroll offset
+        scrollX: 0, // Prevent horizontal scroll offset
+        // REMOVED: windowHeight and windowWidth - let html2canvas auto-detect dimensions
+        // This prevents the double-capture issue where setting these to scrollHeight causes problems
       })
 
       setDownloadProgress(60)
@@ -137,24 +138,33 @@ export function SuratPerjanjianTemplate({
         format: 'a4',
       })
 
-      const pageWidth = pdf.internal.pageSize.getWidth()
-      const pageHeight = pdf.internal.pageSize.getHeight()
-      const margin = 10
+      const pageWidth = pdf.internal.pageSize.getWidth() // 210mm for A4
+      const pageHeight = pdf.internal.pageSize.getHeight() // 297mm for A4
+      const margin = 10 // 10mm margins
 
-      const imgWidth = pageWidth - margin * 2
+      const imgWidth = pageWidth - margin * 2 // 190mm
       const imgHeight = (canvas.height * imgWidth) / canvas.width
 
-      let heightLeft = imgHeight
-      let position = margin
+      // FIXED: Proper pagination logic that doesn't create overlap
+      // For each page, position the image so the correct section is visible
+      const pageContentHeight = pageHeight - margin * 2 // 277mm per page
+      let yOffset = 0 // Track vertical offset within the full image
+      let isFirstPage = true
 
-      pdf.addImage(imgData, 'PNG', margin, position, imgWidth, imgHeight)
-      heightLeft -= pageHeight - margin * 2
+      while (yOffset < imgHeight) {
+        if (!isFirstPage) {
+          pdf.addPage()
+        }
 
-      while (heightLeft > 0) {
-        position = heightLeft - imgHeight + margin
-        pdf.addPage()
-        pdf.addImage(imgData, 'PNG', margin, position, imgWidth, imgHeight)
-        heightLeft -= pageHeight - margin * 2
+        // Position calculation: start at margin, then shift up by yOffset to show the right section
+        const yPosition = margin - (yOffset * (canvas.height / imgHeight))
+
+        // Add the full image with calculated offset
+        // PDF will automatically clip content to page bounds
+        pdf.addImage(imgData, 'PNG', margin, yPosition, imgWidth, imgHeight)
+
+        yOffset += pageContentHeight
+        isFirstPage = false
       }
 
       setDownloadProgress(90)
@@ -489,32 +499,31 @@ export function SuratPerjanjianTemplate({
             margin: 20mm 15mm 20mm 15mm;
           }
           @media print {
-            html, body {
+            html, body, div, p, h1, h2, h3, h4, h5, h6, table, tr, td, th {
               margin: 0;
               padding: 0;
+              overflow: visible !important;
+              -webkit-print-color-adjust: exact !important;
+              print-color-adjust: exact !important;
+              box-sizing: border-box;
+            }
+            html, body {
               width: 100%;
               height: 100%;
               background: white;
-              overflow: visible !important;
-            }
-            body {
+              color: #000;
               font-size: 11pt;
               line-height: 1.4;
-              color: #000;
             }
             .print\\:hidden {
               display: none !important;
-            }
-            * {
-              -webkit-print-color-adjust: exact !important;
-              print-color-adjust: exact !important;
-              overflow: visible !important;
             }
             h1, h2 {
               page-break-after: avoid;
               page-break-inside: avoid;
               margin: 0.2em 0 0.1em 0;
               padding: 0;
+              overflow: visible !important;
             }
             p {
               margin: 0;
@@ -523,38 +532,60 @@ export function SuratPerjanjianTemplate({
               orphans: 4;
               widows: 4;
               page-break-inside: avoid;
-            }
-            /* Prevent page breaks within pasal divs */
-            div[style*="pageBreakInside"] {
-              page-break-inside: avoid;
-              break-inside: avoid-page;
               overflow: visible !important;
             }
-            /* Keep pasal number on same page as content */
-            div[style*="pageBreakInside"] > p:first-child {
-              page-break-after: avoid;
-              break-after: avoid-page;
-              margin-bottom: 0.2cm;
+            /* Ultra-strict: prevent ALL breaks within pasal */
+            div {
+              overflow: visible !important;
             }
+            div[style*="pageBreakInside"] {
+              page-break-inside: avoid !important;
+              break-inside: avoid-page !important;
+              overflow: visible !important;
+              display: block;
+              position: relative;
+            }
+            /* Ensure pasal headers stay with content */
+            div[style*="pageBreakInside"] > p:nth-child(1),
             div[style*="pageBreakInside"] > p:nth-child(2) {
-              page-break-after: avoid;
-              break-after: avoid-page;
-              margin-bottom: 0.1cm;
+              page-break-after: avoid !important;
+              break-after: avoid-page !important;
+              margin-bottom: 0.2em;
+              overflow: visible !important;
+            }
+            div[style*="pageBreakInside"] > p:nth-child(3) {
+              page-break-after: avoid !important;
+              break-after: avoid-page !important;
+              margin-bottom: 0.1em;
+              overflow: visible !important;
             }
             table {
-              page-break-inside: avoid;
+              page-break-inside: avoid !important;
               border-collapse: collapse;
               width: 100%;
               font-size: 11pt;
               overflow: visible !important;
             }
+            tbody {
+              display: table-row-group;
+              overflow: visible !important;
+            }
             tr {
-              page-break-inside: avoid;
-              break-inside: avoid-page;
+              page-break-inside: avoid !important;
+              break-inside: avoid-page !important;
+              display: table-row;
+              overflow: visible !important;
             }
             td, th {
               padding: 3pt 4pt;
-              page-break-inside: avoid;
+              page-break-inside: avoid !important;
+              overflow: visible !important;
+              display: table-cell;
+              vertical-align: top;
+            }
+            img {
+              max-width: 100%;
+              height: auto;
               overflow: visible !important;
             }
           }
