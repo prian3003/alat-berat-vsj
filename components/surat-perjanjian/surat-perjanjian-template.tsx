@@ -1,51 +1,66 @@
 'use client'
 
 import { useRef, useState } from 'react'
-import { Button } from '@/components/ui/button'
 import html2canvas from 'html2canvas-pro'
 import jsPDF from 'jspdf'
 
-interface SuratJalanItem {
+interface SuratPerjanjianItem {
   urutan: number
-  jenisUnit: string
-  seri: string
-  lokasi: string
+  jenisAlat: string
+  jumlah: number
+  hargaSewa: string
   keterangan?: string
 }
 
-interface SuratJalanTemplateProps {
-  noSurat: string
+interface SuratPerjanjianTemplateProps {
+  noPerjanjian: string
   tanggal: string
-  jenisKendaraan: string
-  noPol: string
-  sopir: string
-  items: SuratJalanItem[]
-  tujuan?: string
+  tanggalPernyataan?: string
+  pihakPertamaNama: string
+  pihakPertamaJabatan: string
+  pihakPertamaPerusahaan: string
+  pihakPertamaAlamat: string
+  pihakKeduaNama: string
+  pihakKeduaJabatan: string
+  pihakKedualPerusahaan: string
+  pihakKeduaAlamat: string
+  lokasiPekerjaan: string
+  tanggalMulai: string
+  tanggalSelesai: string
+  items: SuratPerjanjianItem[]
   keterangan?: string
 }
 
-export function SuratJalanTemplate({
-  noSurat,
+export function SuratPerjanjianTemplate({
+  noPerjanjian,
   tanggal,
-  jenisKendaraan,
-  noPol,
-  sopir,
+  tanggalPernyataan,
+  pihakPertamaNama,
+  pihakPertamaJabatan,
+  pihakPertamaPerusahaan,
+  pihakPertamaAlamat,
+  pihakKeduaNama,
+  pihakKeduaJabatan,
+  pihakKedualPerusahaan,
+  pihakKeduaAlamat,
+  lokasiPekerjaan,
+  tanggalMulai,
+  tanggalSelesai,
   items,
-  tujuan,
   keterangan,
-}: SuratJalanTemplateProps) {
-  const printRef = useRef<HTMLDivElement>(null)
+}: SuratPerjanjianTemplateProps) {
+  const templateRef = useRef<HTMLDivElement>(null)
   const [isDownloading, setIsDownloading] = useState(false)
   const [downloadProgress, setDownloadProgress] = useState(0)
 
   const handlePrint = () => {
-    if (printRef.current) {
+    if (templateRef.current) {
       window.print()
     }
   }
 
   const handleDownloadPDF = async () => {
-    if (!printRef.current) {
+    if (!templateRef.current) {
       alert('Dokumen tidak siap')
       return
     }
@@ -54,7 +69,7 @@ export function SuratJalanTemplate({
     setDownloadProgress(10)
 
     try {
-      const element = printRef.current
+      const element = templateRef.current
 
       // Store original display state only for the button container
       const buttonContainer = element.parentElement?.querySelector('[class*="print:hidden"]') as HTMLElement
@@ -113,7 +128,7 @@ export function SuratJalanTemplate({
       setDownloadProgress(60)
 
       // Create PDF from canvas
-      const imgData = canvas.toDataURL('image/jpeg', 0.98)
+      const imgData = canvas.toDataURL('image/png', 0.98)
       const pdf = new jsPDF({
         orientation: 'portrait',
         unit: 'mm',
@@ -130,20 +145,20 @@ export function SuratJalanTemplate({
       let heightLeft = imgHeight
       let position = margin
 
-      pdf.addImage(imgData, 'JPEG', margin, position, imgWidth, imgHeight)
+      pdf.addImage(imgData, 'PNG', margin, position, imgWidth, imgHeight)
       heightLeft -= pageHeight - margin * 2
 
       while (heightLeft > 0) {
         position = heightLeft - imgHeight + margin
         pdf.addPage()
-        pdf.addImage(imgData, 'JPEG', margin, position, imgWidth, imgHeight)
+        pdf.addImage(imgData, 'PNG', margin, position, imgWidth, imgHeight)
         heightLeft -= pageHeight - margin * 2
       }
 
       setDownloadProgress(90)
 
       // Save PDF
-      pdf.save(`${noSurat}.pdf`)
+      pdf.save(`${noPerjanjian}.pdf`)
 
       setDownloadProgress(100)
 
@@ -173,9 +188,9 @@ export function SuratJalanTemplate({
       {/* Buttons */}
       <div className="mb-4 space-y-3 print:hidden">
         <div className="flex gap-2">
-          <Button onClick={handlePrint} variant="outline" size="sm" disabled={isDownloading}>
+          <button onClick={handlePrint} className="inline-flex items-center gap-2 rounded-lg bg-orange-600 px-4 py-2 text-white font-medium hover:bg-orange-700 transition-colors" disabled={isDownloading}>
             <svg
-              className="mr-2 h-4 w-4"
+              className="h-4 w-4"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -188,11 +203,11 @@ export function SuratJalanTemplate({
               />
             </svg>
             Cetak
-          </Button>
-          <Button onClick={handleDownloadPDF} variant="outline" size="sm" disabled={isDownloading}>
+          </button>
+          <button onClick={handleDownloadPDF} className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-white font-medium hover:bg-blue-700 transition-colors disabled:opacity-50" disabled={isDownloading}>
             {isDownloading ? (
               <>
-                <svg className="mr-2 h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                   <circle cx="12" cy="12" r="10" strokeWidth="2" />
                 </svg>
                 Mengunduh...
@@ -200,7 +215,7 @@ export function SuratJalanTemplate({
             ) : (
               <>
                 <svg
-                  className="mr-2 h-4 w-4"
+                  className="h-4 w-4"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
@@ -215,7 +230,7 @@ export function SuratJalanTemplate({
                 Download PDF
               </>
             )}
-          </Button>
+          </button>
         </div>
         {isDownloading && (
           <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
@@ -229,7 +244,7 @@ export function SuratJalanTemplate({
 
       {/* Document */}
       <div
-        ref={printRef}
+        ref={templateRef}
         className="mx-auto w-full bg-white"
         style={{
           fontSize: '10pt',
@@ -240,72 +255,92 @@ export function SuratJalanTemplate({
         }}
       >
         {/* Header */}
-        <div className="mb-4 pb-2 border-b border-gray-300 print:mb-2 print:pb-1">
-          <div className="flex items-start gap-3">
+        <div className="mb-3 pb-1 border-b border-gray-300 print:mb-2 print:pb-0.5">
+          <div className="flex items-start gap-2">
             {/* Logo */}
             <div className="flex-shrink-0">
               <img
                 src="/logo.png"
                 alt="VSJ Logo"
-                style={{ height: '80px', width: 'auto' }}
+                style={{ height: '60px', width: 'auto' }}
               />
             </div>
 
             {/* Company Info */}
             <div className="flex-1">
-              <h1 className="text-center text-xl font-bold leading-tight">
+              <h1 className="text-center text-base font-bold leading-tight">
                 PT. VANIA SUGIARTA JAYA
               </h1>
-              <p className="text-center text-sm font-semibold text-gray-700 mt-1">
+              <p className="text-center text-xs font-semibold text-gray-700 mt-0.5">
                 Sewa Alat Berat Terpercaya
               </p>
-              <p className="text-center text-xs text-gray-600 mt-3 space-y-1">
-                <span className="block">Jln. Werdi Bhuwana, Kec. Mengwi, Kab. Badung-Bali, 80351</span>
-                <span className="block">Telp. (+62) 821-3965-9136 | Email: info@vaniasugiarta.com</span>
-                <span className="block">www.vaniasugiarta.com</span>
+              <p className="text-center text-xs text-gray-600 mt-1 space-y-0">
+                <span className="block text-xs">Jln. Werdi Bhuwana, Kec. Mengwi, Kab. Badung-Bali, 80351</span>
+                <span className="block text-xs">Telp. (+62) 821-3965-9136 | Email: info@vaniasugiarta.com</span>
+                <span className="block text-xs">www.vaniasugiarta.com</span>
               </p>
             </div>
           </div>
         </div>
 
         {/* Document Title */}
-        <h2 className="mb-8 text-center text-lg font-bold border-b-2 border-black pb-2">
-          SURAT JALAN
+        <h2 className="mb-4 text-center text-base font-bold border-b-2 border-black pb-1">
+          SURAT PERJANJIAN SEWA ALAT BERAT
         </h2>
 
         {/* Document Info */}
-        <div className="mb-6 grid grid-cols-2 gap-6 text-xs">
-          <div className="flex justify-between items-center border-b border-black pb-1">
-            <span className="font-bold">Jenis Kendaraan:</span>
-            <span>{jenisKendaraan}</span>
+        <div className="mb-4 grid grid-cols-2 gap-3 text-xs">
+          <div className="flex justify-between items-center border-b border-black pb-0.5">
+            <span className="font-bold">No. Perjanjian:</span>
+            <span>{noPerjanjian}</span>
           </div>
-          <div className="flex justify-between items-center border-b border-black pb-1">
+          <div className="flex justify-between items-center border-b border-black pb-0.5">
             <span className="font-bold">Tanggal:</span>
             <span>{formatDate(tanggal)}</span>
           </div>
-          <div className="flex justify-between items-center border-b border-black pb-1">
-            <span className="font-bold">No Pol:</span>
-            <span>{noPol}</span>
+          <div className="flex justify-between items-center border-b border-black pb-0.5">
+            <span className="font-bold">Lokasi Pekerjaan:</span>
+            <span>{lokasiPekerjaan}</span>
           </div>
-          <div className="flex justify-between items-center border-b border-black pb-1">
-            <span className="font-bold">Sopir:</span>
-            <span>{sopir}</span>
+          <div className="flex justify-between items-center border-b border-black pb-0.5">
+            <span className="font-bold">Jangka Waktu:</span>
+            <span>{formatDate(tanggalMulai)} s/d {formatDate(tanggalSelesai)}</span>
           </div>
         </div>
 
-        {/* Surat Number */}
-        <div className="mb-6 text-center text-sm font-bold bg-gray-100 py-2 rounded">
-          No. Surat: <span className="text-base">{noSurat}</span>
+        {/* Pihak Information Section */}
+        <div className="mb-3 text-xs space-y-2">
+          {/* Pihak Pertama */}
+          <div>
+            <p className="font-bold mb-0.5">Pihak Pertama (Penyedia):</p>
+            <div className="ml-3 space-y-0">
+              <p><span className="font-bold">Nama:</span> {pihakPertamaNama}</p>
+              <p><span className="font-bold">Jabatan:</span> {pihakPertamaJabatan}</p>
+              <p><span className="font-bold">Perusahaan:</span> {pihakPertamaPerusahaan}</p>
+              <p><span className="font-bold">Alamat:</span> {pihakPertamaAlamat}</p>
+            </div>
+          </div>
+
+          {/* Pihak Kedua */}
+          <div>
+            <p className="font-bold mb-0.5">Pihak Kedua (Penyewa):</p>
+            <div className="ml-3 space-y-0">
+              <p><span className="font-bold">Nama:</span> {pihakKeduaNama}</p>
+              <p><span className="font-bold">Jabatan:</span> {pihakKeduaJabatan}</p>
+              <p><span className="font-bold">Perusahaan:</span> {pihakKedualPerusahaan}</p>
+              <p><span className="font-bold">Alamat:</span> {pihakKeduaAlamat}</p>
+            </div>
+          </div>
         </div>
 
         {/* Items Table */}
-        <table className="mb-8 w-full border-collapse text-xs">
+        <table className="mb-4 w-full border-collapse text-xs">
           <thead>
             <tr className="bg-gray-800 text-white">
               <th className="border border-gray-800 px-3 py-2 text-center font-bold w-8">NO</th>
-              <th className="border border-gray-800 px-3 py-2 text-left font-bold">JENIS UNIT</th>
-              <th className="border border-gray-800 px-3 py-2 text-left font-bold">SERI</th>
-              <th className="border border-gray-800 px-3 py-2 text-left font-bold">LOKASI</th>
+              <th className="border border-gray-800 px-3 py-2 text-left font-bold">JENIS ALAT</th>
+              <th className="border border-gray-800 px-3 py-2 text-center font-bold">JUMLAH</th>
+              <th className="border border-gray-800 px-3 py-2 text-left font-bold">HARGA SEWA</th>
               <th className="border border-gray-800 px-3 py-2 text-left font-bold">KETERANGAN</th>
             </tr>
           </thead>
@@ -316,11 +351,11 @@ export function SuratJalanTemplate({
                   {item.urutan}
                 </td>
                 <td className="border border-gray-300 px-3 py-2">
-                  {item.jenisUnit}
+                  {item.jenisAlat}
                 </td>
-                <td className="border border-gray-300 px-3 py-2">{item.seri}</td>
+                <td className="border border-gray-300 px-3 py-2 text-center">{item.jumlah}</td>
                 <td className="border border-gray-300 px-3 py-2">
-                  {item.lokasi}
+                  {item.hargaSewa}
                 </td>
                 <td className="border border-gray-300 px-3 py-2">
                   {item.keterangan || '-'}
@@ -331,36 +366,29 @@ export function SuratJalanTemplate({
         </table>
 
         {/* Notes Section */}
-        <div className="mb-8 text-xs border-l-4 border-gray-400 pl-3 py-2 bg-gray-50">
-          <p className="font-bold mb-1">Keterangan:</p>
-          <p className="mb-1">Mohon untuk dicek dan diterima oleh pihak yang berwenang</p>
-          {tujuan && <p className="mb-1"><span className="font-bold">Tujuan:</span> {tujuan}</p>}
+        <div className="mb-4 text-xs border-l-4 border-gray-400 pl-2 py-1 bg-gray-50">
+          <p className="font-bold mb-0.5">Keterangan:</p>
+          <p className="mb-0.5">Kedua belah pihak setuju dengan syarat dan ketentuan yang telah ditetapkan</p>
           {keterangan && <p><span className="font-bold">Catatan:</span> {keterangan}</p>}
         </div>
 
         {/* Signature Section */}
-        <div className="grid grid-cols-3 gap-4 text-center text-xs">
+        <div className="grid grid-cols-2 gap-4 text-center text-xs">
           <div>
-            <p className="font-bold mb-16">PENGEMUDI</p>
-            <div className="border-t-2 border-black pt-1 h-12 mb-1"></div>
+            <p className="font-bold mb-8">PIHAK PERTAMA</p>
+            <div className="border-t-2 border-black pt-0.5 h-8 mb-0.5"></div>
             <p className="text-xs">Tanda Tangan</p>
           </div>
 
           <div>
-            <p className="font-bold mb-16">PERUSAHAAN</p>
-            <div className="border-t-2 border-black pt-1 h-12 mb-1"></div>
-            <p className="text-xs">Tanda Tangan</p>
-          </div>
-
-          <div>
-            <p className="font-bold mb-16">PENERIMA</p>
-            <div className="border-t-2 border-black pt-1 h-12 mb-1"></div>
+            <p className="font-bold mb-8">PIHAK KEDUA</p>
+            <div className="border-t-2 border-black pt-0.5 h-8 mb-0.5"></div>
             <p className="text-xs">Tanda Tangan</p>
           </div>
         </div>
 
         {/* Footer */}
-        <div className="mt-8 pt-2 border-t border-gray-300 text-center text-xs text-gray-600 print:mt-2 print:pt-1">
+        <div className="mt-3 pt-1 border-t border-gray-300 text-center text-xs text-gray-600 print:mt-2 print:pt-0.5">
           <p className="font-semibold text-xs">PT. VANIA SUGIARTA JAYA</p>
           <p className="text-xs">Jln. Werdi Bhuwana, Kec. Mengwi, Kab. Badung-Bali, 80351</p>
           <p className="text-xs">Telp. (+62) 821-3965-9136 | www.vaniasugiarta.com</p>

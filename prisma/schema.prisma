@@ -104,3 +104,60 @@ model SuratJalanItem {
   @@index([suratId])
   @@unique([suratId, urutan])
 }
+
+// Surat Perjanjian (Equipment Rental Agreement) model
+model SuratPerjanjian {
+  id                      String                    @id @default(uuid()) @db.Uuid
+  noPerjanjian            String                    @unique @db.VarChar(100)
+  tanggal                 DateTime                  @db.Date
+  tanggalPernyataan       String?                   @map("tanggal_pernyataan") @db.Text // Text format like "Delapan Belas bulan Oktober Tahun Dua Ribu Tujuh Belas"
+
+  // Pihak Pertama (Company/VSJ)
+  pihakPertamaNama        String                    @map("pihak_pertama_nama") @db.VarChar(255)
+  pihakPertamaJabatan     String                    @map("pihak_pertama_jabatan") @db.VarChar(255)
+  pihakPertamaPerusahaan  String                    @map("pihak_pertama_perusahaan") @db.VarChar(255)
+  pihakPertamaAlamat      String                    @map("pihak_pertama_alamat") @db.Text
+
+  // Pihak Kedua (Customer/Renter)
+  pihakKeduaNama          String                    @map("pihak_kedua_nama") @db.VarChar(255)
+  pihakKeduaJabatan       String                    @map("pihak_kedua_jabatan") @db.VarChar(255)
+  pihakKedualPerusahaan   String                    @map("pihak_kedua_perusahaan") @db.VarChar(255)
+  pihakKeduaAlamat        String                    @map("pihak_kedua_alamat") @db.Text
+
+  // Rental Details
+  lokasiPekerjaan         String                    @map("lokasi_pekerjaan") @db.Text
+  tanggalMulai            DateTime                  @map("tanggal_mulai") @db.Date
+  tanggalSelesai          DateTime                  @map("tanggal_selesai") @db.Date
+
+  keterangan              String?                   @db.Text
+  status                  String                    @default("draft") @db.VarChar(50) // draft, printed, completed
+  createdBy               String?                   @map("created_by") @db.VarChar(255)
+  createdAt               DateTime                  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt               DateTime                  @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  // Relations
+  items SuratPerjanjianItem[]
+
+  @@map("surat_perjanjian")
+  @@index([tanggal])
+  @@index([status])
+}
+
+// Surat Perjanjian Items model (equipment in rental agreement)
+model SuratPerjanjianItem {
+  id                  String                @id @default(uuid()) @db.Uuid
+  suratPerjanjianId   String                @map("surat_perjanjian_id") @db.Uuid
+  urutan              Int
+  jenisAlat           String                @map("jenis_alat") @db.VarChar(255)
+  jumlah              Int
+  hargaSewa           String                @map("harga_sewa") @db.VarChar(100)
+  keterangan          String?               @db.Text
+  createdAt           DateTime              @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  // Relations
+  suratPerjanjian SuratPerjanjian @relation(fields: [suratPerjanjianId], references: [id], onDelete: Cascade)
+
+  @@map("surat_perjanjian_items")
+  @@index([suratPerjanjianId])
+  @@unique([suratPerjanjianId, urutan])
+}

@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { EquipmentTable } from '@/components/dashboard/equipment-table'
 import { EquipmentForm } from '@/components/dashboard/equipment-form'
+import { ChangePasswordDialog } from '@/components/admin/change-password-dialog'
 import { HeavyEquipmentWithImages } from '@/types'
 import Link from 'next/link'
 import { Toaster } from '@/components/ui/toaster'
@@ -15,6 +16,7 @@ export default function AdminPage() {
   const { equipment, loading, refetch } = useEquipment()
   const { isAuthenticated, isLoading, logout, user } = useAuth()
   const [isDialogOpen, setIsDialogOpen] = useState(false)
+  const [isChangePasswordOpen, setIsChangePasswordOpen] = useState(false)
   const [selectedEquipment, setSelectedEquipment] = useState<HeavyEquipmentWithImages | undefined>(undefined)
 
   const handleAdd = () => {
@@ -64,6 +66,9 @@ export default function AdminPage() {
               <Button asChild variant="outline">
                 <Link href="/">Kembali ke Website</Link>
               </Button>
+              <Button variant="outline" onClick={() => setIsChangePasswordOpen(true)}>
+                Ubah Password
+              </Button>
               <Button variant="outline" onClick={logout}>
                 Logout
               </Button>
@@ -97,6 +102,12 @@ export default function AdminPage() {
               className="border-b-2 border-transparent px-4 py-3 text-sm font-medium text-slate-600 hover:border-slate-300 hover:text-slate-900"
             >
               Surat Jalan
+            </Link>
+            <Link
+              href="/admin/perjanjian"
+              className="border-b-2 border-transparent px-4 py-3 text-sm font-medium text-slate-600 hover:border-slate-300 hover:text-slate-900"
+            >
+              Surat Perjanjian Sewa
             </Link>
           </nav>
         </div>
@@ -155,6 +166,13 @@ export default function AdminPage() {
           />
         </DialogContent>
       </Dialog>
+
+      {/* Change Password Dialog */}
+      <ChangePasswordDialog
+        isOpen={isChangePasswordOpen}
+        onClose={() => setIsChangePasswordOpen(false)}
+      />
+
       <Toaster />
     </div>
   )

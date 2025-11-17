@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { useAuth } from '@/context/AuthContext'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
@@ -33,10 +34,10 @@ export default function SuratJalanPage() {
   const router = useRouter()
   const [suratList, setSuratList] = useState<SuratJalan[]>([])
   const [loading, setLoading] = useState(false)
-  const [showForm, setShowForm] = useState(false)
-  const [editingId, setEditingId] = useState<string | null>(null)
-  const [previewId, setPreviewId] = useState<string | null>(null)
+  const [isFormDialogOpen, setIsFormDialogOpen] = useState(false)
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false)
   const [selectedSurat, setSelectedSurat] = useState<SuratJalan | null>(null)
+  const [previewSurat, setPreviewSurat] = useState<SuratJalan | null>(null)
 
   const [formData, setFormData] = useState({
     tanggal: new Date().toISOString().split('T')[0],
@@ -121,10 +122,8 @@ export default function SuratJalanPage() {
         })),
       }
 
-      const url = editingId
-        ? `/api/surat-jalan/${editingId}`
-        : '/api/surat-jalan'
-      const method = editingId ? 'PUT' : 'POST'
+      const url = selectedSurat ? `/api/surat-jalan/${selectedSurat.id}` : '/api/surat-jalan'
+      const method = selectedSurat ? 'PUT' : 'POST'
 
       const response = await fetch(url, {
         method,
@@ -138,7 +137,7 @@ export default function SuratJalanPage() {
 
       await fetchSuratList()
       resetForm()
-      setShowForm(false)
+      setIsFormDialogOpen(false)
     } catch (error) {
       console.error('Error saving surat jalan:', error)
       alert('Gagal menyimpan surat jalan')
@@ -147,7 +146,8 @@ export default function SuratJalanPage() {
     }
   }
 
-  const handleEdit = (surat: SuratJalan) => {
+  const handleEditSurat = (surat: SuratJalan) => {
+    setSelectedSurat(surat)
     setFormData({
       tanggal: surat.tanggal,
       jenisKendaraan: surat.jenisKendaraan,
@@ -163,11 +163,10 @@ export default function SuratJalanPage() {
         keterangan: item.keterangan || '',
       })),
     })
-    setEditingId(surat.id)
-    setShowForm(true)
+    setIsFormDialogOpen(true)
   }
 
-  const handleDelete = async (id: string) => {
+  const handleDeleteSurat = async (id: string) => {
     if (!confirm('Apakah Anda yakin ingin menghapus surat jalan ini?')) return
 
     try {
@@ -189,6 +188,11 @@ export default function SuratJalanPage() {
     }
   }
 
+  const handlePreviewSurat = (surat: SuratJalan) => {
+    setPreviewSurat(surat)
+    setIsPreviewOpen(true)
+  }
+
   const resetForm = () => {
     setFormData({
       tanggal: new Date().toISOString().split('T')[0],
@@ -199,13 +203,18 @@ export default function SuratJalanPage() {
       keterangan: '',
       items: [{ urutan: 1, jenisUnit: '', seri: '', lokasi: '', keterangan: '' }],
     })
-    setEditingId(null)
+    setSelectedSurat(null)
+  }
+
+  const openNewFormDialog = () => {
+    resetForm()
+    setIsFormDialogOpen(true)
   }
 
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <p>Loading...</p>
+        <p className="text-slate-600">Memeriksa autentikasi...</p>
       </div>
     )
   }
@@ -262,385 +271,334 @@ export default function SuratJalanPage() {
             >
               Surat Jalan
             </Link>
+            <Link
+              href="/admin/perjanjian"
+              className="border-b-2 border-transparent px-4 py-3 text-sm font-medium text-slate-600 hover:border-slate-300 hover:text-slate-900"
+            >
+              Surat Perjanjian Sewa
+            </Link>
           </nav>
         </div>
       </header>
 
       {/* Main Content */}
       <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-        {/* Main Content */}
-        <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
-          {/* Form Section */}
-          <div className="lg:col-span-1">
-            <div className="sticky top-4 rounded-lg bg-white p-6 shadow">
-              <h2 className="mb-4 text-xl font-semibold">
-                {editingId ? 'Edit Surat Jalan' : 'Buat Surat Jalan'}
-              </h2>
-
-              {!showForm ? (
-                <Button
-                  onClick={() => setShowForm(true)}
-                  className="w-full bg-blue-600 hover:bg-blue-700"
-                >
-                  + Buat Surat Baru
-                </Button>
-              ) : (
-                <form onSubmit={handleSubmit} className="space-y-4">
-                  {/* Tanggal */}
-                  <div>
-                    <label className="block text-sm font-medium">Tanggal</label>
-                    <input
-                      type="date"
-                      required
-                      value={formData.tanggal}
-                      onChange={(e) =>
-                        setFormData({ ...formData, tanggal: e.target.value })
-                      }
-                      className="mt-1 w-full border rounded px-3 py-2 text-sm"
-                    />
-                  </div>
-
-                  {/* Jenis Kendaraan */}
-                  <div>
-                    <label className="block text-sm font-medium">
-                      Jenis Kendaraan
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      placeholder="Contoh: Truck, Excavator"
-                      value={formData.jenisKendaraan}
-                      onChange={(e) =>
-                        setFormData({
-                          ...formData,
-                          jenisKendaraan: e.target.value,
-                        })
-                      }
-                      className="mt-1 w-full border rounded px-3 py-2 text-sm"
-                    />
-                  </div>
-
-                  {/* No Pol */}
-                  <div>
-                    <label className="block text-sm font-medium">No Pol</label>
-                    <input
-                      type="text"
-                      required
-                      placeholder="Contoh: B 1234 ABC"
-                      value={formData.noPol}
-                      onChange={(e) =>
-                        setFormData({ ...formData, noPol: e.target.value })
-                      }
-                      className="mt-1 w-full border rounded px-3 py-2 text-sm"
-                    />
-                  </div>
-
-                  {/* Sopir */}
-                  <div>
-                    <label className="block text-sm font-medium">Sopir</label>
-                    <input
-                      type="text"
-                      required
-                      placeholder="Nama Sopir"
-                      value={formData.sopir}
-                      onChange={(e) =>
-                        setFormData({ ...formData, sopir: e.target.value })
-                      }
-                      className="mt-1 w-full border rounded px-3 py-2 text-sm"
-                    />
-                  </div>
-
-                  {/* Tujuan */}
-                  <div>
-                    <label className="block text-sm font-medium">Tujuan</label>
-                    <input
-                      type="text"
-                      placeholder="Lokasi tujuan (opsional)"
-                      value={formData.tujuan}
-                      onChange={(e) =>
-                        setFormData({ ...formData, tujuan: e.target.value })
-                      }
-                      className="mt-1 w-full border rounded px-3 py-2 text-sm"
-                    />
-                  </div>
-
-                  {/* Keterangan */}
-                  <div>
-                    <label className="block text-sm font-medium">
-                      Keterangan
-                    </label>
-                    <textarea
-                      placeholder="Keterangan tambahan (opsional)"
-                      value={formData.keterangan}
-                      onChange={(e) =>
-                        setFormData({ ...formData, keterangan: e.target.value })
-                      }
-                      className="mt-1 w-full border rounded px-3 py-2 text-sm"
-                      rows={3}
-                    />
-                  </div>
-
-                  {/* Items Section */}
-                  <div className="border-t pt-4">
-                    <h3 className="mb-3 font-semibold text-sm">Alat Berat</h3>
-                    <div className="max-h-64 space-y-3 overflow-y-auto">
-                      {formData.items.map((item, idx) => (
-                        <div
-                          key={idx}
-                          className="rounded border bg-gray-50 p-3 space-y-2"
-                        >
-                          <div className="text-xs font-medium text-gray-600">
-                            Item {idx + 1}
-                          </div>
-
-                          <input
-                            type="text"
-                            placeholder="Jenis Unit"
-                            value={item.jenisUnit}
-                            onChange={(e) =>
-                              handleItemChange(idx, 'jenisUnit', e.target.value)
-                            }
-                            className="w-full border rounded px-2 py-1 text-xs"
-                          />
-
-                          <input
-                            type="text"
-                            placeholder="Seri"
-                            value={item.seri}
-                            onChange={(e) =>
-                              handleItemChange(idx, 'seri', e.target.value)
-                            }
-                            className="w-full border rounded px-2 py-1 text-xs"
-                          />
-
-                          <input
-                            type="text"
-                            placeholder="Lokasi"
-                            value={item.lokasi}
-                            onChange={(e) =>
-                              handleItemChange(idx, 'lokasi', e.target.value)
-                            }
-                            className="w-full border rounded px-2 py-1 text-xs"
-                          />
-
-                          <input
-                            type="text"
-                            placeholder="Keterangan"
-                            value={item.keterangan || ''}
-                            onChange={(e) =>
-                              handleItemChange(
-                                idx,
-                                'keterangan',
-                                e.target.value
-                              )
-                            }
-                            className="w-full border rounded px-2 py-1 text-xs"
-                          />
-
-                          {formData.items.length > 1 && (
-                            <Button
-                              type="button"
-                              onClick={() => handleRemoveItem(idx)}
-                              variant="outline"
-                              size="sm"
-                              className="w-full text-xs text-red-600"
-                            >
-                              Hapus Item
-                            </Button>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-
-                    {formData.items.length < 6 && (
-                      <Button
-                        type="button"
-                        onClick={handleAddItem}
-                        variant="outline"
-                        size="sm"
-                        className="mt-3 w-full"
-                      >
-                        + Tambah Item
-                      </Button>
-                    )}
-                  </div>
-
-                  {/* Form Actions */}
-                  <div className="border-t pt-4 space-y-2">
-                    <Button
-                      type="submit"
-                      disabled={loading}
-                      className="w-full bg-green-600 hover:bg-green-700"
-                    >
-                      {loading ? 'Menyimpan...' : 'Simpan Surat'}
-                    </Button>
-                    <Button
-                      type="button"
-                      onClick={() => {
-                        resetForm()
-                        setShowForm(false)
-                      }}
-                      variant="outline"
-                      className="w-full"
-                    >
-                      Batal
-                    </Button>
-                  </div>
-                </form>
-              )}
-            </div>
+        <div className="mb-8 flex items-center justify-between">
+          <div>
+            <h2 className="text-3xl font-bold text-slate-900">Surat Jalan</h2>
+            <p className="mt-2 text-slate-600">Kelola surat jalan kendaraan pengiriman</p>
           </div>
-
-          {/* List Section */}
-          <div className="lg:col-span-2">
-            <div className="rounded-lg bg-white p-6 shadow">
-              <h2 className="mb-6 text-xl font-semibold">Daftar Surat Jalan</h2>
-
-              {loading && suratList.length === 0 ? (
-                <div className="text-center py-8 text-gray-500">
-                  Loading...
-                </div>
-              ) : suratList.length === 0 ? (
-                <div className="text-center py-8 text-gray-500">
-                  Belum ada surat jalan. Buat yang pertama!
-                </div>
-              ) : (
-                <div className="overflow-x-auto">
-                  <table className="w-full text-sm">
-                    <thead>
-                      <tr className="border-b">
-                        <th className="px-4 py-3 text-left font-semibold">
-                          No Surat
-                        </th>
-                        <th className="px-4 py-3 text-left font-semibold">
-                          Tanggal
-                        </th>
-                        <th className="px-4 py-3 text-left font-semibold">
-                          No Pol
-                        </th>
-                        <th className="px-4 py-3 text-left font-semibold">
-                          Sopir
-                        </th>
-                        <th className="px-4 py-3 text-left font-semibold">
-                          Item
-                        </th>
-                        <th className="px-4 py-3 text-left font-semibold">
-                          Aksi
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {suratList.map((surat) => (
-                        <tr
-                          key={surat.id}
-                          className="border-b hover:bg-gray-50"
-                        >
-                          <td className="px-4 py-3 font-medium">
-                            {surat.noSurat}
-                          </td>
-                          <td className="px-4 py-3">
-                            {new Date(surat.tanggal).toLocaleDateString(
-                              'id-ID'
-                            )}
-                          </td>
-                          <td className="px-4 py-3">{surat.noPol}</td>
-                          <td className="px-4 py-3">{surat.sopir}</td>
-                          <td className="px-4 py-3 text-center">
-                            {surat.items.length}
-                          </td>
-                          <td className="px-4 py-3">
-                            <div className="flex gap-2">
-                              <Button
-                                onClick={() => {
-                                  setSelectedSurat(surat)
-                                  setPreviewId(surat.id)
-                                }}
-                                size="sm"
-                                variant="outline"
-                              >
-                                Preview
-                              </Button>
-                              <Button
-                                onClick={() => handleEdit(surat)}
-                                size="sm"
-                                variant="outline"
-                              >
-                                Edit
-                              </Button>
-                              <Button
-                                onClick={() => handleDelete(surat.id)}
-                                size="sm"
-                                variant="outline"
-                                className="text-red-600"
-                              >
-                                Hapus
-                              </Button>
-                            </div>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              )}
-            </div>
-          </div>
+          <Button
+            onClick={openNewFormDialog}
+            className="bg-orange-600 hover:bg-orange-700"
+          >
+            + Buat Surat Baru
+          </Button>
         </div>
 
-        {/* Preview Modal */}
-        {previewId && selectedSurat && (
-          <div
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
-            onClick={() => {
-              setPreviewId(null)
-              setSelectedSurat(null)
-            }}
-          >
-            <div
-              className="max-h-screen w-full max-w-4xl overflow-y-auto rounded-lg bg-white p-6"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <div className="mb-4 flex items-center justify-between">
-                <h2 className="text-xl font-semibold">
-                  Preview: {selectedSurat.noSurat}
-                </h2>
-                <button
-                  onClick={() => {
-                    setPreviewId(null)
-                    setSelectedSurat(null)
-                  }}
-                  className="text-gray-400 hover:text-gray-600 transition-colors"
-                  aria-label="Close modal"
-                >
-                  <svg
-                    className="h-6 w-6"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M6 18L18 6M6 6l12 12"
-                    />
-                  </svg>
-                </button>
-              </div>
-              <SuratJalanTemplate
-                noSurat={selectedSurat.noSurat}
-                tanggal={selectedSurat.tanggal}
-                jenisKendaraan={selectedSurat.jenisKendaraan}
-                noPol={selectedSurat.noPol}
-                sopir={selectedSurat.sopir}
-                items={selectedSurat.items}
-                tujuan={selectedSurat.tujuan}
-                keterangan={selectedSurat.keterangan}
-              />
-            </div>
+        {/* Surat List */}
+        {loading && !suratList.length ? (
+          <div className="text-center py-12">
+            <p className="text-slate-600">Memuat...</p>
+          </div>
+        ) : suratList.length === 0 ? (
+          <div className="rounded-lg border-2 border-dashed border-slate-300 p-12 text-center">
+            <p className="text-slate-600">Belum ada surat jalan. Buat surat baru untuk memulai.</p>
+          </div>
+        ) : (
+          <div className="rounded-lg bg-white shadow overflow-hidden">
+            <table className="min-w-full divide-y divide-slate-200">
+              <thead className="bg-slate-50">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-slate-900 uppercase tracking-wider">
+                    No. Surat
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-slate-900 uppercase tracking-wider">
+                    Tanggal
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-slate-900 uppercase tracking-wider">
+                    Kendaraan
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-slate-900 uppercase tracking-wider">
+                    Sopir
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-slate-900 uppercase tracking-wider">
+                    Aksi
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-200">
+                {suratList.map((surat) => (
+                  <tr key={surat.id} className="hover:bg-slate-50 transition-colors">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-slate-900">
+                      {surat.noSurat}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">
+                      {new Date(surat.tanggal).toLocaleDateString('id-ID')}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">
+                      {surat.jenisKendaraan}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">
+                      {surat.sopir}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm space-x-2">
+                      <button
+                        onClick={() => handlePreviewSurat(surat)}
+                        className="text-blue-600 hover:text-blue-900 font-medium"
+                      >
+                        Preview
+                      </button>
+                      <button
+                        onClick={() => handleEditSurat(surat)}
+                        className="text-slate-600 hover:text-slate-900 font-medium"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        onClick={() => handleDeleteSurat(surat.id)}
+                        className="text-red-600 hover:text-red-900 font-medium"
+                      >
+                        Hapus
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         )}
       </main>
+
+      {/* Form Dialog */}
+      <Dialog open={isFormDialogOpen} onOpenChange={setIsFormDialogOpen}>
+        <DialogContent className="max-h-[90vh] max-w-4xl overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>
+              {selectedSurat ? 'Edit Surat Jalan' : 'Buat Surat Jalan Baru'}
+            </DialogTitle>
+          </DialogHeader>
+
+          <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Top Fields */}
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-slate-900 mb-1">Tanggal</label>
+                <input
+                  type="date"
+                  required
+                  value={formData.tanggal}
+                  onChange={(e) => setFormData({ ...formData, tanggal: e.target.value })}
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-600"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-900 mb-1">Jenis Kendaraan</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="Truck, Mobil, dll"
+                  value={formData.jenisKendaraan}
+                  onChange={(e) => setFormData({ ...formData, jenisKendaraan: e.target.value })}
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-600 text-sm"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-slate-900 mb-1">No. Polisi</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="B 1234 ABC"
+                  value={formData.noPol}
+                  onChange={(e) => setFormData({ ...formData, noPol: e.target.value })}
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-600 text-sm"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-900 mb-1">Sopir</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="Nama Sopir"
+                  value={formData.sopir}
+                  onChange={(e) => setFormData({ ...formData, sopir: e.target.value })}
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-600 text-sm"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-slate-900 mb-1">Tujuan</label>
+                <input
+                  type="text"
+                  placeholder="Lokasi Tujuan"
+                  value={formData.tujuan}
+                  onChange={(e) => setFormData({ ...formData, tujuan: e.target.value })}
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-600 text-sm"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-900 mb-1">Keterangan</label>
+                <input
+                  type="text"
+                  placeholder="Keterangan tambahan"
+                  value={formData.keterangan}
+                  onChange={(e) => setFormData({ ...formData, keterangan: e.target.value })}
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-600 text-sm"
+                />
+              </div>
+            </div>
+
+            {/* Items Section */}
+            <fieldset className="border rounded-lg p-4">
+              <legend className="text-sm font-semibold text-slate-900">Daftar Alat Berat</legend>
+              <div className="mt-4 space-y-3">
+                {formData.items.map((item, index) => (
+                  <div key={index} className="grid grid-cols-5 gap-2 items-end">
+                    <div>
+                      <label className="block text-xs font-medium text-slate-700 mb-1">NO</label>
+                      <input
+                        type="text"
+                        disabled
+                        value={item.urutan}
+                        className="w-full px-2 py-2 border border-slate-300 rounded-lg bg-slate-50 text-sm"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium text-slate-700 mb-1">Jenis Unit</label>
+                      <input
+                        type="text"
+                        required
+                        placeholder="PC30, Excavator, dll"
+                        value={item.jenisUnit}
+                        onChange={(e) => handleItemChange(index, 'jenisUnit', e.target.value)}
+                        className="w-full px-2 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-600 text-sm"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium text-slate-700 mb-1">Seri</label>
+                      <input
+                        type="text"
+                        required
+                        placeholder="No. Seri"
+                        value={item.seri}
+                        onChange={(e) => handleItemChange(index, 'seri', e.target.value)}
+                        className="w-full px-2 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-600 text-sm"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium text-slate-700 mb-1">Lokasi</label>
+                      <input
+                        type="text"
+                        required
+                        placeholder="Lokasi"
+                        value={item.lokasi}
+                        onChange={(e) => handleItemChange(index, 'lokasi', e.target.value)}
+                        className="w-full px-2 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-600 text-sm"
+                      />
+                    </div>
+                    {formData.items.length > 1 && (
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveItem(index)}
+                        className="px-3 py-2 text-red-600 hover:text-red-900 font-medium text-sm border border-red-300 rounded-lg hover:bg-red-50"
+                      >
+                        Hapus
+                      </button>
+                    )}
+                  </div>
+                ))}
+              </div>
+              <button
+                type="button"
+                onClick={handleAddItem}
+                className="mt-4 text-sm text-blue-600 hover:text-blue-900 font-medium"
+              >
+                + Tambah Item
+              </button>
+            </fieldset>
+
+            {/* Action Buttons */}
+            <div className="flex gap-3 justify-end pt-6 border-t">
+              <button
+                type="button"
+                onClick={() => {
+                  setIsFormDialogOpen(false)
+                  resetForm()
+                }}
+                className="px-4 py-2 border border-slate-300 rounded-lg text-slate-900 font-medium hover:bg-slate-50"
+              >
+                Batal
+              </button>
+              <button
+                type="submit"
+                disabled={loading}
+                className="px-4 py-2 bg-orange-600 text-white rounded-lg font-medium hover:bg-orange-700 disabled:opacity-50"
+              >
+                {loading ? 'Menyimpan...' : selectedSurat ? 'Perbarui' : 'Simpan'}
+              </button>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Preview Modal */}
+      {isPreviewOpen && previewSurat && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+          onClick={() => {
+            setIsPreviewOpen(false)
+            setPreviewSurat(null)
+          }}
+        >
+          <div
+            className="max-h-screen w-full max-w-4xl overflow-y-auto rounded-lg bg-white p-6"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="mb-4 flex items-center justify-between">
+              <h2 className="text-xl font-semibold">
+                Preview: {previewSurat.noSurat}
+              </h2>
+              <button
+                onClick={() => {
+                  setIsPreviewOpen(false)
+                  setPreviewSurat(null)
+                }}
+                className="text-gray-400 hover:text-gray-600 transition-colors"
+                aria-label="Close modal"
+              >
+                <svg
+                  className="h-6 w-6"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M6 18L18 6M6 6l12 12"
+                  />
+                </svg>
+              </button>
+            </div>
+            <SuratJalanTemplate
+              noSurat={previewSurat.noSurat}
+              tanggal={previewSurat.tanggal}
+              jenisKendaraan={previewSurat.jenisKendaraan}
+              noPol={previewSurat.noPol}
+              sopir={previewSurat.sopir}
+              items={previewSurat.items}
+              tujuan={previewSurat.tujuan}
+              keterangan={previewSurat.keterangan}
+            />
+          </div>
+        </div>
+      )}
     </div>
   )
 }

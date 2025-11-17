@@ -233,6 +233,12 @@ export default function AdminGalleryPage() {
             >
               Surat Jalan
             </Link>
+            <Link
+              href="/admin/perjanjian"
+              className="border-b-2 border-transparent px-4 py-3 text-sm font-medium text-slate-600 hover:border-slate-300 hover:text-slate-900"
+            >
+              Surat Perjanjian Sewa
+            </Link>
           </nav>
         </div>
       </header>
