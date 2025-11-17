@@ -57,10 +57,11 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Validate file size (10MB for raw upload, will be compressed)
-    if (file.size > 10 * 1024 * 1024) {
+    // Validate file size (100MB for raw upload, will be compressed to WebP)
+    const maxFileSize = 100 * 1024 * 1024 // 100MB
+    if (file.size > maxFileSize) {
       return NextResponse.json(
-        { error: 'File size exceeds 10MB limit' },
+        { error: `File size exceeds 100MB limit. Received: ${(file.size / 1024 / 1024).toFixed(2)}MB` },
         { status: 400 }
       )
     }
@@ -73,15 +74,50 @@ export async function POST(request: NextRequest) {
     const arrayBuffer = await file.arrayBuffer()
     const inputBuffer = Buffer.from(arrayBuffer)
 
-    // Convert to WebP with compression and optimization
+    // Get image metadata for adaptive sizing
+    const metadata = await sharp(inputBuffer).metadata()
+    const originalWidth = metadata.width || 1920
+    const originalHeight = metadata.height || 1080
+
+    // Adaptive sizing: scale down intelligently based on original dimensions
+    let targetWidth = 1920
+    let targetHeight = 1080
+
+    if (originalWidth > 3840 || originalHeight > 2160) {
+      // 8K or larger: downscale to 1440p for web
+      targetWidth = 2560
+      targetHeight = 1440
+    } else if (originalWidth > 1920 || originalHeight > 1080) {
+      // Larger than 1080p: keep at 1920x1080
+      targetWidth = 1920
+      targetHeight = 1080
+    } else {
+      // Already smaller or equal: use original dimensions
+      targetWidth = originalWidth
+      targetHeight = originalHeight
+    }
+
+    // Convert to WebP with adaptive compression
+    let qualityLevel = 85
+    const fileSizeMB = file.size / 1024 / 1024
+
+    // Adjust quality based on original file size
+    if (fileSizeMB > 50) {
+      qualityLevel = 75 // Higher compression for very large files
+    } else if (fileSizeMB > 20) {
+      qualityLevel = 80
+    }
+
     const webpBuffer = await sharp(inputBuffer)
-      .resize(1920, 1080, {
+      .resize(targetWidth, targetHeight, {
         fit: 'inside',
-        withoutEnlargement: true
+        withoutEnlargement: true,
+        position: 'center'
       })
       .webp({
-        quality: 85,
-        effort: 6
+        quality: qualityLevel,
+        effort: 6, // Higher effort = better compression but slower
+        alphaQuality: 100
       })
       .toBuffer()
 

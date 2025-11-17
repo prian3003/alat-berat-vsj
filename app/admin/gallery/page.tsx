@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import Image from 'next/image'
 import { motion } from 'framer-motion'
 import { Button } from '@/components/ui/button'
@@ -24,10 +24,14 @@ export default function AdminGalleryPage() {
   const { toast } = useToast()
   const { confirm } = useConfirm()
   const { isAuthenticated, isLoading, logout } = useAuth()
+  const fileInputRef = useRef<HTMLInputElement>(null)
   const [images, setImages] = useState<GalleryImage[]>([])
   const [loading, setLoading] = useState(true)
   const [uploading, setUploading] = useState(false)
+  const [uploadProgress, setUploadProgress] = useState(0)
   const [showForm, setShowForm] = useState(false)
+  const [selectedFile, setSelectedFile] = useState<File | null>(null)
+  const [filePreviewUrl, setFilePreviewUrl] = useState<string | null>(null)
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -63,34 +67,101 @@ export default function AdminGalleryPage() {
     }
   }
 
-  const handleFileUpload = async (file: File) => {
+  const handleFileSelect = (file: File) => {
+    // Validate file type
+    const validTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/webp']
+    if (!validTypes.includes(file.type)) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Format file tidak didukung. Gunakan PNG, JPEG, atau WebP.",
+      })
+      return
+    }
+
+    // Validate file size (allow up to 100MB for processing, will be compressed to WebP)
+    const maxSize = 100 * 1024 * 1024 // 100MB
+    if (file.size > maxSize) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: `Ukuran file terlalu besar (${(file.size / 1024 / 1024).toFixed(2)}MB). Maksimal 100MB.`,
+      })
+      return
+    }
+
+    // Create preview
+    const reader = new FileReader()
+    reader.onload = (e) => {
+      setFilePreviewUrl(e.target?.result as string)
+    }
+    reader.readAsDataURL(file)
+
+    setSelectedFile(file)
+  }
+
+  const handleFileUpload = async () => {
+    if (!selectedFile) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Pilih file terlebih dahulu",
+      })
+      return
+    }
+
     const formDataUpload = new FormData()
-    formDataUpload.append('file', file)
+    formDataUpload.append('file', selectedFile)
 
     try {
+      setUploading(true)
+      setUploadProgress(0)
+
+      // Simulate upload progress (0-90% while uploading)
+      const progressInterval = setInterval(() => {
+        setUploadProgress(prev => {
+          if (prev < 90) return prev + Math.random() * 30
+          return prev
+        })
+      }, 500)
+
       const response = await fetch('/api/upload', {
         method: 'POST',
         body: formDataUpload
       })
 
+      clearInterval(progressInterval)
+      setUploadProgress(90)
+
       if (!response.ok) {
-        throw new Error('Upload failed')
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Upload failed')
       }
 
       const data = await response.json()
+      setUploadProgress(100)
+
       setFormData(prev => ({ ...prev, image_url: data.url }))
+      setSelectedFile(null)
+
       toast({
         variant: "success",
         title: "Berhasil",
-        description: "Gambar berhasil diunggah",
+        description: `Gambar berhasil diunggah (${(selectedFile.size / 1024 / 1024).toFixed(2)}MB → WebP terkompresi)`,
       })
+
+      // Reset progress after success
+      setTimeout(() => setUploadProgress(0), 1000)
     } catch (error) {
       console.error('Error uploading file:', error)
       toast({
         variant: "destructive",
         title: "Error",
-        description: "Gagal mengunggah gambar",
+        description: error instanceof Error ? error.message : "Gagal mengunggah gambar",
       })
+      setUploadProgress(0)
+    } finally {
+      setUploading(false)
     }
   }
 
@@ -314,23 +385,115 @@ export default function AdminGalleryPage() {
             </div>
 
             <div className="mt-4">
-              <label className="block text-sm font-medium text-slate-900">Upload Gambar</label>
-              <input
-                type="file"
-                accept="image/*"
-                onChange={e => e.target.files && handleFileUpload(e.target.files[0])}
-                className="mt-1 block w-full text-slate-900"
-              />
-              {formData.image_url && (
-                <div className="mt-4 relative w-32 h-32">
-                  <Image
-                    src={formData.image_url}
-                    alt="Preview"
-                    fill
-                    className="object-cover rounded-lg"
-                  />
+              <label className="block text-sm font-medium text-slate-900 mb-3">Upload Gambar</label>
+
+              {/* File Upload Button */}
+              <div className="space-y-3">
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={uploading}
+                    className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-white font-medium hover:bg-blue-700 transition-colors disabled:opacity-50"
+                  >
+                    <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                    </svg>
+                    Pilih File
+                  </button>
+                  {selectedFile && (
+                    <button
+                      type="button"
+                      onClick={handleFileUpload}
+                      disabled={uploading}
+                      className="inline-flex items-center gap-2 rounded-lg bg-green-600 px-4 py-2 text-white font-medium hover:bg-green-700 transition-colors disabled:opacity-50"
+                    >
+                      {uploading ? (
+                        <>
+                          <svg className="h-5 w-5 animate-spin" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <circle cx="12" cy="12" r="10" strokeWidth="2" />
+                          </svg>
+                          Mengunggah...
+                        </>
+                      ) : (
+                        <>
+                          <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10" />
+                          </svg>
+                          Upload
+                        </>
+                      )}
+                    </button>
+                  )}
                 </div>
-              )}
+
+                {/* Hidden file input */}
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/png,image/jpeg,image/jpg,image/webp"
+                  onChange={e => e.target.files && handleFileSelect(e.target.files[0])}
+                  className="hidden"
+                />
+
+                {/* File info and validation */}
+                {selectedFile && (
+                  <div className="rounded-lg bg-blue-50 p-3 border border-blue-200">
+                    <div className="text-sm text-blue-900">
+                      <p className="font-semibold">{selectedFile.name}</p>
+                      <p className="text-xs text-blue-700 mt-1">
+                        Ukuran: {(selectedFile.size / 1024 / 1024).toFixed(2)}MB
+                      </p>
+                      <p className="text-xs text-blue-700">
+                        Tipe: {selectedFile.type}
+                      </p>
+                    </div>
+                  </div>
+                )}
+
+                {/* Upload progress bar */}
+                {uploading && uploadProgress > 0 && (
+                  <div className="space-y-2">
+                    <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
+                      <div
+                        className="bg-green-600 h-full rounded-full transition-all duration-300"
+                        style={{ width: `${uploadProgress}%` }}
+                      />
+                    </div>
+                    <p className="text-xs text-slate-600 text-center">{Math.round(uploadProgress)}% - Mengompresi ke WebP...</p>
+                  </div>
+                )}
+
+                {/* File preview */}
+                {filePreviewUrl && (
+                  <div className="mt-4">
+                    <p className="text-xs font-medium text-slate-600 mb-2">Preview:</p>
+                    <div className="relative w-48 h-48 rounded-lg overflow-hidden border border-slate-300">
+                      <Image
+                        src={filePreviewUrl}
+                        alt="Preview"
+                        fill
+                        className="object-cover"
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {/* Uploaded image preview */}
+                {formData.image_url && !selectedFile && (
+                  <div className="mt-4">
+                    <p className="text-xs font-medium text-slate-600 mb-2">Gambar Terupload (WebP):</p>
+                    <div className="relative w-48 h-48 rounded-lg overflow-hidden border border-slate-300 bg-slate-100">
+                      <Image
+                        src={formData.image_url}
+                        alt="Uploaded"
+                        fill
+                        className="object-cover"
+                      />
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
 
             <div className="mt-6 flex gap-3">
