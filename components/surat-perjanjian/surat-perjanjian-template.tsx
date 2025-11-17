@@ -564,13 +564,21 @@ export function SuratPerjanjianTemplate({
               display: block;
               position: relative;
             }
-            /* Ensure pasal headers stay with content */
-            div[style*="pageBreakInside"] > p:nth-child(1),
-            div[style*="pageBreakInside"] > p:nth-child(2) {
+            /* Pasal number heading - keep centered */
+            div[style*="pageBreakInside"] > p:nth-child(1) {
               page-break-after: avoid !important;
               break-after: avoid-page !important;
               margin-bottom: 0.2em;
               overflow: visible !important;
+              text-align: center !important;
+            }
+            /* Pasal subtitle - force left alignment */
+            div[style*="pageBreakInside"] > p:nth-child(2) {
+              page-break-after: avoid !important;
+              break-after: avoid-page !important;
+              margin-bottom: 0.1em;
+              overflow: visible !important;
+              text-align: left !important;
             }
             div[style*="pageBreakInside"] > p:nth-child(3) {
               page-break-after: avoid !important;
