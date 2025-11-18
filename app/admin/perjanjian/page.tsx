@@ -17,6 +17,7 @@ import Link from 'next/link'
 import { Toaster } from '@/components/ui/toaster'
 import { useToast } from '@/hooks/use-toast'
 import { SuratPerjanjianTemplate } from '@/components/surat-perjanjian/surat-perjanjian-template'
+import { SuratPerjanjianPreviewModal } from '@/components/surat-perjanjian/surat-perjanjian-preview-modal'
 
 interface SuratPerjanjianItem {
   urutan: number
@@ -64,6 +65,7 @@ export default function PerjanjianPage() {
   const [isLoadingPerjanjian, setIsLoadingPerjanjian] = useState(true)
   const [currentPage, setCurrentPage] = useState(1)
   const itemsPerPage = 10
+  const [isPreviewEditMode, setIsPreviewEditMode] = useState(false)
 
   // Robust search function - case insensitive, searches across multiple fields
   const filteredPerjanjianList = perjanjianList.filter((perjanjian) => {
@@ -775,6 +777,15 @@ export default function PerjanjianPage() {
               <Button variant="outline" onClick={() => setIsFormDialogOpen(false)}>
                 Batal
               </Button>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setIsFormDialogOpen(false)
+                  setIsPreviewEditMode(true)
+                }}
+              >
+                Preview & Download
+              </Button>
               <Button onClick={handleSavePerjanjian}>
                 {selectedPerjanjian ? 'Update' : 'Buat'} Surat Perjanjian
               </Button>
@@ -783,7 +794,7 @@ export default function PerjanjianPage() {
         </DialogContent>
       </Dialog>
 
-      {/* Preview Modal */}
+      {/* Preview Modal - Read Only */}
       {isPreviewOpen && previewPerjanjian && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
@@ -843,6 +854,16 @@ export default function PerjanjianPage() {
             />
           </div>
         </div>
+      )}
+
+      {/* Preview & Edit Modal - New Interactive Mode */}
+      {isPreviewEditMode && (
+        <SuratPerjanjianPreviewModal
+          formData={formData}
+          onFormDataChange={setFormData}
+          onClose={() => setIsPreviewEditMode(false)}
+          noPerjanjian={selectedPerjanjian?.noPerjanjian || ''}
+        />
       )}
 
       {/* Delete Confirmation Alert Dialog */}
