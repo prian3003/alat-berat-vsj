@@ -868,7 +868,7 @@ export default function BukuBesarPage() {
           console.error('Error handling form dialog:', err)
         }
       }}>
-        <DialogContent className="max-h-[95vh] w-full max-w-7xl overflow-y-auto rounded-lg shadow-2xl">
+        <DialogContent className="max-h-[95vh] w-full max-w-none overflow-y-auto rounded-lg shadow-2xl" style={{maxWidth: '95vw'}}>
           <DialogHeader>
             <div className="flex items-center justify-between w-full">
               <DialogTitle>
