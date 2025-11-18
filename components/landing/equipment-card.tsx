@@ -62,12 +62,12 @@ export function EquipmentCard({ equipment, onClick }: EquipmentCardProps) {
 
   return (
     <Card className="group cursor-pointer overflow-hidden transition-all hover:shadow-lg flex flex-col h-full" onClick={onClick}>
-      <div className="relative aspect-video w-full overflow-hidden bg-white flex items-center justify-center">
+      <div className="relative w-full h-48 overflow-hidden bg-white">
         <Image
           src={primaryImage}
           alt={equipment.name}
           fill
-          className="object-contain"
+          className="object-cover"
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           loading="lazy"
           quality={85}
