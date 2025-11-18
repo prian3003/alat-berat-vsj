@@ -1,6 +1,18 @@
 import { Metadata } from 'next'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
+import {
+  Trophy,
+  CheckCircle,
+  Shield,
+  Users,
+  DollarSign,
+  Phone,
+  Truck,
+  Award,
+  MapPin,
+  Navigation
+} from 'lucide-react'
 
 export const metadata: Metadata = {
   title: 'Tentang Kami | PT. Vania Sugiarta Jaya - Sewa Alat Berat Terpercaya',
@@ -66,7 +78,8 @@ export default function AboutPage() {
           <div className="grid md:grid-cols-3 gap-8">
             {/* Mission */}
             <div className="bg-white rounded-lg p-8 shadow-sm border border-slate-100 hover:shadow-md transition-shadow">
-              <h3 className="text-2xl font-bold text-orange-600 mb-4">Misi</h3>
+              <Award className="w-10 h-10 text-orange-600 mb-4" />
+              <h3 className="text-2xl font-bold text-slate-900 mb-4">Misi</h3>
               <p className="text-slate-600 leading-relaxed">
                 Menyediakan solusi penyewaan alat berat yang inovatif, terpercaya, dan terjangkau untuk mendukung kesuksesan setiap proyek konstruksi dengan standar keamanan tertinggi.
               </p>
@@ -74,7 +87,8 @@ export default function AboutPage() {
 
             {/* Vision */}
             <div className="bg-white rounded-lg p-8 shadow-sm border border-slate-100 hover:shadow-md transition-shadow">
-              <h3 className="text-2xl font-bold text-orange-600 mb-4">Visi</h3>
+              <Navigation className="w-10 h-10 text-orange-600 mb-4" />
+              <h3 className="text-2xl font-bold text-slate-900 mb-4">Visi</h3>
               <p className="text-slate-600 leading-relaxed">
                 Menjadi mitra utama dan terpercaya dalam industri penyewaan alat berat di Indonesia, dikenal karena kualitas layanan, keandalan, dan komitmen terhadap kepuasan pelanggan.
               </p>
@@ -82,12 +96,25 @@ export default function AboutPage() {
 
             {/* Values */}
             <div className="bg-white rounded-lg p-8 shadow-sm border border-slate-100 hover:shadow-md transition-shadow">
-              <h3 className="text-2xl font-bold text-orange-600 mb-4">Nilai Inti</h3>
+              <Shield className="w-10 h-10 text-orange-600 mb-4" />
+              <h3 className="text-2xl font-bold text-slate-900 mb-4">Nilai Inti</h3>
               <ul className="text-slate-600 space-y-2">
-                <li>✓ Integritas dan kejujuran</li>
-                <li>✓ Keamanan kerja utama</li>
-                <li>✓ Kualitas tanpa kompromi</li>
-                <li>✓ Layanan pelanggan terbaik</li>
+                <li className="flex items-center gap-2">
+                  <CheckCircle className="w-4 h-4 text-orange-600" />
+                  Integritas dan kejujuran
+                </li>
+                <li className="flex items-center gap-2">
+                  <CheckCircle className="w-4 h-4 text-orange-600" />
+                  Keamanan kerja utama
+                </li>
+                <li className="flex items-center gap-2">
+                  <CheckCircle className="w-4 h-4 text-orange-600" />
+                  Kualitas tanpa kompromi
+                </li>
+                <li className="flex items-center gap-2">
+                  <CheckCircle className="w-4 h-4 text-orange-600" />
+                  Layanan pelanggan terbaik
+                </li>
               </ul>
             </div>
           </div>
@@ -104,44 +131,47 @@ export default function AboutPage() {
           <div className="grid md:grid-cols-2 gap-6">
             {[
               {
-                icon: '🏆',
+                icon: Trophy,
                 title: 'Pengalaman Bertahun-tahun',
                 desc: 'Dengan pengalaman lebih dari sepuluh tahun, kami memahami setiap aspek industri penyewaan alat berat.'
               },
               {
-                icon: '✅',
+                icon: CheckCircle,
                 title: 'Alat Berkualitas Tinggi',
                 desc: 'Semua peralatan kami dirawat dengan baik dan diperiksa secara berkala untuk memastikan performa optimal.'
               },
               {
-                icon: '🛡️',
+                icon: Shield,
                 title: 'Standar Keamanan Tertinggi',
                 desc: 'Keselamatan operator dan lingkungan adalah prioritas utama kami dalam setiap layanan.'
               },
               {
-                icon: '👥',
+                icon: Users,
                 title: 'Tim Profesional',
                 desc: 'Operator berpengalaman dan staf profesional siap membantu proyek Anda mencapai kesuksesan.'
               },
               {
-                icon: '💰',
+                icon: DollarSign,
                 title: 'Harga Kompetitif',
                 desc: 'Kami menawarkan paket rental yang fleksibel dan harga yang kompetitif tanpa mengorbankan kualitas.'
               },
               {
-                icon: '📞',
+                icon: Phone,
                 title: 'Dukungan 24/7',
                 desc: 'Tim customer service kami siap membantu Anda kapan saja untuk memastikan kelancaran operasional.'
               }
-            ].map((item, idx) => (
-              <div key={idx} className="flex gap-4 p-6 bg-slate-50 rounded-lg border border-slate-200 hover:border-orange-300 transition-colors">
-                <div className="text-4xl shrink-0">{item.icon}</div>
-                <div>
-                  <h3 className="font-bold text-slate-900 mb-2">{item.title}</h3>
-                  <p className="text-slate-600 text-sm leading-relaxed">{item.desc}</p>
+            ].map((item, idx) => {
+              const IconComponent = item.icon
+              return (
+                <div key={idx} className="flex gap-4 p-6 bg-slate-50 rounded-lg border border-slate-200 hover:border-orange-300 transition-colors">
+                  <IconComponent className="w-8 h-8 text-orange-600 shrink-0 mt-1" />
+                  <div>
+                    <h3 className="font-bold text-slate-900 mb-2">{item.title}</h3>
+                    <p className="text-slate-600 text-sm leading-relaxed">{item.desc}</p>
+                  </div>
                 </div>
-              </div>
-            ))}
+              )
+            })}
           </div>
         </div>
       </section>
@@ -171,8 +201,8 @@ export default function AboutPage() {
               'Crane',
               'Generator Set'
             ].map((item, idx) => (
-              <div key={idx} className="flex items-center gap-3 p-4 bg-white rounded-lg border border-slate-200">
-                <div className="w-2 h-2 bg-orange-600 rounded-full shrink-0"></div>
+              <div key={idx} className="flex items-center gap-3 p-4 bg-white rounded-lg border border-slate-200 hover:border-orange-300 transition-colors">
+                <Truck className="w-5 h-5 text-orange-600 shrink-0" />
                 <span className="text-slate-700">{item}</span>
               </div>
             ))}
@@ -187,25 +217,47 @@ export default function AboutPage() {
             Jangkauan Layanan
           </h2>
           <p className="text-lg text-slate-600 mb-6 leading-relaxed">
-            Kami melayani seluruh wilayah Indonesia dengan fokus khusus pada pulau Bali dan sekitarnya. Dengan jaringan distribusi yang luas, kami mampu mengirimkan alat berat ke lokasi proyek Anda dengan cepat dan aman.
+            Kami melayani seluruh wilayah Bali dengan jaringan distribusi yang luas dan efisien. Dengan lokasi strategis, kami mampu mengirimkan alat berat ke lokasi proyek Anda dengan cepat dan aman.
           </p>
 
           <div className="bg-gradient-to-br from-orange-50 to-slate-50 rounded-lg p-8 border-2 border-orange-200">
-            <h3 className="font-bold text-lg text-slate-900 mb-4">Wilayah Utama Layanan:</h3>
-            <div className="grid sm:grid-cols-2 gap-4">
+            <div className="flex items-start gap-4">
+              <MapPin className="w-6 h-6 text-orange-600 shrink-0 mt-1" />
               <div>
+                <h3 className="font-bold text-lg text-slate-900 mb-4">Wilayah Layanan Utama:</h3>
                 <ul className="space-y-2 text-slate-600">
-                  <li>✓ Bali (semua kabupaten)</li>
-                  <li>✓ Lombok</li>
-                  <li>✓ Sumbawa</li>
-                  <li>✓ Nusa Tenggara</li>
-                </ul>
-              </div>
-              <div>
-                <ul className="space-y-2 text-slate-600">
-                  <li>✓ Jawa Timur</li>
-                  <li>✓ Sulawesi</li>
-                  <li>✓ Dan wilayah Indonesia lainnya</li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle className="w-4 h-4 text-orange-600" />
+                    Denpasar (Kota Denpasar)
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle className="w-4 h-4 text-orange-600" />
+                    Badung (Kuta, Seminyak, Sanur)
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle className="w-4 h-4 text-orange-600" />
+                    Gianyar (Ubud, Tegallalang)
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle className="w-4 h-4 text-orange-600" />
+                    Klungkung
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle className="w-4 h-4 text-orange-600" />
+                    Buleleng (Singaraja, Lovina)
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle className="w-4 h-4 text-orange-600" />
+                    Jembrana
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle className="w-4 h-4 text-orange-600" />
+                    Tabanan
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle className="w-4 h-4 text-orange-600" />
+                    Bangli
+                  </li>
                 </ul>
               </div>
             </div>

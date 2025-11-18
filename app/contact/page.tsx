@@ -1,6 +1,16 @@
 import { Metadata } from 'next'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
+import {
+  Mail,
+  MessageCircle,
+  MapPin,
+  Clock,
+  Globe,
+  CheckCircle,
+  Zap,
+  AlertCircle
+} from 'lucide-react'
 
 export const metadata: Metadata = {
   title: 'Hubungi Kami | PT. Vania Sugiarta Jaya - Sewa Alat Berat',
@@ -25,40 +35,40 @@ export const metadata: Metadata = {
 export default function ContactPage() {
   const contactMethods = [
     {
-      icon: '📧',
+      icon: Mail,
       title: 'Email',
       value: 'vaniasugiartajaya25@gmail.com',
       href: 'mailto:vaniasugiartajaya25@gmail.com',
       description: 'Kirim email Anda kapan saja. Kami akan merespons dalam 24 jam.'
     },
     {
-      icon: '📱',
+      icon: MessageCircle,
       title: 'WhatsApp Admin',
       value: '+62 858-1371-8988',
       href: 'https://wa.me/6285813718988',
       description: 'Chat langsung dengan admin kami untuk respons cepat.'
     },
     {
-      icon: '👤',
+      icon: MessageCircle,
       title: 'WhatsApp Owner',
       value: '+62 822-3095-8088',
       href: 'https://wa.me/6282230958088',
       description: 'Hubungi owner untuk konsultasi bisnis dan penawaran khusus.'
     },
     {
-      icon: '📍',
+      icon: MapPin,
       title: 'Lokasi',
       value: 'Bali, Indonesia',
       description: 'Kami beroperasi di berbagai lokasi strategis di Bali.'
     },
     {
-      icon: '⏰',
+      icon: Clock,
       title: 'Jam Operasional',
       value: '24/7',
       description: 'Tim kami siap melayani Anda kapan saja, setiap hari.'
     },
     {
-      icon: '🌐',
+      icon: Globe,
       title: 'Website',
       value: 'vaniasugiarta.com',
       href: 'https://vaniasugiarta.com',
@@ -117,28 +127,31 @@ export default function ContactPage() {
           </h2>
 
           <div className="grid md:grid-cols-2 gap-6">
-            {contactMethods.map((method, idx) => (
-              <div
-                key={idx}
-                className="bg-slate-50 rounded-lg p-6 border border-slate-200 hover:border-orange-300 hover:shadow-md transition-all duration-300"
-              >
-                <div className="text-4xl mb-3">{method.icon}</div>
-                <h3 className="text-xl font-bold text-slate-900 mb-2">{method.title}</h3>
-                {method.href ? (
-                  <a
-                    href={method.href}
-                    target={method.href.startsWith('http') ? '_blank' : undefined}
-                    rel={method.href.startsWith('http') ? 'noopener noreferrer' : undefined}
-                    className="text-orange-600 font-semibold hover:text-orange-700 break-all mb-2 inline-block"
-                  >
-                    {method.value}
-                  </a>
-                ) : (
-                  <p className="text-slate-700 font-semibold mb-2">{method.value}</p>
-                )}
-                <p className="text-slate-600 text-sm">{method.description}</p>
-              </div>
-            ))}
+            {contactMethods.map((method, idx) => {
+              const IconComponent = method.icon
+              return (
+                <div
+                  key={idx}
+                  className="bg-slate-50 rounded-lg p-6 border border-slate-200 hover:border-orange-300 hover:shadow-md transition-all duration-300"
+                >
+                  <IconComponent className="w-8 h-8 text-orange-600 mb-3" />
+                  <h3 className="text-xl font-bold text-slate-900 mb-2">{method.title}</h3>
+                  {method.href ? (
+                    <a
+                      href={method.href}
+                      target={method.href.startsWith('http') ? '_blank' : undefined}
+                      rel={method.href.startsWith('http') ? 'noopener noreferrer' : undefined}
+                      className="text-orange-600 font-semibold hover:text-orange-700 break-all mb-2 inline-block"
+                    >
+                      {method.value}
+                    </a>
+                  ) : (
+                    <p className="text-slate-700 font-semibold mb-2">{method.value}</p>
+                  )}
+                  <p className="text-slate-600 text-sm">{method.description}</p>
+                </div>
+              )
+            })}
           </div>
         </div>
       </section>
@@ -156,35 +169,47 @@ export default function ContactPage() {
           <div className="grid md:grid-cols-2 gap-6">
             {[
               {
+                icon: AlertCircle,
                 title: 'Jenis Alat Berat',
                 desc: 'Spesifikasi alat yang Anda butuhkan untuk proyek'
               },
               {
+                icon: Clock,
                 title: 'Durasi Penyewaan',
                 desc: 'Periode waktu yang Anda perlukan (hari, minggu, bulan)'
               },
               {
+                icon: MapPin,
                 title: 'Lokasi Proyek',
                 desc: 'Alamat lengkap lokasi penggunaan alat berat'
               },
               {
+                icon: CheckCircle,
                 title: 'Jumlah Unit',
                 desc: 'Berapa banyak unit alat yang dibutuhkan'
               },
               {
+                icon: Clock,
                 title: 'Tanggal Mulai',
                 desc: 'Kapan Anda membutuhkan alat mulai beroperasi'
               },
               {
+                icon: AlertCircle,
                 title: 'Kondisi Khusus',
                 desc: 'Kebutuhan atau persyaratan khusus proyek Anda'
               }
-            ].map((item, idx) => (
-              <div key={idx} className="bg-white rounded-lg p-6 border-l-4 border-orange-600">
-                <h3 className="font-bold text-slate-900 mb-2">{item.title}</h3>
-                <p className="text-slate-600 text-sm">{item.desc}</p>
-              </div>
-            ))}
+            ].map((item, idx) => {
+              const IconComponent = item.icon
+              return (
+                <div key={idx} className="bg-white rounded-lg p-6 border-l-4 border-orange-600">
+                  <div className="flex items-start gap-3 mb-3">
+                    <IconComponent className="w-5 h-5 text-orange-600 mt-0.5 shrink-0" />
+                    <h3 className="font-bold text-slate-900">{item.title}</h3>
+                  </div>
+                  <p className="text-slate-600 text-sm">{item.desc}</p>
+                </div>
+              )
+            })}
           </div>
         </div>
       </section>
@@ -226,17 +251,17 @@ export default function ContactPage() {
 
           <div className="grid md:grid-cols-3 gap-6">
             <div className="bg-white rounded-lg p-8 shadow-sm border border-slate-100">
-              <div className="text-4xl font-bold text-orange-600 mb-2">⚡</div>
+              <Zap className="w-8 h-8 text-orange-600 mb-3" />
               <h3 className="font-bold text-lg text-slate-900 mb-2">WhatsApp</h3>
               <p className="text-slate-600">Respons dalam hitungan menit</p>
             </div>
             <div className="bg-white rounded-lg p-8 shadow-sm border border-slate-100">
-              <div className="text-4xl font-bold text-orange-600 mb-2">📧</div>
+              <Mail className="w-8 h-8 text-orange-600 mb-3" />
               <h3 className="font-bold text-lg text-slate-900 mb-2">Email</h3>
               <p className="text-slate-600">Respons dalam 24 jam</p>
             </div>
             <div className="bg-white rounded-lg p-8 shadow-sm border border-slate-100">
-              <div className="text-4xl font-bold text-orange-600 mb-2">📞</div>
+              <Clock className="w-8 h-8 text-orange-600 mb-3" />
               <h3 className="font-bold text-lg text-slate-900 mb-2">Telepon</h3>
               <p className="text-slate-600">Tersedia 24/7</p>
             </div>
