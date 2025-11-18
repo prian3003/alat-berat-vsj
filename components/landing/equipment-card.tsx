@@ -62,17 +62,28 @@ export function EquipmentCard({ equipment, onClick }: EquipmentCardProps) {
 
   return (
     <Card className="group cursor-pointer overflow-hidden transition-all hover:shadow-lg flex flex-col h-full" onClick={onClick}>
-      <div className="relative aspect-video w-full overflow-hidden bg-slate-100">
+      <div className="relative aspect-video w-full overflow-hidden bg-slate-100 flex items-center justify-center">
+        {/* Blurred background image */}
         <Image
           src={primaryImage}
           alt={equipment.name}
           fill
-          className="object-cover transition-transform group-hover:scale-105"
+          className="object-cover blur-sm absolute inset-0"
+          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+          loading="lazy"
+          quality={60}
+        />
+        {/* Clear foreground image */}
+        <Image
+          src={primaryImage}
+          alt={equipment.name}
+          fill
+          className="object-contain relative z-10"
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           loading="lazy"
           quality={85}
         />
-        <div className="absolute right-2 top-2">
+        <div className="absolute right-2 top-2 z-20">
           <Badge variant={equipment.is_available ? 'default' : 'secondary'}>
             {equipment.is_available ? 'Tersedia' : 'Tidak Tersedia'}
           </Badge>
