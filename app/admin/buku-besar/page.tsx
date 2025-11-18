@@ -1281,7 +1281,7 @@ export default function BukuBesarPage() {
             console.error('Error handling PDF dialog:', err)
           }
         }}>
-          <DialogContent className="max-h-[98vh] max-w-7xl overflow-y-auto rounded-lg shadow-2xl">
+          <DialogContent className="max-h-[98vh] w-full overflow-y-auto rounded-lg shadow-2xl" style={{maxWidth: '95vw'}}>
             <div className="sticky top-0 bg-white border-b border-slate-200 z-10">
               <DialogHeader className="py-4">
                 <div className="flex items-center justify-between">
@@ -1301,12 +1301,14 @@ export default function BukuBesarPage() {
                 </div>
               </DialogHeader>
             </div>
-            <div className="overflow-y-auto" style={{ maxHeight: 'calc(98vh - 80px)' }}>
-              <div className="p-6 bg-slate-50">
-                <BukuBesarTemplate
-                  entries={filteredEntries}
-                  periode={periode}
-                />
+            <div className="overflow-auto" style={{ maxHeight: 'calc(98vh - 80px)' }}>
+              <div className="p-6 bg-slate-50 flex justify-center">
+                <div style={{ width: 'fit-content', minWidth: '100%' }}>
+                  <BukuBesarTemplate
+                    entries={filteredEntries}
+                    periode={periode}
+                  />
+                </div>
               </div>
             </div>
           </DialogContent>
