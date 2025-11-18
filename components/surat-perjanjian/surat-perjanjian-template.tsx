@@ -378,7 +378,7 @@ export function SuratPerjanjianTemplate({
           <p className="font-bold text-center mb-3" style={{ fontSize: '11pt', wordWrap: 'break-word', overflowWrap: 'break-word' }}>DENGAN KETENTUAN DAN SYARAT SEBAGAI BERIKUT :</p>
 
           {/* Pasal 1 */}
-          <div style={{ pageBreakInside: 'avoid', wordWrap: 'break-word', overflowWrap: 'break-word' }}>
+          <div style={{ wordWrap: 'break-word', overflowWrap: 'break-word', marginBottom: '12px' }}>
             <p className="font-bold mb-2 text-center" style={{ fontSize: '11pt', wordWrap: 'break-word', overflowWrap: 'break-word' }}>Pasal 1</p>
             <p className="font-bold mb-3 text-center" style={{ wordWrap: 'break-word', overflowWrap: 'break-word' }}>Jenis, Jumlah, Harga Sewa dan Lokasi Kerja.</p>
             <p className="ml-6 mb-2">1. PIHAK PERTAMA bersedia menyewakan alat kepada PIHAK KEDUA dan PIHAK KEDUA setuju untuk menyewa alat berat kepada PIHAK PERTAMA dengan jenis alat sebagai berikut :</p>
@@ -404,7 +404,7 @@ export function SuratPerjanjianTemplate({
           </div>
 
           {/* Pasal 2 */}
-          <div style={{ pageBreakInside: "avoid", wordWrap: 'break-word', overflowWrap: 'break-word' }}>
+          <div style={{ wordWrap: 'break-word', overflowWrap: 'break-word', marginBottom: '12px' }}>
             <p className="font-bold mb-2 text-center" style={{ fontSize: "11pt", wordWrap: 'break-word', overflowWrap: 'break-word' }}>Pasal 2</p>
             <p className="font-bold mb-3 text-center" style={{ wordWrap: 'break-word', overflowWrap: 'break-word' }}>Tempat, Waktu dan Kondisi Penyerahan Alat Berat</p>
             <p className="ml-6 mb-1">1. Alat diangkut oleh PIHAK PERTAMA ke lokasi yang telah ditentukan oleh PIHAK KEDUA setelah PIHAK KEDUA menyelesaikan administrasi sewa menyewa.</p>
@@ -412,7 +412,7 @@ export function SuratPerjanjianTemplate({
           </div>
 
           {/* Pasal 3 */}
-          <div style={{ pageBreakInside: 'avoid', wordWrap: 'break-word', overflowWrap: 'break-word' }}>
+          <div style={{ marginBottom: '12px', wordWrap: 'break-word', overflowWrap: 'break-word' }}>
             <p className="font-bold mb-2 text-center" style={{ fontSize: "11pt", wordWrap: 'break-word', overflowWrap: 'break-word' }}>Pasal 3</p>
             <p className="font-bold mb-3 text-center" style={{ wordWrap: 'break-word', overflowWrap: 'break-word' }}>Biaya Mobilisasi Alat Berat</p>
             {biayaMobilisasi ? (
@@ -429,7 +429,7 @@ export function SuratPerjanjianTemplate({
           </div>
 
           {/* Pasal 4 */}
-          <div style={{ pageBreakInside: "avoid", wordWrap: 'break-word', overflowWrap: 'break-word' }}>
+          <div style={{ marginBottom: "12px", wordWrap: 'break-word', overflowWrap: 'break-word' }}>
             <p className="font-bold mb-2 text-center" style={{ fontSize: "11pt", wordWrap: 'break-word', overflowWrap: 'break-word' }}>Pasal 4</p>
             <p className="font-bold mb-3 text-center" style={{ wordWrap: 'break-word', overflowWrap: 'break-word' }}>Biaya Operasi, Pemeliharaan dan Perbaikan Alat</p>
             <p className="ml-6 mb-1">1. Selama masa penyewaan alat berat, keperluan olie, perbaikan kerusakan, penggantian sparepart dan Mekanik menjadi tanggung jawab PIHAK PERTAMA.</p>
@@ -437,21 +437,21 @@ export function SuratPerjanjianTemplate({
           </div>
 
           {/* Pasal 5 */}
-          <div style={{ pageBreakInside: "avoid", wordWrap: 'break-word', overflowWrap: 'break-word' }}>
+          <div style={{ marginBottom: "12px", wordWrap: 'break-word', overflowWrap: 'break-word' }}>
             <p className="font-bold mb-2 text-center" style={{ fontSize: "11pt", wordWrap: 'break-word', overflowWrap: 'break-word' }}>Pasal 5</p>
             <p className="font-bold mb-3 text-center" style={{ wordWrap: 'break-word', overflowWrap: 'break-word' }}>Operasi dan Operator</p>
             <p className="ml-6">Pengadaan Operator menjadi tanggung jawab PIHAK PERTAMA, kebutuhan operator seperti makan, minum, tempat tinggal dan transportasi menjadi tanggung jawab PIHAK KEDUA.</p>
           </div>
 
           {/* Pasal 6 */}
-          <div style={{ pageBreakInside: "avoid", wordWrap: 'break-word', overflowWrap: 'break-word' }}>
+          <div style={{ marginBottom: "12px", wordWrap: 'break-word', overflowWrap: 'break-word' }}>
             <p className="font-bold mb-2 text-center" style={{ fontSize: "11pt", wordWrap: 'break-word', overflowWrap: 'break-word' }}>Pasal 6</p>
             <p className="font-bold mb-3 text-center" style={{ wordWrap: 'break-word', overflowWrap: 'break-word' }}>Laporan Operasi Alat (Time Sheet)</p>
             <p className="ml-6">Laporan harian operasi alat diisi oleh operator dan ditandatangani oleh Pengawas Kerja dari PIHAK KEDUA atau atas nama penyewa alat.</p>
           </div>
 
           {/* Pasal 7 */}
-          <div style={{ pageBreakInside: "avoid", wordWrap: 'break-word', overflowWrap: 'break-word' }}>
+          <div style={{ marginBottom: "12px", wordWrap: 'break-word', overflowWrap: 'break-word' }}>
             <p className="font-bold mb-2 text-center" style={{ fontSize: "11pt", wordWrap: 'break-word', overflowWrap: 'break-word' }}>Pasal 7</p>
             <p className="font-bold mb-3 text-center" style={{ wordWrap: 'break-word', overflowWrap: 'break-word' }}>Pembayaran Sewa</p>
             <p className="ml-6 mb-1">1. PIHAK KEDUA berkewajiban menyelesaikan pembayaran sewa alat berat dimuka sebesar 100 jam/unitnya serta ditambah biaya mobilisasi.</p>
@@ -460,7 +460,7 @@ export function SuratPerjanjianTemplate({
           </div>
 
           {/* Pasal 8 */}
-          <div style={{ pageBreakInside: "avoid", wordWrap: 'break-word', overflowWrap: 'break-word' }}>
+          <div style={{ marginBottom: "12px", wordWrap: 'break-word', overflowWrap: 'break-word' }}>
             <p className="font-bold mb-2 text-center" style={{ fontSize: "11pt", wordWrap: 'break-word', overflowWrap: 'break-word' }}>Pasal 8</p>
             <p className="font-bold mb-3 text-center" style={{ wordWrap: 'break-word', overflowWrap: 'break-word' }}>Keamanan Alat Berat</p>
             <p className="ml-6 mb-1">1. PIHAK KEDUA wajib menyediakan security untuk menjaga keamanan alat di lokasi kerja.</p>
@@ -469,7 +469,7 @@ export function SuratPerjanjianTemplate({
           </div>
 
           {/* Pasal 9 */}
-          <div style={{ pageBreakInside: "avoid", wordWrap: 'break-word', overflowWrap: 'break-word' }}>
+          <div style={{ marginBottom: "12px", wordWrap: 'break-word', overflowWrap: 'break-word' }}>
             <p className="font-bold mb-2 text-center" style={{ fontSize: "11pt", wordWrap: 'break-word', overflowWrap: 'break-word' }}>Pasal 9</p>
             <p className="font-bold mb-3 text-center" style={{ wordWrap: 'break-word', overflowWrap: 'break-word' }}>Masa Perjanjian</p>
             <p className="ml-6 mb-1">1. Perjanjian ini berlaku sejak ditandatangani oleh kedua belah pihak hingga alat dianggap telah selesai bekerja.</p>
@@ -477,7 +477,7 @@ export function SuratPerjanjianTemplate({
           </div>
 
           {/* Pasal 10 */}
-          <div style={{ pageBreakInside: "avoid" }}>
+          <div style={{ marginBottom: "12px" }}>
             <p className="font-bold mb-2 text-center" style={{ fontSize: "11pt" }}>Pasal 10</p>
             <p className="font-bold mb-3 text-center">Pemindahan, Pengambilan dan Penggunaan Alat</p>
             <p className="ml-6 mb-1">1. Alat tidak boleh dipindahkan ke lokasi lain oleh PIHAK KEDUA sebelum masa jam perjanjian habis terkecuali ada persetujuan dari PIHAK PERTAMA.</p>
@@ -486,7 +486,7 @@ export function SuratPerjanjianTemplate({
           </div>
 
           {/* Pasal 11 */}
-          <div style={{ pageBreakInside: "avoid" }}>
+          <div style={{ marginBottom: "12px" }}>
             <p className="font-bold mb-2 text-center" style={{ fontSize: "11pt" }}>Pasal 11</p>
             <p className="font-bold mb-3 text-center">Perselisihan</p>
             <p className="ml-6 mb-1">1. Jika timbul perselisihan antara PIHAK PERTAMA dengan PIHAK KEDUA maka sebisa mungkin akan diselesaikan secara musyawarah dan kekeluargaan.</p>
@@ -494,14 +494,14 @@ export function SuratPerjanjianTemplate({
           </div>
 
           {/* Pasal 12 */}
-          <div style={{ pageBreakInside: "avoid" }}>
+          <div style={{ marginBottom: "12px" }}>
             <p className="font-bold mb-2 text-center" style={{ fontSize: "11pt" }}>Pasal 12</p>
             <p className="font-bold mb-3 text-center">Penutup</p>
             <p className="ml-6">Demikian surat perjanjian sewa pakai alat berat ini dibuat dan ditandatangani oleh kedua belah pihak dalam rangkap dua (2) bermatrai cukup dan berkekuatan hukum yang sama dan dibuat tanpa paksaan dari pihak manapun.</p>
           </div>
 
           {keterangan && (
-            <div style={{ pageBreakInside: "avoid" }}>
+            <div style={{ marginBottom: "12px" }}>
               <p className="font-bold mb-1">Catatan Tambahan:</p>
               <p className="ml-6">{keterangan}</p>
             </div>
@@ -509,7 +509,7 @@ export function SuratPerjanjianTemplate({
         </div>
 
         {/* Signature Section */}
-        <div className="grid grid-cols-2 gap-8 text-center text-sm mt-6" style={{ pageBreakInside: "avoid" }}>
+        <div className="grid grid-cols-2 gap-8 text-center text-sm mt-6" style={{ marginBottom: "12px" }}>
           <div>
             <p className="font-bold mb-2">{pihakPertamaPerusahaan}</p>
             <p className="font-bold mb-16">PIHAK PERTAMA</p>
