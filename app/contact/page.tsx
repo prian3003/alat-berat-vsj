@@ -1,6 +1,8 @@
 import { Metadata } from 'next'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
+import { Navbar } from '@/components/shared/navbar'
+import { Footer } from '@/components/shared/footer'
 import {
   Mail,
   MessageCircle,
@@ -33,6 +35,16 @@ export const metadata: Metadata = {
 }
 
 export default function ContactPage() {
+  return (
+    <>
+      <Navbar />
+      <ContactContent />
+      <Footer />
+    </>
+  )
+}
+
+function ContactContent() {
   const contactMethods = [
     {
       icon: Mail,

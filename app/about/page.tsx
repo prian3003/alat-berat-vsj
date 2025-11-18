@@ -1,6 +1,8 @@
 import { Metadata } from 'next'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
+import { Navbar } from '@/components/shared/navbar'
+import { Footer } from '@/components/shared/footer'
 import {
   Trophy,
   CheckCircle,
@@ -36,7 +38,9 @@ export const metadata: Metadata = {
 
 export default function AboutPage() {
   return (
-    <main className="min-h-screen bg-white">
+    <>
+      <Navbar />
+      <main className="min-h-screen bg-white">
       {/* Hero Section */}
       <section className="bg-gradient-to-br from-orange-50 via-white to-slate-50 py-16 sm:py-20 md:py-24">
         <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
@@ -296,5 +300,7 @@ export default function AboutPage() {
         </div>
       </section>
     </main>
+      <Footer />
+    </>
   )
 }
