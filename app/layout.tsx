@@ -95,8 +95,9 @@ export const metadata: Metadata = {
     google: 'your-google-verification-code',
   },
   icons: {
-    icon: '/A.svg',
+    icon: '/favicon.ico',
     apple: '/A.svg',
+    shortcut: '/favicon.ico',
   },
 };
 
