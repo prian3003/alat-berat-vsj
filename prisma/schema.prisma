@@ -161,3 +161,66 @@ model SuratPerjanjianItem {
   @@index([suratPerjanjianId])
   @@unique([suratPerjanjianId, urutan])
 }
+
+// Invoice (Tagihan) model
+model Invoice {
+  id                String          @id @default(uuid()) @db.Uuid
+  noFaktur          String          @unique @map("no_faktur") @db.VarChar(50)
+  tanggal           DateTime        @db.Date
+
+  // Customer Info
+  customerName      String          @map("customer_name") @db.VarChar(255)
+  customerLocation  String          @map("customer_location") @db.VarChar(255)
+  pembayara         String?         @db.VarChar(255)
+
+  // Invoice Details
+  jatuhTempo        DateTime        @map("jatuh_tempo") @db.Date
+  nomorPO           String?         @map("nomor_po") @db.VarChar(100)
+
+  // Payment Info
+  paymentMethod     String          @default("transfer") @map("payment_method") @db.VarChar(50)
+  bankName          String?         @map("bank_name") @db.VarChar(100)
+  accountNumber     String?         @map("account_number") @db.VarChar(100)
+  accountName       String?         @map("account_name") @db.VarChar(255)
+
+  // Totals
+  subtotal          Decimal         @db.Decimal(15, 2)
+  totalDiscount     Decimal         @default(0) @map("total_discount") @db.Decimal(15, 2)
+  total             Decimal         @db.Decimal(15, 2)
+
+  // Metadata
+  keterangan        String?         @db.Text
+  status            String          @default("draft") @db.VarChar(50) // draft, sent, paid, cancelled
+  createdBy         String?         @map("created_by") @db.VarChar(255)
+  createdAt         DateTime        @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt         DateTime        @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  // Relations
+  items InvoiceItem[]
+
+  @@map("invoices")
+  @@index([tanggal])
+  @@index([customerName])
+  @@index([status])
+  @@index([jatuhTempo])
+}
+
+// Invoice Items model
+model InvoiceItem {
+  id          String   @id @default(uuid()) @db.Uuid
+  invoiceId   String   @map("invoice_id") @db.Uuid
+  urutan      Int      // Order number (1, 2, 3, etc)
+  namaItem    String   @map("nama_item") @db.VarChar(255)
+  quantity    Int      @db.Integer
+  harga       Decimal  @db.Decimal(15, 2)
+  diskon      Decimal  @default(0) @db.Decimal(15, 2)
+  totalHarga  Decimal  @map("total_harga") @db.Decimal(15, 2)
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  // Relations
+  invoice Invoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+
+  @@map("invoice_items")
+  @@index([invoiceId])
+  @@unique([invoiceId, urutan])
+}
