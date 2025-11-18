@@ -50,6 +50,88 @@ export function SuratPerjanjianPreviewModal({
   const [downloadProgress, setDownloadProgress] = useState(0)
   const debounceTimerRef = useRef<NodeJS.Timeout | null>(null)
 
+  // Reset margin adjustments from previous orphan prevention pass
+  const resetOrphanWidowMargins = useCallback((element: HTMLElement) => {
+    if (!element) return
+
+    const pasalDivs = Array.from(
+      element.querySelectorAll('div[style*="pageBreakInside"]')
+    ) as HTMLElement[]
+
+    pasalDivs.forEach((pasalDiv) => {
+      // Remove the marginTop override, let natural margin apply
+      pasalDiv.style.marginTop = ''
+      pasalDiv.style.marginBottom = ''
+    })
+  }, [])
+
+  // Apply orphan/widow prevention by adjusting Pasal spacing
+  const applyOrphanWidowPrevention = useCallback(async (element: HTMLElement) => {
+    if (!element) return
+
+    // Calculate actual A4 page height based on container width (210mm A4 width)
+    // Using actual CSS dimensions from the document
+    const containerWidth = element.offsetWidth || 800
+    const containerHeight = element.offsetHeight || 1200
+
+    // Estimate page height: A4 is 297mm height, scale proportionally to width
+    // But use actual rendered content to be more accurate
+    // Typical A4 with margins: ~1050-1100px at 2x scale used in html2canvas
+    const A4_PAGE_HEIGHT_PX = 1080
+    const ORPHAN_THRESHOLD = 200 // If Pasal title is within 200px of page bottom, it's orphaned
+
+    // Get all Pasal containers
+    const pasalDivs = Array.from(
+      element.querySelectorAll('div[style*="pageBreakInside"]')
+    ) as HTMLElement[]
+
+    if (pasalDivs.length === 0) {
+      console.log('No Pasal divs found for orphan prevention')
+      return
+    }
+
+    // Reset margins first
+    resetOrphanWidowMargins(element)
+    await new Promise(r => setTimeout(r, 75))
+
+    let adjustmentsCount = 0
+    pasalDivs.forEach((pasalDiv, index) => {
+      const pasalTop = pasalDiv.offsetTop
+      const pasalHeight = pasalDiv.offsetHeight
+
+      // Get the first paragraph (Pasal title) height
+      const titlePara = pasalDiv.querySelector('p')
+      const titleHeight = titlePara?.offsetHeight || 40
+
+      // Calculate which page this Pasal starts on
+      const pageNumber = Math.floor(pasalTop / A4_PAGE_HEIGHT_PX)
+      const positionInPage = pasalTop % A4_PAGE_HEIGHT_PX
+
+      // Space remaining on current page after title
+      const spaceAfterTitle = A4_PAGE_HEIGHT_PX - positionInPage - titleHeight
+
+      // If title and some content would fit but only title fits, it's orphaned
+      const isOrphaned = spaceAfterTitle < 80 && positionInPage > A4_PAGE_HEIGHT_PX - ORPHAN_THRESHOLD
+
+      if (isOrphaned && index < pasalDivs.length - 1) {
+        // Push this Pasal to the next page with extra margin
+        const pushToNextPage = A4_PAGE_HEIGHT_PX - positionInPage + 20
+        pasalDiv.style.marginTop = `${pushToNextPage}px`
+        adjustmentsCount++
+
+        console.log(
+          `Pasal ${index + 1} ORPHANED: Top=${Math.round(pasalTop)}px, Page=${pageNumber}, PosInPage=${Math.round(positionInPage)}px, Space after title=${Math.round(spaceAfterTitle)}px. Pushing to next page with +${pushToNextPage}px margin.`
+        )
+      } else if (!isOrphaned) {
+        console.log(
+          `Pasal ${index + 1} OK: Top=${Math.round(pasalTop)}px, Page=${pageNumber}, PosInPage=${Math.round(positionInPage)}px, Space after title=${Math.round(spaceAfterTitle)}px`
+        )
+      }
+    })
+
+    console.log(`Orphan prevention complete: Applied ${adjustmentsCount} adjustments to ${pasalDivs.length} Pasal sections`)
+  }, [resetOrphanWidowMargins])
+
   // Generate preview canvas
   const doGeneratePreview = useCallback(async () => {
     if (!templateRef.current) return
@@ -77,6 +159,10 @@ export function SuratPerjanjianPreviewModal({
       await Promise.all(imageLoadPromises)
       await new Promise(r => setTimeout(r, 300))
 
+      // Apply orphan/widow prevention before rendering
+      await applyOrphanWidowPrevention(templateRef.current)
+      await new Promise(r => setTimeout(r, 100)) // Let DOM update
+
       const canvas = await html2canvas(templateRef.current, {
         scale: 2,
         logging: false,
@@ -94,7 +180,7 @@ export function SuratPerjanjianPreviewModal({
     } finally {
       setIsGeneratingPreview(false)
     }
-  }, [])
+  }, [applyOrphanWidowPrevention])
 
   // Debounced preview update when formData changes
   useEffect(() => {
