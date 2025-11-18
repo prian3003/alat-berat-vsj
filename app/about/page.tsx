@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Navbar } from '@/components/shared/navbar'
 import { Footer } from '@/components/shared/footer'
+import { WhatsAppFloat } from '@/components/shared/whatsapp-float'
 import {
   Trophy,
   CheckCircle,
@@ -301,6 +302,7 @@ export default function AboutPage() {
       </section>
     </main>
       <Footer />
+      <WhatsAppFloat />
     </>
   )
 }

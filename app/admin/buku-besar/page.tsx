@@ -409,6 +409,23 @@ export default function BukuBesarPage() {
     }).format(value)
   }
 
+  // Format currency input to display as 30.000 (Rupiah format)
+  const formatCurrencyInput = (value: string) => {
+    if (!value) return ''
+    // Remove all non-numeric characters
+    const numericValue = value.replace(/\D/g, '')
+    if (!numericValue) return ''
+    // Format with dots every 3 digits from the right
+    return numericValue.replace(/\B(?=(\d{3})+(?!\d))/g, '.')
+  }
+
+  // Parse formatted input back to number
+  const parseCurrencyInput = (value: string): number => {
+    if (!value) return 0
+    // Remove all non-numeric characters
+    return parseInt(value.replace(/\D/g, ''), 10) || 0
+  }
+
   // Format date key for grouping (YYYY-MM-DD)
   const getDateKey = (dateStr: string): string => {
     try {
@@ -991,12 +1008,15 @@ export default function BukuBesarPage() {
                   <div>
                     <label className="block text-sm font-medium text-slate-900 mb-2">Debit (Rp)</label>
                     <input
-                      type="number"
+                      type="text"
                       placeholder="0"
-                      value={formData.debit}
-                      onChange={(e) => setFormData({ ...formData, debit: parseFloat(e.target.value) || 0, kredit: 0 })}
+                      value={formatCurrencyInput(formData.debit.toString())}
+                      onChange={(e) => {
+                        const parsedValue = parseCurrencyInput(e.target.value)
+                        setFormData({ ...formData, debit: parsedValue, kredit: 0 })
+                      }}
                       onFocus={(e) => {
-                        if (parseFloat(e.target.value) === 0) {
+                        if (parseCurrencyInput(e.target.value) === 0) {
                           e.target.value = '';
                         }
                       }}
@@ -1011,12 +1031,15 @@ export default function BukuBesarPage() {
                   <div>
                     <label className="block text-sm font-medium text-slate-900 mb-2">Kredit (Rp)</label>
                     <input
-                      type="number"
+                      type="text"
                       placeholder="0"
-                      value={formData.kredit}
-                      onChange={(e) => setFormData({ ...formData, kredit: parseFloat(e.target.value) || 0, debit: 0 })}
+                      value={formatCurrencyInput(formData.kredit.toString())}
+                      onChange={(e) => {
+                        const parsedValue = parseCurrencyInput(e.target.value)
+                        setFormData({ ...formData, kredit: parsedValue, debit: 0 })
+                      }}
                       onFocus={(e) => {
-                        if (parseFloat(e.target.value) === 0) {
+                        if (parseCurrencyInput(e.target.value) === 0) {
                           e.target.value = '';
                         }
                       }}
@@ -1213,11 +1236,14 @@ export default function BukuBesarPage() {
                 <div>
                   <label className="block text-sm font-semibold text-slate-900 mb-3">Debit (Rp)</label>
                   <input
-                    type="number"
-                    value={formData.debit}
-                    onChange={(e) => setFormData({ ...formData, debit: parseFloat(e.target.value) || 0, kredit: 0 })}
+                    type="text"
+                    value={formatCurrencyInput(formData.debit.toString())}
+                    onChange={(e) => {
+                      const parsedValue = parseCurrencyInput(e.target.value)
+                      setFormData({ ...formData, debit: parsedValue, kredit: 0 })
+                    }}
                     onFocus={(e) => {
-                      if (parseFloat(e.target.value) === 0) {
+                      if (parseCurrencyInput(e.target.value) === 0) {
                         e.target.value = '';
                       }
                     }}
@@ -1229,16 +1255,19 @@ export default function BukuBesarPage() {
                     className="w-full px-4 py-3 text-base border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-600 transition-all"
                     placeholder="0"
                   />
-                  <p className="text-xs text-slate-500 mt-2">Jumlah debit (masukan / kas)</p>
+                  <p className="text-xs text-slate-500 mt-2">Jumlah debit (masukan / kas) - Format: 30.000</p>
                 </div>
                 <div>
                   <label className="block text-sm font-semibold text-slate-900 mb-3">Kredit (Rp)</label>
                   <input
-                    type="number"
-                    value={formData.kredit}
-                    onChange={(e) => setFormData({ ...formData, kredit: parseFloat(e.target.value) || 0, debit: 0 })}
+                    type="text"
+                    value={formatCurrencyInput(formData.kredit.toString())}
+                    onChange={(e) => {
+                      const parsedValue = parseCurrencyInput(e.target.value)
+                      setFormData({ ...formData, kredit: parsedValue, debit: 0 })
+                    }}
                     onFocus={(e) => {
-                      if (parseFloat(e.target.value) === 0) {
+                      if (parseCurrencyInput(e.target.value) === 0) {
                         e.target.value = '';
                       }
                     }}
@@ -1250,7 +1279,7 @@ export default function BukuBesarPage() {
                     className="w-full px-4 py-3 text-base border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-600 transition-all"
                     placeholder="0"
                   />
-                  <p className="text-xs text-slate-500 mt-2">Jumlah kredit (pengeluaran / hutang)</p>
+                  <p className="text-xs text-slate-500 mt-2">Jumlah kredit (pengeluaran / hutang) - Format: 30.000</p>
                 </div>
               </div>
 

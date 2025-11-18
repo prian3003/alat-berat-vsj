@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Navbar } from '@/components/shared/navbar'
 import { Footer } from '@/components/shared/footer'
+import { WhatsAppFloat } from '@/components/shared/whatsapp-float'
 import {
   Mail,
   MessageCircle,
@@ -40,6 +41,7 @@ export default function ContactPage() {
       <Navbar />
       <ContactContent />
       <Footer />
+      <WhatsAppFloat />
     </>
   )
 }
