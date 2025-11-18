@@ -107,6 +107,56 @@ export default function BukuBesarPage() {
     }
   }
 
+  // Auto-generate No. Ref based on today's date and sequence
+  const generateAutoNomor = (dateStr: string = ''): string => {
+    try {
+      if (!dateStr) dateStr = currentDate.toISOString().split('T')[0]
+
+      // Parse date safely
+      const date = new Date(dateStr + 'T00:00:00')
+      if (isNaN(date.getTime())) return 'BBB-001'
+
+      // Format: BBB-DDMMYY (e.g., BBB-181125 for 18 November 2025)
+      const day = String(date.getDate()).padStart(2, '0')
+      const month = String(date.getMonth() + 1).padStart(2, '0')
+      const year = String(date.getFullYear()).slice(-2)
+
+      // Count entries for this specific date
+      const entriesForDate = entries.filter((entry) => {
+        try {
+          const entryDate = new Date(entry.tanggal + 'T00:00:00')
+          return (
+            entryDate.getDate() === date.getDate() &&
+            entryDate.getMonth() === date.getMonth() &&
+            entryDate.getFullYear() === date.getFullYear()
+          )
+        } catch {
+          return false
+        }
+      })
+
+      const sequenceNumber = String(entriesForDate.length + 1).padStart(3, '0')
+      return `BBB-${day}${month}${year}-${sequenceNumber}`
+    } catch (err) {
+      console.error('Error generating auto nomor:', err)
+      return 'BBB-001'
+    }
+  }
+
+  // Get today's date in YYYY-MM-DD format
+  const getTodayDate = (): string => {
+    try {
+      const today = new Date()
+      const year = today.getFullYear()
+      const month = String(today.getMonth() + 1).padStart(2, '0')
+      const day = String(today.getDate()).padStart(2, '0')
+      return `${year}-${month}-${day}`
+    } catch (err) {
+      console.error('Error getting today date:', err)
+      return currentDate.toISOString().split('T')[0]
+    }
+  }
+
   // Filter entries by selected period and search query
   const filteredEntries = entries
     .filter((entry) => {
@@ -285,25 +335,42 @@ export default function BukuBesarPage() {
 
   const resetForm = () => {
     try {
-      const periodStart = getPeriodStartDate(selectedPeriodKey)
-      const defaultDate = periodStart.toISOString().split('T')[0]
+      // Auto-fetch today's date
+      const todayDate = getTodayDate()
+      // Auto-generate No. Ref based on today's date and existing entries
+      const autoNomor = generateAutoNomor(todayDate)
+
       setFormData({
-        nomor: '',
-        tanggal: defaultDate,
+        nomor: autoNomor,
+        tanggal: todayDate,
         deskripsi: '',
         debit: 0,
         kredit: 0,
         keterangan: '',
       })
-    } catch {
-      setFormData({
-        nomor: '',
-        tanggal: new Date().toISOString().split('T')[0],
-        deskripsi: '',
-        debit: 0,
-        kredit: 0,
-        keterangan: '',
-      })
+    } catch (err) {
+      console.error('Error resetting form:', err)
+      try {
+        // Fallback to safe defaults
+        setFormData({
+          nomor: 'BBB-001',
+          tanggal: getTodayDate(),
+          deskripsi: '',
+          debit: 0,
+          kredit: 0,
+          keterangan: '',
+        })
+      } catch {
+        // Last resort fallback
+        setFormData({
+          nomor: 'BBB-001',
+          tanggal: new Date().toISOString().split('T')[0],
+          deskripsi: '',
+          debit: 0,
+          kredit: 0,
+          keterangan: '',
+        })
+      }
     }
     setSelectedEntry(null)
   }
@@ -822,24 +889,47 @@ export default function BukuBesarPage() {
                   <p className="text-sm text-slate-600">Isi form di bawah untuk menambahkan transaksi baru</p>
                 </div>
 
+                {/* Info: Auto-Generated Fields */}
+                <div className="bg-blue-50 border border-blue-200 rounded p-2 text-xs text-blue-700">
+                  No. Ref dan Tanggal diisi otomatis berdasarkan hari ini
+                </div>
+
                 {/* Input Row 1: Nomor, Tanggal */}
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-slate-900 mb-2">No. Ref</label>
-                    <input
-                      type="text"
-                      placeholder="BBB-001"
-                      value={formData.nomor}
-                      onChange={(e) => setFormData({ ...formData, nomor: e.target.value })}
-                      className="w-full px-4 py-2 text-base border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-600 transition-all"
-                    />
+                    <label className="block text-sm font-medium text-slate-900 mb-2">No. Ref <span className="text-green-600">(Auto)</span></label>
+                    <div className="relative">
+                      <input
+                        type="text"
+                        readOnly
+                        disabled
+                        value={formData.nomor}
+                        className="w-full px-4 py-2 text-base border border-green-300 bg-green-50 rounded-lg text-slate-700 cursor-not-allowed"
+                      />
+                      <div className="absolute right-3 top-2 text-green-600">
+                        <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                        </svg>
+                      </div>
+                    </div>
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-slate-900 mb-2">Tanggal</label>
                     <input
                       type="date"
                       value={formData.tanggal}
-                      onChange={(e) => setFormData({ ...formData, tanggal: e.target.value })}
+                      onChange={(e) => {
+                        try {
+                          const newDate = e.target.value
+                          if (newDate) {
+                            const newNomor = generateAutoNomor(newDate)
+                            setFormData({ ...formData, tanggal: newDate, nomor: newNomor })
+                          }
+                        } catch (err) {
+                          console.error('Error updating tanggal in bulk:', err)
+                          setFormData({ ...formData, tanggal: e.target.value })
+                        }
+                      }}
                       className="w-full px-4 py-2 text-base border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-600 transition-all"
                     />
                   </div>
@@ -998,19 +1088,28 @@ export default function BukuBesarPage() {
                 </div>
               )}
 
-              {/* Row 1: Nomor & Tanggal */}
+              {/* Row 1: Nomor & Tanggal - Auto-fetched */}
+        
               <div className="grid grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-sm font-semibold text-slate-900 mb-3">No. Ref</label>
-                  <input
-                    type="text"
-                    required
-                    value={formData.nomor}
-                    onChange={(e) => setFormData({ ...formData, nomor: e.target.value })}
-                    className="w-full px-4 py-3 text-base border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-600 transition-all"
-                    placeholder="BBB-001"
-                  />
-                  <p className="text-xs text-slate-500 mt-2">Nomor referensi transaksi</p>
+                  <label className="block text-sm font-semibold text-slate-900 mb-3">
+                    No. Ref <span className="text-green-600">(Auto)</span>
+                  </label>
+                  <div className="relative">
+                    <input
+                      type="text"
+                      readOnly
+                      disabled
+                      value={formData.nomor}
+                      className="w-full px-4 py-3 text-base border border-green-300 bg-green-50 rounded-lg text-slate-700 cursor-not-allowed"
+                    />
+                    <div className="absolute right-3 top-3 text-green-600">
+                      <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                      </svg>
+                    </div>
+                  </div>
+                  <p className="text-xs text-green-600 mt-2">✓ Nomor auto-generate berdasarkan tanggal & urutan</p>
                 </div>
                 <div>
                   <label className="block text-sm font-semibold text-slate-900 mb-3">Tanggal</label>
@@ -1018,10 +1117,21 @@ export default function BukuBesarPage() {
                     type="date"
                     required
                     value={formData.tanggal}
-                    onChange={(e) => setFormData({ ...formData, tanggal: e.target.value })}
+                    onChange={(e) => {
+                      try {
+                        const newDate = e.target.value
+                        if (newDate) {
+                          const newNomor = generateAutoNomor(newDate)
+                          setFormData({ ...formData, tanggal: newDate, nomor: newNomor })
+                        }
+                      } catch (err) {
+                        console.error('Error updating tanggal:', err)
+                        setFormData({ ...formData, tanggal: e.target.value })
+                      }
+                    }}
                     className="w-full px-4 py-3 text-base border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-600 transition-all"
                   />
-                  <p className="text-xs text-slate-500 mt-2">Tanggal transaksi</p>
+                  <p className="text-xs text-slate-500 mt-2">Ubah untuk auto-update nomor ref</p>
                 </div>
               </div>
 
