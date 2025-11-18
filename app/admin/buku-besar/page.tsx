@@ -42,31 +42,89 @@ export default function BukuBesarPage() {
   const [entryToDelete, setEntryToDelete] = useState<BukuBesarEntry | null>(null)
   const [currentPage, setCurrentPage] = useState(1)
   const [saldoAwal, setSaldoAwal] = useState(0)
-  const [periode, setPeriode] = useState(new Date().toLocaleDateString('id-ID', { year: 'numeric', month: 'long' }))
   const [isBulkMode, setIsBulkMode] = useState(false)
   const [bulkEntries, setBulkEntries] = useState<any[]>([])
   const itemsPerPage = 10
 
+  // Get current date safely
+  const getCurrentDate = (): Date => {
+    try {
+      return new Date()
+    } catch {
+      return new Date()
+    }
+  }
+
+  // Get period from date (YYYY-MM format for robust comparison)
+  const getPeriodKey = (date: Date | string): string => {
+    try {
+      const d = typeof date === 'string' ? new Date(date + 'T00:00:00') : new Date(date)
+      if (isNaN(d.getTime())) return ''
+      const year = d.getFullYear()
+      const month = String(d.getMonth() + 1).padStart(2, '0')
+      return `${year}-${month}`
+    } catch {
+      return ''
+    }
+  }
+
+  // Format period display (Bulan Tahun)
+  const formatPeriodeDisplay = (date: Date | string): string => {
+    try {
+      const d = typeof date === 'string' ? new Date(date + 'T00:00:00') : new Date(date)
+      if (isNaN(d.getTime())) return ''
+      const monthNames = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember']
+      const month = monthNames[d.getMonth()]
+      const year = d.getFullYear()
+      return `${month} ${year}`
+    } catch {
+      return ''
+    }
+  }
+
+  // Initialize with current date
+  const currentDate = getCurrentDate()
+  const currentPeriodKey = getPeriodKey(currentDate)
+  const [selectedPeriodKey, setSelectedPeriodKey] = useState(currentPeriodKey)
+  const [periode, setPeriode] = useState(formatPeriodeDisplay(currentDate))
+
   const [formData, setFormData] = useState({
     nomor: '',
-    tanggal: new Date().toISOString().split('T')[0],
+    tanggal: currentDate.toISOString().split('T')[0],
     deskripsi: '',
     debit: 0,
     kredit: 0,
     keterangan: '',
   })
 
-  // Filter entries
-  const filteredEntries = entries.filter((entry) => {
-    const query = searchQuery.toLowerCase().trim()
-    if (!query) return true
-    return (
-      entry.nomor.toLowerCase().includes(query) ||
-      entry.deskripsi.toLowerCase().includes(query) ||
-      entry.keterangan?.toLowerCase().includes(query) ||
-      new Date(entry.tanggal).toLocaleDateString('id-ID').includes(query)
-    )
-  })
+  // Get first day of selected period for balance calculation
+  const getPeriodStartDate = (periodKey: string): Date => {
+    try {
+      const [year, month] = periodKey.split('-')
+      return new Date(`${year}-${month}-01T00:00:00`)
+    } catch {
+      return currentDate
+    }
+  }
+
+  // Filter entries by selected period and search query
+  const filteredEntries = entries
+    .filter((entry) => {
+      // Filter by period
+      const entryPeriodKey = getPeriodKey(entry.tanggal)
+      return entryPeriodKey === selectedPeriodKey
+    })
+    .filter((entry) => {
+      // Filter by search query
+      const query = searchQuery.toLowerCase().trim()
+      if (!query) return true
+      return (
+        entry.nomor.toLowerCase().includes(query) ||
+        entry.deskripsi.toLowerCase().includes(query) ||
+        entry.keterangan?.toLowerCase().includes(query) ||
+        new Date(entry.tanggal).toLocaleDateString('id-ID').includes(query)
+      )
+    })
 
   // Pagination
   const totalPages = Math.ceil(filteredEntries.length / itemsPerPage)
@@ -90,6 +148,10 @@ export default function BukuBesarPage() {
   useEffect(() => {
     setCurrentPage(1)
   }, [searchQuery])
+
+  useEffect(() => {
+    setCurrentPage(1)
+  }, [selectedPeriodKey])
 
   const fetchEntries = async () => {
     try {
@@ -222,14 +284,27 @@ export default function BukuBesarPage() {
   }
 
   const resetForm = () => {
-    setFormData({
-      nomor: '',
-      tanggal: new Date().toISOString().split('T')[0],
-      deskripsi: '',
-      debit: 0,
-      kredit: 0,
-      keterangan: '',
-    })
+    try {
+      const periodStart = getPeriodStartDate(selectedPeriodKey)
+      const defaultDate = periodStart.toISOString().split('T')[0]
+      setFormData({
+        nomor: '',
+        tanggal: defaultDate,
+        deskripsi: '',
+        debit: 0,
+        kredit: 0,
+        keterangan: '',
+      })
+    } catch {
+      setFormData({
+        nomor: '',
+        tanggal: new Date().toISOString().split('T')[0],
+        deskripsi: '',
+        debit: 0,
+        kredit: 0,
+        keterangan: '',
+      })
+    }
     setSelectedEntry(null)
   }
 
@@ -357,8 +432,23 @@ export default function BukuBesarPage() {
             </div>
           </div>
 
-          {/* Saldo Awal Input */}
+          {/* Period and Saldo Awal Input */}
           <div className="grid md:grid-cols-3 gap-4 mb-6">
+            <div>
+              <label className="block text-sm font-medium text-slate-900 mb-1">Periode (Bulan-Tahun)</label>
+              <input
+                type="month"
+                value={selectedPeriodKey}
+                onChange={(e) => {
+                  if (e.target.value) {
+                    setSelectedPeriodKey(e.target.value)
+                    setPeriode(formatPeriodeDisplay(e.target.value + '-01'))
+                  }
+                }}
+                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-600"
+              />
+              <p className="mt-1 text-xs text-slate-500">Ditampilkan: {periode}</p>
+            </div>
             <div>
               <label className="block text-sm font-medium text-slate-900 mb-1">Saldo Awal</label>
               <input
@@ -366,16 +456,9 @@ export default function BukuBesarPage() {
                 value={saldoAwal}
                 onChange={(e) => setSaldoAwal(parseFloat(e.target.value) || 0)}
                 className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-600"
+                placeholder="0"
               />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-slate-900 mb-1">Periode</label>
-              <input
-                type="text"
-                value={periode}
-                onChange={(e) => setPeriode(e.target.value)}
-                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-600"
-              />
+              <p className="mt-1 text-xs text-slate-500">Saldo pembukaan untuk {periode}</p>
             </div>
           </div>
         </div>
