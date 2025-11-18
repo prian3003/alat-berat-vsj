@@ -62,7 +62,7 @@ export function EquipmentCard({ equipment, onClick }: EquipmentCardProps) {
 
   return (
     <Card className="group cursor-pointer overflow-hidden transition-all hover:shadow-lg flex flex-col h-full" onClick={onClick}>
-      <div className="relative w-full h-48 overflow-hidden bg-white">
+      <div className="relative w-full h-64 overflow-hidden bg-white">
         <Image
           src={primaryImage}
           alt={equipment.name}
