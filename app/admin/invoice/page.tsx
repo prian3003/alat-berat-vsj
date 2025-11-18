@@ -24,6 +24,7 @@ import { Plus, Eye, Edit2, Trash2, Download } from 'lucide-react'
 interface InvoiceItem {
   urutan: number
   namaItem: string
+  tanggal: string
   quantity: number
   harga: number
   diskon: number
