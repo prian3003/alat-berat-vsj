@@ -1,0 +1,646 @@
+'use client'
+
+import { useState, useEffect } from 'react'
+import { Button } from '@/components/ui/button'
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog'
+import { useAuth } from '@/context/AuthContext'
+import { useRouter } from 'next/navigation'
+import Link from 'next/link'
+import { BukuBesarTemplate } from '@/components/buku-besar/buku-besar-template'
+import { Eye, Trash2, Edit2, Plus } from 'lucide-react'
+
+interface BukuBesarEntry {
+  id: string
+  nomor: string
+  tanggal: string
+  deskripsi: string
+  debit: number
+  kredit: number
+  saldo_akhir?: number
+  keterangan?: string
+}
+
+export default function BukuBesarPage() {
+  const { isAuthenticated, isLoading, logout } = useAuth()
+  const router = useRouter()
+  const [entries, setEntries] = useState<BukuBesarEntry[]>([])
+  const [searchQuery, setSearchQuery] = useState('')
+  const [loading, setLoading] = useState(false)
+  const [isFormDialogOpen, setIsFormDialogOpen] = useState(false)
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false)
+  const [selectedEntry, setSelectedEntry] = useState<BukuBesarEntry | null>(null)
+  const [deleteAlertOpen, setDeleteAlertOpen] = useState(false)
+  const [entryToDelete, setEntryToDelete] = useState<BukuBesarEntry | null>(null)
+  const [currentPage, setCurrentPage] = useState(1)
+  const [saldoAwal, setSaldoAwal] = useState(0)
+  const [periode, setPeriode] = useState(new Date().toLocaleDateString('id-ID', { year: 'numeric', month: 'long' }))
+  const itemsPerPage = 10
+
+  const [formData, setFormData] = useState({
+    nomor: '',
+    tanggal: new Date().toISOString().split('T')[0],
+    deskripsi: '',
+    debit: 0,
+    kredit: 0,
+    keterangan: '',
+  })
+
+  // Filter entries
+  const filteredEntries = entries.filter((entry) => {
+    const query = searchQuery.toLowerCase().trim()
+    if (!query) return true
+    return (
+      entry.nomor.toLowerCase().includes(query) ||
+      entry.deskripsi.toLowerCase().includes(query) ||
+      entry.keterangan?.toLowerCase().includes(query) ||
+      new Date(entry.tanggal).toLocaleDateString('id-ID').includes(query)
+    )
+  })
+
+  // Pagination
+  const totalPages = Math.ceil(filteredEntries.length / itemsPerPage)
+  const paginatedEntries = filteredEntries.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  )
+
+  useEffect(() => {
+    if (!isLoading && !isAuthenticated) {
+      router.push('/admin')
+    }
+  }, [isAuthenticated, isLoading, router])
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      fetchEntries()
+    }
+  }, [isAuthenticated])
+
+  useEffect(() => {
+    setCurrentPage(1)
+  }, [searchQuery])
+
+  const fetchEntries = async () => {
+    try {
+      setLoading(true)
+      const response = await fetch('/api/buku-besar')
+      if (response.ok) {
+        const data = await response.json()
+        setEntries(data)
+      }
+    } catch (error) {
+      console.error('Error fetching entries:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    try {
+      setLoading(true)
+
+      const payload = {
+        ...formData,
+        debit: parseFloat(formData.debit.toString()) || 0,
+        kredit: parseFloat(formData.kredit.toString()) || 0,
+      }
+
+      const url = selectedEntry ? `/api/buku-besar/${selectedEntry.id}` : '/api/buku-besar'
+      const method = selectedEntry ? 'PUT' : 'POST'
+
+      const response = await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to save entry')
+      }
+
+      await fetchEntries()
+      resetForm()
+      setIsFormDialogOpen(false)
+    } catch (error) {
+      console.error('Error saving entry:', error)
+      alert('Gagal menyimpan entri buku besar')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleEditEntry = (entry: BukuBesarEntry) => {
+    setSelectedEntry(entry)
+    setFormData({
+      nomor: entry.nomor,
+      tanggal: entry.tanggal,
+      deskripsi: entry.deskripsi,
+      debit: entry.debit,
+      kredit: entry.kredit,
+      keterangan: entry.keterangan || '',
+    })
+    setIsFormDialogOpen(true)
+  }
+
+  const handleDeleteClick = (entry: BukuBesarEntry) => {
+    setEntryToDelete(entry)
+    setDeleteAlertOpen(true)
+  }
+
+  const handleConfirmDelete = async () => {
+    if (!entryToDelete) return
+
+    try {
+      setLoading(true)
+      const response = await fetch(`/api/buku-besar/${entryToDelete.id}`, {
+        method: 'DELETE',
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to delete entry')
+      }
+
+      await fetchEntries()
+      setDeleteAlertOpen(false)
+      setEntryToDelete(null)
+    } catch (error) {
+      console.error('Error deleting entry:', error)
+      alert('Gagal menghapus entri')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const resetForm = () => {
+    setFormData({
+      nomor: '',
+      tanggal: new Date().toISOString().split('T')[0],
+      deskripsi: '',
+      debit: 0,
+      kredit: 0,
+      keterangan: '',
+    })
+    setSelectedEntry(null)
+  }
+
+  const formatCurrency = (value: number) => {
+    return new Intl.NumberFormat('id-ID', {
+      style: 'currency',
+      currency: 'IDR',
+      minimumFractionDigits: 0,
+    }).format(value)
+  }
+
+  // Calculate running balance
+  const calculateBalance = (index: number) => {
+    let balance = saldoAwal
+    for (let i = 0; i <= index; i++) {
+      balance += filteredEntries[i].debit - filteredEntries[i].kredit
+    }
+    return balance
+  }
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <p className="text-slate-600">Memeriksa autentikasi...</p>
+      </div>
+    )
+  }
+
+  if (!isAuthenticated) {
+    return null
+  }
+
+  return (
+    <div className="min-h-screen bg-slate-50">
+      {/* Header */}
+      <header className="border-b bg-white">
+        <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-2xl font-bold text-slate-900">Admin Dashboard</h1>
+              <p className="text-sm text-slate-600">Kelola alat berat dan konten website</p>
+            </div>
+            <div className="flex gap-2">
+              <Button asChild variant="outline">
+                <Link href="/">Kembali ke Website</Link>
+              </Button>
+              <Button variant="outline" onClick={logout}>
+                Logout
+              </Button>
+            </div>
+          </div>
+        </div>
+
+        {/* Navigation Tabs */}
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <nav className="flex gap-4 border-b overflow-x-auto">
+            <Link
+              href="/admin"
+              className="border-b-2 border-transparent px-4 py-3 text-sm font-medium text-slate-600 hover:border-slate-300 hover:text-slate-900"
+            >
+              Alat Berat
+            </Link>
+            <Link
+              href="/admin/blog"
+              className="border-b-2 border-transparent px-4 py-3 text-sm font-medium text-slate-600 hover:border-slate-300 hover:text-slate-900"
+            >
+              Blog
+            </Link>
+            <Link
+              href="/admin/gallery"
+              className="border-b-2 border-transparent px-4 py-3 text-sm font-medium text-slate-600 hover:border-slate-300 hover:text-slate-900"
+            >
+              Galeri
+            </Link>
+            <Link
+              href="/admin/surat"
+              className="border-b-2 border-transparent px-4 py-3 text-sm font-medium text-slate-600 hover:border-slate-300 hover:text-slate-900"
+            >
+              Surat Jalan
+            </Link>
+            <Link
+              href="/admin/perjanjian"
+              className="border-b-2 border-transparent px-4 py-3 text-sm font-medium text-slate-600 hover:border-slate-300 hover:text-slate-900"
+            >
+              Surat Perjanjian
+            </Link>
+            <Link
+              href="/admin/buku-besar"
+              className="border-b-2 border-orange-600 px-4 py-3 text-sm font-medium text-orange-600"
+            >
+              Buku Besar
+            </Link>
+          </nav>
+        </div>
+      </header>
+
+      {/* Main Content */}
+      <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+        <div className="mb-8">
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h2 className="text-3xl font-bold text-slate-900">Buku Besar</h2>
+              <p className="mt-2 text-slate-600">Pencatatan transaksi keuangan dan akuntansi</p>
+            </div>
+            <div className="flex gap-2">
+              <Button
+                onClick={() => {
+                  resetForm()
+                  setIsFormDialogOpen(true)
+                }}
+                className="bg-orange-600 hover:bg-orange-700"
+              >
+                <Plus className="w-4 h-4 mr-2" />
+                Tambah Entri
+              </Button>
+              {entries.length > 0 && (
+                <Button
+                  onClick={() => setIsPreviewOpen(true)}
+                  variant="outline"
+                >
+                  <Eye className="w-4 h-4 mr-2" />
+                  Lihat PDF
+                </Button>
+              )}
+            </div>
+          </div>
+
+          {/* Saldo Awal Input */}
+          <div className="grid md:grid-cols-3 gap-4 mb-6">
+            <div>
+              <label className="block text-sm font-medium text-slate-900 mb-1">Saldo Awal</label>
+              <input
+                type="number"
+                value={saldoAwal}
+                onChange={(e) => setSaldoAwal(parseFloat(e.target.value) || 0)}
+                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-600"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-slate-900 mb-1">Periode</label>
+              <input
+                type="text"
+                value={periode}
+                onChange={(e) => setPeriode(e.target.value)}
+                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-600"
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Search Box */}
+        {entries.length > 0 && (
+          <div className="mb-6 flex gap-2">
+            <div className="flex-1 relative">
+              <input
+                type="text"
+                placeholder="Cari berdasarkan nomor, deskripsi, atau tanggal..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-600 text-sm"
+              />
+              {searchQuery && (
+                <button
+                  onClick={() => setSearchQuery('')}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                >
+                  ✕
+                </button>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Entries Table */}
+        {loading && !entries.length ? (
+          <div className="text-center py-12">
+            <p className="text-slate-600">Memuat...</p>
+          </div>
+        ) : entries.length === 0 ? (
+          <div className="rounded-lg border-2 border-dashed border-slate-300 p-12 text-center">
+            <p className="text-slate-600">Belum ada entri buku besar. Tambahkan entri baru untuk memulai.</p>
+          </div>
+        ) : filteredEntries.length === 0 ? (
+          <div className="rounded-lg border-2 border-dashed border-slate-300 p-12 text-center">
+            <p className="text-slate-600">Tidak ada hasil pencarian untuk "{searchQuery}"</p>
+            <button
+              onClick={() => setSearchQuery('')}
+              className="mt-4 text-orange-600 hover:text-orange-700 font-medium text-sm"
+            >
+              Hapus filter pencarian
+            </button>
+          </div>
+        ) : (
+          <div className="rounded-lg bg-white shadow overflow-hidden">
+            <div className="px-6 py-4 border-b border-slate-200 bg-slate-50 flex items-center justify-between">
+              <p className="text-sm text-slate-600">
+                Menampilkan <span className="font-semibold">{(currentPage - 1) * itemsPerPage + 1}</span> -{' '}
+                <span className="font-semibold">{Math.min(currentPage * itemsPerPage, filteredEntries.length)}</span>{' '}
+                dari <span className="font-semibold">{filteredEntries.length}</span> entri
+              </p>
+            </div>
+
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-slate-200">
+                <thead className="bg-slate-50">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-slate-900 uppercase tracking-wider">
+                      No.
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-slate-900 uppercase tracking-wider">
+                      Tanggal
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-slate-900 uppercase tracking-wider">
+                      Deskripsi
+                    </th>
+                    <th className="px-6 py-3 text-right text-xs font-medium text-slate-900 uppercase tracking-wider">
+                      Debit
+                    </th>
+                    <th className="px-6 py-3 text-right text-xs font-medium text-slate-900 uppercase tracking-wider">
+                      Kredit
+                    </th>
+                    <th className="px-6 py-3 text-right text-xs font-medium text-slate-900 uppercase tracking-wider">
+                      Saldo
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-slate-900 uppercase tracking-wider">
+                      Aksi
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-200">
+                  {paginatedEntries.map((entry, idx) => {
+                    const displayIndex = (currentPage - 1) * itemsPerPage + idx
+                    const balance = calculateBalance(displayIndex)
+                    return (
+                      <tr key={entry.id} className="hover:bg-slate-50 transition-colors">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-slate-900">
+                          {entry.nomor}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">
+                          {new Date(entry.tanggal).toLocaleDateString('id-ID')}
+                        </td>
+                        <td className="px-6 py-4 text-sm text-slate-600">
+                          {entry.deskripsi}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-right text-slate-600 font-mono">
+                          {entry.debit > 0 ? formatCurrency(entry.debit) : '-'}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-right text-slate-600 font-mono">
+                          {entry.kredit > 0 ? formatCurrency(entry.kredit) : '-'}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-right text-slate-900 font-mono font-bold">
+                          {formatCurrency(balance)}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm space-x-2">
+                          <button
+                            onClick={() => handleEditEntry(entry)}
+                            className="text-blue-600 hover:text-blue-900 font-medium inline-flex items-center gap-1"
+                          >
+                            <Edit2 className="w-4 h-4" />
+                            Edit
+                          </button>
+                          <button
+                            onClick={() => handleDeleteClick(entry)}
+                            className="text-red-600 hover:text-red-900 font-medium inline-flex items-center gap-1"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                            Hapus
+                          </button>
+                        </td>
+                      </tr>
+                    )
+                  })}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Pagination */}
+            {totalPages > 1 && (
+              <div className="px-6 py-4 border-t border-slate-200 bg-slate-50 flex items-center justify-between">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                  disabled={currentPage === 1}
+                >
+                  ← Sebelumnya
+                </Button>
+                <div className="flex items-center gap-2">
+                  {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                    <button
+                      key={page}
+                      onClick={() => setCurrentPage(page)}
+                      className={`px-3 py-2 rounded text-sm font-medium transition-colors ${
+                        currentPage === page
+                          ? 'bg-orange-600 text-white'
+                          : 'bg-white text-slate-600 border border-slate-300 hover:bg-slate-100'
+                      }`}
+                    >
+                      {page}
+                    </button>
+                  ))}
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                  disabled={currentPage === totalPages}
+                >
+                  Berikutnya →
+                </Button>
+              </div>
+            )}
+          </div>
+        )}
+      </main>
+
+      {/* Form Dialog */}
+      <Dialog open={isFormDialogOpen} onOpenChange={setIsFormDialogOpen}>
+        <DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>
+              {selectedEntry ? 'Edit Entri Buku Besar' : 'Tambah Entri Buku Besar'}
+            </DialogTitle>
+          </DialogHeader>
+
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-slate-900 mb-1">No. Ref</label>
+                <input
+                  type="text"
+                  required
+                  value={formData.nomor}
+                  onChange={(e) => setFormData({ ...formData, nomor: e.target.value })}
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-600"
+                  placeholder="BBB-001"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-900 mb-1">Tanggal</label>
+                <input
+                  type="date"
+                  required
+                  value={formData.tanggal}
+                  onChange={(e) => setFormData({ ...formData, tanggal: e.target.value })}
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-600"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-slate-900 mb-1">Deskripsi</label>
+              <input
+                type="text"
+                required
+                value={formData.deskripsi}
+                onChange={(e) => setFormData({ ...formData, deskripsi: e.target.value })}
+                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-600"
+                placeholder="Deskripsi transaksi"
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-slate-900 mb-1">Debit (Rp)</label>
+                <input
+                  type="number"
+                  value={formData.debit}
+                  onChange={(e) => setFormData({ ...formData, debit: parseFloat(e.target.value) || 0, kredit: 0 })}
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-600"
+                  placeholder="0"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-900 mb-1">Kredit (Rp)</label>
+                <input
+                  type="number"
+                  value={formData.kredit}
+                  onChange={(e) => setFormData({ ...formData, kredit: parseFloat(e.target.value) || 0, debit: 0 })}
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-600"
+                  placeholder="0"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-slate-900 mb-1">Keterangan</label>
+              <textarea
+                value={formData.keterangan}
+                onChange={(e) => setFormData({ ...formData, keterangan: e.target.value })}
+                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-600"
+                rows={3}
+                placeholder="Keterangan atau catatan transaksi"
+              />
+            </div>
+
+            <div className="flex gap-2 justify-end pt-4 border-t">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => {
+                  resetForm()
+                  setIsFormDialogOpen(false)
+                }}
+              >
+                Batal
+              </Button>
+              <Button type="submit" className="bg-orange-600 hover:bg-orange-700" disabled={loading}>
+                {selectedEntry ? 'Perbarui' : 'Simpan'}
+              </Button>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* PDF Preview Dialog */}
+      {isPreviewOpen && (
+        <Dialog open={isPreviewOpen} onOpenChange={setIsPreviewOpen}>
+          <DialogContent className="max-h-[90vh] max-w-6xl overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>Pratinjau Buku Besar PDF</DialogTitle>
+            </DialogHeader>
+            <BukuBesarTemplate
+              entries={entries}
+              saldoAwal={saldoAwal}
+              periode={periode}
+            />
+          </DialogContent>
+        </Dialog>
+      )}
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={deleteAlertOpen} onOpenChange={setDeleteAlertOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Hapus Entri</AlertDialogTitle>
+            <AlertDialogDescription>
+              Apakah Anda yakin ingin menghapus entri "{entryToDelete?.deskripsi}"? Tindakan ini tidak dapat dibatalkan.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <div className="flex justify-end gap-2">
+            <AlertDialogCancel>Batal</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleConfirmDelete}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              Hapus
+            </AlertDialogAction>
+          </div>
+        </AlertDialogContent>
+      </AlertDialog>
+    </div>
+  )
+}
