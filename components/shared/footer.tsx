@@ -4,12 +4,22 @@ import Image from 'next/image'
 export function Footer() {
   const currentYear = new Date().getFullYear()
 
+  // Navigation links matching navbar structure
+  const navLinks = [
+    { label: 'Beranda', href: '/' },
+    { label: 'Alat Berat', href: '/#equipment' },
+    { label: 'Galeri', href: '/gallery' },
+    { label: 'Tentang Kami', href: '/about' },
+    { label: 'Blog', href: '/blog' },
+    { label: 'Kontak', href: '/contact' },
+  ]
+
   return (
     <footer className="border-t bg-slate-50">
       <div className="mx-auto max-w-7xl px-4 py-10 sm:py-12 md:py-16 lg:px-8">
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:gap-8 md:grid-cols-4">
+        <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 md:gap-8 md:grid-cols-3">
           {/* Company Info */}
-          <div className="sm:col-span-2 md:col-span-2">
+          <div>
             <div className="flex items-center">
               <Image
                 src="/logo.png"
@@ -27,49 +37,35 @@ export function Footer() {
 
           {/* Quick Links */}
           <div>
-            <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-900">
+            <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-900 mb-3 sm:mb-4">
               Tautan Cepat
             </h3>
-            <ul className="mt-3 sm:mt-4 space-y-2 sm:space-y-3">
-              <li>
-                <Link
-                  href="/#equipment"
-                  className="text-xs sm:text-sm text-slate-600 hover:text-slate-900 transition-colors inline-block relative after:content-[''] after:absolute after:w-0 after:h-[2px] after:bottom-0 after:left-0 after:bg-slate-900 after:transition-all after:duration-300 hover:after:w-full"
-                >
-                  Alat Berat
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/#about"
-                  className="text-xs sm:text-sm text-slate-600 hover:text-slate-900 transition-colors inline-block relative after:content-[''] after:absolute after:w-0 after:h-[2px] after:bottom-0 after:left-0 after:bg-slate-900 after:transition-all after:duration-300 hover:after:w-full"
-                >
-                  Tentang Kami
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/#contact"
-                  className="text-xs sm:text-sm text-slate-600 hover:text-slate-900 transition-colors inline-block relative after:content-[''] after:absolute after:w-0 after:h-[2px] after:bottom-0 after:left-0 after:bg-slate-900 after:transition-all after:duration-300 hover:after:w-full"
-                >
-                  Kontak
-                </Link>
-              </li>
+            <ul className="space-y-2 sm:space-y-3">
+              {navLinks.map((link) => (
+                <li key={link.href}>
+                  <Link
+                    href={link.href}
+                    className="text-xs sm:text-sm text-slate-600 hover:text-orange-600 transition-colors inline-block relative after:content-[''] after:absolute after:w-0 after:h-[2px] after:bottom-0 after:left-0 after:bg-orange-600 after:transition-all after:duration-300 hover:after:w-full"
+                  >
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
             </ul>
           </div>
 
           {/* Contact */}
           <div>
-            <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-900">
+            <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-900 mb-3 sm:mb-4">
               Hubungi Kami
             </h3>
-            <ul className="mt-3 sm:mt-4 space-y-2 sm:space-y-3 text-xs sm:text-sm">
+            <ul className="space-y-2 sm:space-y-3 text-xs sm:text-sm">
               <li>
                 <a
-                  href="mailto:info@vaniasugiarta.com"
+                  href="mailto:vaniasugiartajaya25@gmail.com"
                   className="text-slate-600 hover:text-orange-600 transition-colors break-all inline-block relative after:content-[''] after:absolute after:w-0 after:h-[2px] after:bottom-0 after:left-0 after:bg-orange-600 after:transition-all after:duration-300 hover:after:w-full"
                 >
-                  Email: info@vaniasugiarta.com
+                  Email: vaniasugiartajaya25@gmail.com
                 </a>
               </li>
               <li>
