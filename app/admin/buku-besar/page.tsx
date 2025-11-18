@@ -41,7 +41,6 @@ export default function BukuBesarPage() {
   const [deleteAlertOpen, setDeleteAlertOpen] = useState(false)
   const [entryToDelete, setEntryToDelete] = useState<BukuBesarEntry | null>(null)
   const [currentPage, setCurrentPage] = useState(1)
-  const [saldoAwal, setSaldoAwal] = useState(0)
   const [isBulkMode, setIsBulkMode] = useState(false)
   const [bulkEntries, setBulkEntries] = useState<any[]>([])
   const itemsPerPage = 10
@@ -473,10 +472,27 @@ export default function BukuBesarPage() {
   // Calculate number of pages based on grouped dates
   const totalPagesGrouped = Math.ceil(sortedDateKeys.length / itemsPerPage)
 
+  // Calculate total current balance from ALL entries (not just selected period)
+  const calculateTotalBalance = (): number => {
+    try {
+      let totalBalance = 0
+
+      // Sum all debit and kredit entries from the entire dataset
+      entries.forEach((entry) => {
+        totalBalance += (entry.debit || 0) - (entry.kredit || 0)
+      })
+
+      return totalBalance
+    } catch (err) {
+      console.error('Error calculating total balance:', err)
+      return 0
+    }
+  }
+
   // Calculate running balance
   const calculateBalance = (dateKey: string, entryIndex: number): number => {
     try {
-      let balance = saldoAwal
+      let balance = 0
       const targetDateIndex = sortedDateKeys.indexOf(dateKey)
 
       // Add balance from all dates before this date
@@ -498,7 +514,7 @@ export default function BukuBesarPage() {
       return balance
     } catch (err) {
       console.error('Error calculating balance:', err)
-      return saldoAwal
+      return 0
     }
   }
 
@@ -627,15 +643,11 @@ export default function BukuBesarPage() {
               <p className="mt-1 text-xs text-slate-500">Ditampilkan: {periode}</p>
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-900 mb-1">Saldo Awal</label>
-              <input
-                type="number"
-                value={saldoAwal}
-                onChange={(e) => setSaldoAwal(parseFloat(e.target.value) || 0)}
-                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-600"
-                placeholder="0"
-              />
-              <p className="mt-1 text-xs text-slate-500">Saldo pembukaan untuk {periode}</p>
+              <label className="block text-sm font-medium text-slate-900 mb-1">Total Saldo Sekarang</label>
+              <div className="w-full px-3 py-2 border border-green-300 bg-green-50 rounded-lg text-slate-900 font-semibold text-lg">
+                {formatCurrency(calculateTotalBalance())}
+              </div>
+              <p className="mt-1 text-xs text-slate-500">Total saldo dari semua transaksi</p>
             </div>
           </div>
         </div>
@@ -1269,31 +1281,28 @@ export default function BukuBesarPage() {
             console.error('Error handling PDF dialog:', err)
           }
         }}>
-          <DialogContent className="max-h-[98vh] max-w-full w-[98vw] mx-auto overflow-y-auto rounded-lg shadow-2xl">
-            <div className="sticky top-0 bg-white border-b border-slate-200 z-10">
-              <DialogHeader className="py-4">
-                <div className="flex items-center justify-between">
-                  <DialogTitle className="text-2xl">Pratinjau Buku Besar PDF</DialogTitle>
-                  <button
-                    onClick={() => {
-                      try {
-                        setIsPreviewOpen(false)
-                      } catch (err) {
-                        console.error('Error closing PDF dialog:', err)
-                      }
-                    }}
-                    className="text-slate-500 hover:text-slate-700 text-2xl leading-none"
-                  >
-                    ✕
-                  </button>
-                </div>
-              </DialogHeader>
+          <DialogContent className="fixed inset-0 w-screen h-screen max-w-none p-0 rounded-none flex flex-col bg-white">
+            <div className="sticky top-0 bg-white border-b border-slate-200 z-10 px-6 py-4">
+              <div className="flex items-center justify-between">
+                <h2 className="text-2xl font-bold text-slate-900">Pratinjau Buku Besar PDF</h2>
+                <button
+                  onClick={() => {
+                    try {
+                      setIsPreviewOpen(false)
+                    } catch (err) {
+                      console.error('Error closing PDF dialog:', err)
+                    }
+                  }}
+                  className="text-slate-500 hover:text-slate-700 text-2xl leading-none font-bold"
+                >
+                  ✕
+                </button>
+              </div>
             </div>
-            <div className="overflow-y-auto" style={{ maxHeight: 'calc(98vh - 80px)' }}>
-              <div className="p-6 bg-slate-50">
+            <div className="flex-1 overflow-y-auto bg-slate-50">
+              <div className="p-6">
                 <BukuBesarTemplate
                   entries={filteredEntries}
-                  saldoAwal={saldoAwal}
                   periode={periode}
                 />
               </div>

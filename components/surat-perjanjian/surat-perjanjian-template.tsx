@@ -294,17 +294,18 @@ export function SuratPerjanjianTemplate({
           padding: '20mm 15mm',
         }}
       >
-        {/* Logo */}
-        <div className="mb-4 text-center">
-          <img
-            src="/logo.png"
-            alt="VSJ Logo"
-            style={{ height: '80px', width: 'auto', margin: '0 auto', display: 'block' }}
-          />
-        </div>
-
-        {/* Header */}
+        {/* Header with Logo */}
         <div className="mb-6 pb-3 border-b-2 border-black text-center">
+          {/* Logo */}
+          <div className="mb-2">
+            <img
+              src="/logo.png"
+              alt="VSJ Logo"
+              style={{ height: '70px', width: 'auto', margin: '0 auto', display: 'block' }}
+            />
+          </div>
+
+          {/* Company Info */}
           <h1 className="text-base font-bold leading-tight">
             PT. VANIA SUGIARTA JAYA
           </h1>

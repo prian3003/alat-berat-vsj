@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { BlogPost } from '@/types'
 import { createClient } from '@/lib/supabase/client'
 import Link from 'next/link'
@@ -14,12 +14,28 @@ export function BlogList() {
   const [currentPage, setCurrentPage] = useState(1)
   const postsPerPage = 6
   const supabase = createClient()
+  const blogSectionRef = useRef<HTMLDivElement>(null)
+
+  // Scroll to top when page changes
+  const scrollToTop = () => {
+    // Use setTimeout to ensure scroll happens after render
+    setTimeout(() => {
+      if (blogSectionRef.current) {
+        blogSectionRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      }
+    }, 0)
+  }
 
   useEffect(() => {
     fetchPosts()
     setCurrentPage(1) // Reset to first page when tag changes
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedTag])
+
+  // Scroll to top when current page changes
+  useEffect(() => {
+    scrollToTop()
+  }, [currentPage])
 
   const fetchPosts = async () => {
     setLoading(true)
@@ -76,7 +92,7 @@ export function BlogList() {
   }
 
   return (
-    <section className="mb-16 bg-white">
+    <section className="mb-16 bg-white" ref={blogSectionRef}>
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* Tag Filter */}
         {allTags.length > 0 && (
@@ -206,7 +222,10 @@ export function BlogList() {
           <div className="mt-16 flex items-center justify-center gap-2">
             {/* Previous Button */}
             <button
-              onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+              onClick={() => {
+                setCurrentPage(prev => Math.max(1, prev - 1))
+                scrollToTop()
+              }}
               disabled={currentPage === 1}
               className="flex items-center gap-2 rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50 hover:enabled:bg-slate-50"
             >
@@ -221,7 +240,10 @@ export function BlogList() {
               {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
                 <button
                   key={page}
-                  onClick={() => setCurrentPage(page)}
+                  onClick={() => {
+                    setCurrentPage(page)
+                    scrollToTop()
+                  }}
                   className={`h-10 w-10 rounded-lg text-sm font-medium transition-colors ${
                     currentPage === page
                       ? 'bg-orange-600 text-white'
@@ -235,7 +257,10 @@ export function BlogList() {
 
             {/* Next Button */}
             <button
-              onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+              onClick={() => {
+                setCurrentPage(prev => Math.min(totalPages, prev + 1))
+                scrollToTop()
+              }}
               disabled={currentPage === totalPages}
               className="flex items-center gap-2 rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50 hover:enabled:bg-slate-50"
             >

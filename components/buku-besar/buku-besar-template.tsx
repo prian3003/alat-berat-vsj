@@ -18,13 +18,11 @@ interface BukuBesarEntry {
 
 interface BukuBesarTemplateProps {
   entries: BukuBesarEntry[]
-  saldoAwal: number
   periode: string
 }
 
 export function BukuBesarTemplate({
   entries,
-  saldoAwal,
   periode
 }: BukuBesarTemplateProps) {
   const printRef = useRef<HTMLDivElement>(null)
@@ -145,7 +143,7 @@ export function BukuBesarTemplate({
 
   const totalDebit = calculateTotal('debit')
   const totalKredit = calculateTotal('kredit')
-  const saldoAkhir = saldoAwal + totalDebit - totalKredit
+  const saldoAkhir = totalDebit - totalKredit
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('id-ID', {
@@ -266,20 +264,6 @@ export function BukuBesarTemplate({
           </p>
         </div>
 
-        {/* Initial Balance */}
-        <div style={{
-          marginBottom: '15px',
-          backgroundColor: '#f5f5f5',
-          padding: '8px',
-          borderRadius: '4px',
-          borderLeft: '4px solid #ff9800'
-        }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-            <span style={{ fontWeight: 'bold' }}>Saldo Awal</span>
-            <span style={{ fontWeight: 'bold', textAlign: 'right' }}>{formatCurrency(saldoAwal)}</span>
-          </div>
-        </div>
-
         {/* Ledger Table */}
         <table style={{
           width: '100%',
@@ -342,7 +326,7 @@ export function BukuBesarTemplate({
           </thead>
           <tbody>
             {entries.map((entry, idx) => {
-              let runningBalance = saldoAwal
+              let runningBalance = 0
               for (let i = 0; i <= idx; i++) {
                 runningBalance = runningBalance + entries[i].debit - entries[i].kredit
               }
