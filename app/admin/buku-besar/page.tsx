@@ -87,9 +87,24 @@ export default function BukuBesarPage() {
   const [selectedPeriodKey, setSelectedPeriodKey] = useState(currentPeriodKey)
   const [periode, setPeriode] = useState(formatPeriodeDisplay(currentDate))
 
+  // Get last saved tanggal from localStorage
+  const getLastSavedTanggal = (): string => {
+    try {
+      if (typeof window !== 'undefined') {
+        const saved = localStorage.getItem('lastBukuBesarTanggal')
+        if (saved) {
+          return saved
+        }
+      }
+    } catch {
+      console.error('Error getting last saved tanggal')
+    }
+    return currentDate.toISOString().split('T')[0]
+  }
+
   const [formData, setFormData] = useState({
     nomor: '',
-    tanggal: currentDate.toISOString().split('T')[0],
+    tanggal: getLastSavedTanggal(),
     deskripsi: '',
     debit: 0,
     kredit: 0,
@@ -201,6 +216,17 @@ export default function BukuBesarPage() {
   useEffect(() => {
     setCurrentPage(1)
   }, [selectedPeriodKey])
+
+  // Save tanggal to localStorage whenever it changes
+  useEffect(() => {
+    try {
+      if (typeof window !== 'undefined' && formData.tanggal) {
+        localStorage.setItem('lastBukuBesarTanggal', formData.tanggal)
+      }
+    } catch (err) {
+      console.error('Error saving tanggal to localStorage:', err)
+    }
+  }, [formData.tanggal])
 
   const fetchEntries = async () => {
     try {
@@ -334,14 +360,14 @@ export default function BukuBesarPage() {
 
   const resetForm = () => {
     try {
-      // Auto-fetch today's date
-      const todayDate = getTodayDate()
-      // Auto-generate No. Ref based on today's date and existing entries
-      const autoNomor = generateAutoNomor(todayDate)
+      // Use last saved tanggal if available, otherwise use today's date
+      const lastTanggal = getLastSavedTanggal()
+      // Auto-generate No. Ref based on last/current tanggal and existing entries
+      const autoNomor = generateAutoNomor(lastTanggal)
 
       setFormData({
         nomor: autoNomor,
-        tanggal: todayDate,
+        tanggal: lastTanggal,
         deskripsi: '',
         debit: 0,
         kredit: 0,
@@ -351,9 +377,10 @@ export default function BukuBesarPage() {
       console.error('Error resetting form:', err)
       try {
         // Fallback to safe defaults
+        const fallbackTanggal = getLastSavedTanggal()
         setFormData({
           nomor: 'BBB-001',
-          tanggal: getTodayDate(),
+          tanggal: fallbackTanggal,
           deskripsi: '',
           debit: 0,
           kredit: 0,
