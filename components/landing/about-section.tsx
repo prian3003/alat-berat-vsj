@@ -1,3 +1,5 @@
+import Image from 'next/image'
+
 export function AboutSection() {
   return (
     <section id="about" className="relative bg-white py-12 sm:py-16 md:py-24 overflow-hidden">
@@ -20,13 +22,13 @@ export function AboutSection() {
             </h2>
           </div>
           <p className="mt-4 text-sm sm:text-base md:text-lg leading-relaxed text-slate-600">
-            Penyedia jasa <strong>rental alat berat terpercaya di Bali</strong> sejak bertahun-tahun.
+            Penyedia jasa <strong>rental alat berat terpercaya di Bali</strong> sejak 2023.
             Melayani proyek konstruksi di Denpasar, Badung, Gianyar, Tabanan, Buleleng, Klungkung, Bangli, Karangasem, Jembrana, dan seluruh Bali dengan komitmen kualitas terbaik.
           </p>
         </div>
 
         <div className="mt-8 sm:mt-10 md:mt-12 grid gap-6 sm:gap-8 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-          <div className="rounded-lg bg-white p-5 sm:p-6 shadow-sm hover:shadow-md transition-shadow">
+          <div className="relative rounded-lg bg-white p-5 sm:p-6 shadow-sm hover:shadow-md transition-shadow">
             <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-orange-100">
               <svg
                 className="h-6 w-6 text-orange-600"
@@ -49,9 +51,12 @@ export function AboutSection() {
               Excavator, bulldozer, crane, dan loader yang terawat dengan baik.
               Siap mendukung proyek konstruksi besar maupun kecil di seluruh Bali.
             </p>
+            <div className="absolute bottom-4 right-4 w-12 h-12 opacity-10">
+              <Image src="/logo.png" alt="VSJ Logo" width={48} height={48} className="object-contain" />
+            </div>
           </div>
 
-          <div className="rounded-lg bg-white p-5 sm:p-6 shadow-sm hover:shadow-md transition-shadow">
+          <div className="relative rounded-lg bg-white p-5 sm:p-6 shadow-sm hover:shadow-md transition-shadow">
             <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-orange-100">
               <svg
                 className="h-6 w-6 text-orange-600"
@@ -74,9 +79,12 @@ export function AboutSection() {
               Harga sewa alat berat kompetitif dengan sistem tarif per jam.
               Hemat biaya operasional proyek konstruksi Anda di Bali.
             </p>
+            <div className="absolute bottom-4 right-4 w-12 h-12 opacity-10">
+              <Image src="/logo.png" alt="VSJ Logo" width={48} height={48} className="object-contain" />
+            </div>
           </div>
 
-          <div className="rounded-lg bg-white p-5 sm:p-6 shadow-sm hover:shadow-md transition-shadow">
+          <div className="relative rounded-lg bg-white p-5 sm:p-6 shadow-sm hover:shadow-md transition-shadow">
             <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-orange-100">
               <svg
                 className="h-6 w-6 text-orange-600"
@@ -99,6 +107,9 @@ export function AboutSection() {
               Operator profesional bersertifikat dan tim support siap membantu kapan saja.
               Layanan cepat untuk seluruh Bali: Denpasar, Badung, Gianyar, Tabanan, Buleleng, Klungkung, Bangli, Karangasem, Jembrana.
             </p>
+            <div className="absolute bottom-4 right-4 w-12 h-12 opacity-10">
+              <Image src="/logo.png" alt="VSJ Logo" width={48} height={48} className="object-contain" />
+            </div>
           </div>
         </div>
       </div>
