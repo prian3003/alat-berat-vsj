@@ -62,23 +62,12 @@ export function EquipmentCard({ equipment, onClick }: EquipmentCardProps) {
 
   return (
     <Card className="group cursor-pointer overflow-hidden transition-all hover:shadow-lg flex flex-col h-full" onClick={onClick}>
-      <div className="relative aspect-video w-full overflow-hidden bg-gradient-to-br from-slate-100 to-slate-50 flex items-center justify-center">
-        {/* Blurred background image */}
+      <div className="relative aspect-video w-full overflow-hidden bg-white flex items-center justify-center">
         <Image
           src={primaryImage}
           alt={equipment.name}
           fill
-          className="object-cover blur-md absolute inset-0 opacity-30"
-          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-          loading="lazy"
-          quality={50}
-        />
-        {/* Clear foreground image */}
-        <Image
-          src={primaryImage}
-          alt={equipment.name}
-          fill
-          className="object-contain relative z-10"
+          className="object-contain"
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           loading="lazy"
           quality={85}
