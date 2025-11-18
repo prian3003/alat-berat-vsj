@@ -43,6 +43,8 @@ export default function BukuBesarPage() {
   const [currentPage, setCurrentPage] = useState(1)
   const [saldoAwal, setSaldoAwal] = useState(0)
   const [periode, setPeriode] = useState(new Date().toLocaleDateString('id-ID', { year: 'numeric', month: 'long' }))
+  const [isBulkMode, setIsBulkMode] = useState(false)
+  const [bulkEntries, setBulkEntries] = useState<any[]>([])
   const itemsPerPage = 10
 
   const [formData, setFormData] = useState({
@@ -109,31 +111,69 @@ export default function BukuBesarPage() {
     try {
       setLoading(true)
 
-      const payload = {
-        ...formData,
-        debit: parseFloat(formData.debit.toString()) || 0,
-        kredit: parseFloat(formData.kredit.toString()) || 0,
+      if (isBulkMode) {
+        // Bulk insert
+        const validEntries = bulkEntries.filter(entry => entry.nomor && entry.deskripsi && (entry.debit > 0 || entry.kredit > 0))
+
+        if (validEntries.length === 0) {
+          alert('Tambahkan minimal satu entri yang valid')
+          setLoading(false)
+          return
+        }
+
+        for (const entry of validEntries) {
+          const payload = {
+            nomor: entry.nomor,
+            tanggal: entry.tanggal,
+            deskripsi: entry.deskripsi,
+            debit: parseFloat(entry.debit) || 0,
+            kredit: parseFloat(entry.kredit) || 0,
+            keterangan: entry.keterangan || null,
+          }
+
+          const response = await fetch('/api/buku-besar', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+          })
+
+          if (!response.ok) {
+            throw new Error(`Gagal menyimpan entri: ${entry.nomor}`)
+          }
+        }
+
+        await fetchEntries()
+        setBulkEntries([])
+        setIsBulkMode(false)
+        alert(`${validEntries.length} entri berhasil disimpan`)
+      } else {
+        // Single entry
+        const payload = {
+          ...formData,
+          debit: parseFloat(formData.debit.toString()) || 0,
+          kredit: parseFloat(formData.kredit.toString()) || 0,
+        }
+
+        const url = selectedEntry ? `/api/buku-besar/${selectedEntry.id}` : '/api/buku-besar'
+        const method = selectedEntry ? 'PUT' : 'POST'
+
+        const response = await fetch(url, {
+          method,
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        })
+
+        if (!response.ok) {
+          throw new Error('Failed to save entry')
+        }
+
+        await fetchEntries()
+        resetForm()
       }
-
-      const url = selectedEntry ? `/api/buku-besar/${selectedEntry.id}` : '/api/buku-besar'
-      const method = selectedEntry ? 'PUT' : 'POST'
-
-      const response = await fetch(url, {
-        method,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      })
-
-      if (!response.ok) {
-        throw new Error('Failed to save entry')
-      }
-
-      await fetchEntries()
-      resetForm()
       setIsFormDialogOpen(false)
     } catch (error) {
       console.error('Error saving entry:', error)
-      alert('Gagal menyimpan entri buku besar')
+      alert('Gagal menyimpan entri buku besar: ' + (error instanceof Error ? error.message : ''))
     } finally {
       setLoading(false)
     }
@@ -507,101 +547,245 @@ export default function BukuBesarPage() {
       </main>
 
       {/* Form Dialog */}
-      <Dialog open={isFormDialogOpen} onOpenChange={setIsFormDialogOpen}>
-        <DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto">
+      <Dialog open={isFormDialogOpen} onOpenChange={(open) => {
+        setIsFormDialogOpen(open)
+        if (!open) {
+          resetForm()
+          setBulkEntries([])
+          setIsBulkMode(false)
+        }
+      }}>
+        <DialogContent className="max-h-[90vh] max-w-5xl overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>
-              {selectedEntry ? 'Edit Entri Buku Besar' : 'Tambah Entri Buku Besar'}
-            </DialogTitle>
+            <div className="flex items-center justify-between w-full">
+              <DialogTitle>
+                {isBulkMode ? 'Bulk Insert Entri Buku Besar' : selectedEntry ? 'Edit Entri Buku Besar' : 'Tambah Entri Buku Besar'}
+              </DialogTitle>
+              {!selectedEntry && (
+                <Button
+                  type="button"
+                  variant={isBulkMode ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => {
+                    setIsBulkMode(!isBulkMode)
+                    resetForm()
+                    setBulkEntries([])
+                  }}
+                >
+                  {isBulkMode ? 'Mode Tunggal' : 'Bulk Insert'}
+                </Button>
+              )}
+            </div>
           </DialogHeader>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-slate-900 mb-1">No. Ref</label>
+          {isBulkMode ? (
+            // Bulk Insert Mode
+            <form onSubmit={handleSubmit} className="space-y-4">
+              {/* Add new bulk entry row */}
+              <div className="border rounded-lg p-3 bg-slate-50 space-y-2">
+                <p className="text-xs font-medium text-slate-600 mb-2">Tambah Entri Baru</p>
+                <div className="grid grid-cols-12 gap-2">
+                  <input
+                    type="text"
+                    placeholder="Nomor"
+                    value={formData.nomor}
+                    onChange={(e) => setFormData({ ...formData, nomor: e.target.value })}
+                    className="col-span-1 px-2 py-1 text-sm border border-slate-300 rounded focus:outline-none focus:ring-2 focus:ring-orange-600"
+                  />
+                  <input
+                    type="date"
+                    value={formData.tanggal}
+                    onChange={(e) => setFormData({ ...formData, tanggal: e.target.value })}
+                    className="col-span-2 px-2 py-1 text-sm border border-slate-300 rounded focus:outline-none focus:ring-2 focus:ring-orange-600"
+                  />
+                  <input
+                    type="text"
+                    placeholder="Deskripsi"
+                    value={formData.deskripsi}
+                    onChange={(e) => setFormData({ ...formData, deskripsi: e.target.value })}
+                    className="col-span-4 px-2 py-1 text-sm border border-slate-300 rounded focus:outline-none focus:ring-2 focus:ring-orange-600"
+                  />
+                  <input
+                    type="number"
+                    placeholder="Debit"
+                    value={formData.debit}
+                    onChange={(e) => setFormData({ ...formData, debit: parseFloat(e.target.value) || 0, kredit: 0 })}
+                    className="col-span-2 px-2 py-1 text-sm border border-slate-300 rounded focus:outline-none focus:ring-2 focus:ring-orange-600"
+                  />
+                  <input
+                    type="number"
+                    placeholder="Kredit"
+                    value={formData.kredit}
+                    onChange={(e) => setFormData({ ...formData, kredit: parseFloat(e.target.value) || 0, debit: 0 })}
+                    className="col-span-2 px-2 py-1 text-sm border border-slate-300 rounded focus:outline-none focus:ring-2 focus:ring-orange-600"
+                  />
+                  <Button
+                    type="button"
+                    size="sm"
+                    className="col-span-1 bg-orange-600 hover:bg-orange-700"
+                    onClick={() => {
+                      if (formData.nomor && formData.deskripsi && (formData.debit > 0 || formData.kredit > 0)) {
+                        setBulkEntries([...bulkEntries, { ...formData, id: Math.random() }])
+                        resetForm()
+                      }
+                    }}
+                  >
+                    Tambah
+                  </Button>
+                </div>
                 <input
                   type="text"
-                  required
-                  value={formData.nomor}
-                  onChange={(e) => setFormData({ ...formData, nomor: e.target.value })}
-                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-600"
-                  placeholder="BBB-001"
+                  placeholder="Keterangan (opsional)"
+                  value={formData.keterangan}
+                  onChange={(e) => setFormData({ ...formData, keterangan: e.target.value })}
+                  className="w-full px-2 py-1 text-sm border border-slate-300 rounded focus:outline-none focus:ring-2 focus:ring-orange-600"
                 />
               </div>
+
+              {/* Bulk entries list */}
+              {bulkEntries.length > 0 && (
+                <div className="border rounded-lg overflow-hidden">
+                  <table className="w-full text-sm">
+                    <thead className="bg-slate-100 border-b">
+                      <tr>
+                        <th className="px-2 py-2 text-left text-xs font-semibold text-slate-900">No.</th>
+                        <th className="px-2 py-2 text-left text-xs font-semibold text-slate-900">Tanggal</th>
+                        <th className="px-2 py-2 text-left text-xs font-semibold text-slate-900">Deskripsi</th>
+                        <th className="px-2 py-2 text-right text-xs font-semibold text-slate-900">Debit</th>
+                        <th className="px-2 py-2 text-right text-xs font-semibold text-slate-900">Kredit</th>
+                        <th className="px-2 py-2 text-left text-xs font-semibold text-slate-900">Aksi</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {bulkEntries.map((entry, idx) => (
+                        <tr key={entry.id} className="border-b hover:bg-slate-50">
+                          <td className="px-2 py-2 text-slate-700">{entry.nomor}</td>
+                          <td className="px-2 py-2 text-slate-700">{new Date(entry.tanggal).toLocaleDateString('id-ID')}</td>
+                          <td className="px-2 py-2 text-slate-700">{entry.deskripsi}</td>
+                          <td className="px-2 py-2 text-right text-slate-700">{entry.debit > 0 ? formatCurrency(entry.debit) : '-'}</td>
+                          <td className="px-2 py-2 text-right text-slate-700">{entry.kredit > 0 ? formatCurrency(entry.kredit) : '-'}</td>
+                          <td className="px-2 py-2">
+                            <button
+                              type="button"
+                              onClick={() => setBulkEntries(bulkEntries.filter((_, i) => i !== idx))}
+                              className="text-red-600 hover:text-red-900 text-xs font-medium"
+                            >
+                              Hapus
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+
+              <div className="flex gap-2 justify-end pt-4 border-t">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => {
+                    resetForm()
+                    setBulkEntries([])
+                    setIsFormDialogOpen(false)
+                  }}
+                >
+                  Batal
+                </Button>
+                <Button type="submit" className="bg-orange-600 hover:bg-orange-700" disabled={loading || bulkEntries.length === 0}>
+                  Simpan ({bulkEntries.length})
+                </Button>
+              </div>
+            </form>
+          ) : (
+            // Single Entry Mode
+            <form onSubmit={handleSubmit} className="space-y-3">
+              <div className="grid grid-cols-4 gap-2">
+                <div>
+                  <label className="block text-xs font-medium text-slate-900 mb-0.5">No. Ref</label>
+                  <input
+                    type="text"
+                    required
+                    value={formData.nomor}
+                    onChange={(e) => setFormData({ ...formData, nomor: e.target.value })}
+                    className="w-full px-2 py-1 text-sm border border-slate-300 rounded focus:outline-none focus:ring-2 focus:ring-orange-600"
+                    placeholder="BBB-001"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-slate-900 mb-0.5">Tanggal</label>
+                  <input
+                    type="date"
+                    required
+                    value={formData.tanggal}
+                    onChange={(e) => setFormData({ ...formData, tanggal: e.target.value })}
+                    className="w-full px-2 py-1 text-sm border border-slate-300 rounded focus:outline-none focus:ring-2 focus:ring-orange-600"
+                  />
+                </div>
+                <div className="col-span-2">
+                  <label className="block text-xs font-medium text-slate-900 mb-0.5">Deskripsi</label>
+                  <input
+                    type="text"
+                    required
+                    value={formData.deskripsi}
+                    onChange={(e) => setFormData({ ...formData, deskripsi: e.target.value })}
+                    className="w-full px-2 py-1 text-sm border border-slate-300 rounded focus:outline-none focus:ring-2 focus:ring-orange-600"
+                    placeholder="Deskripsi transaksi"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <label className="block text-xs font-medium text-slate-900 mb-0.5">Debit (Rp)</label>
+                  <input
+                    type="number"
+                    value={formData.debit}
+                    onChange={(e) => setFormData({ ...formData, debit: parseFloat(e.target.value) || 0, kredit: 0 })}
+                    className="w-full px-2 py-1 text-sm border border-slate-300 rounded focus:outline-none focus:ring-2 focus:ring-orange-600"
+                    placeholder="0"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-slate-900 mb-0.5">Kredit (Rp)</label>
+                  <input
+                    type="number"
+                    value={formData.kredit}
+                    onChange={(e) => setFormData({ ...formData, kredit: parseFloat(e.target.value) || 0, debit: 0 })}
+                    className="w-full px-2 py-1 text-sm border border-slate-300 rounded focus:outline-none focus:ring-2 focus:ring-orange-600"
+                    placeholder="0"
+                  />
+                </div>
+              </div>
+
               <div>
-                <label className="block text-sm font-medium text-slate-900 mb-1">Tanggal</label>
-                <input
-                  type="date"
-                  required
-                  value={formData.tanggal}
-                  onChange={(e) => setFormData({ ...formData, tanggal: e.target.value })}
-                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-600"
+                <label className="block text-xs font-medium text-slate-900 mb-0.5">Keterangan</label>
+                <textarea
+                  value={formData.keterangan}
+                  onChange={(e) => setFormData({ ...formData, keterangan: e.target.value })}
+                  className="w-full px-2 py-1 text-sm border border-slate-300 rounded focus:outline-none focus:ring-2 focus:ring-orange-600"
+                  rows={2}
+                  placeholder="Keterangan atau catatan transaksi"
                 />
               </div>
-            </div>
 
-            <div>
-              <label className="block text-sm font-medium text-slate-900 mb-1">Deskripsi</label>
-              <input
-                type="text"
-                required
-                value={formData.deskripsi}
-                onChange={(e) => setFormData({ ...formData, deskripsi: e.target.value })}
-                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-600"
-                placeholder="Deskripsi transaksi"
-              />
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-slate-900 mb-1">Debit (Rp)</label>
-                <input
-                  type="number"
-                  value={formData.debit}
-                  onChange={(e) => setFormData({ ...formData, debit: parseFloat(e.target.value) || 0, kredit: 0 })}
-                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-600"
-                  placeholder="0"
-                />
+              <div className="flex gap-2 justify-end pt-2 border-t">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => {
+                    resetForm()
+                    setIsFormDialogOpen(false)
+                  }}
+                >
+                  Batal
+                </Button>
+                <Button type="submit" className="bg-orange-600 hover:bg-orange-700" disabled={loading}>
+                  {selectedEntry ? 'Perbarui' : 'Simpan'}
+                </Button>
               </div>
-              <div>
-                <label className="block text-sm font-medium text-slate-900 mb-1">Kredit (Rp)</label>
-                <input
-                  type="number"
-                  value={formData.kredit}
-                  onChange={(e) => setFormData({ ...formData, kredit: parseFloat(e.target.value) || 0, debit: 0 })}
-                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-600"
-                  placeholder="0"
-                />
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-slate-900 mb-1">Keterangan</label>
-              <textarea
-                value={formData.keterangan}
-                onChange={(e) => setFormData({ ...formData, keterangan: e.target.value })}
-                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-600"
-                rows={3}
-                placeholder="Keterangan atau catatan transaksi"
-              />
-            </div>
-
-            <div className="flex gap-2 justify-end pt-4 border-t">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => {
-                  resetForm()
-                  setIsFormDialogOpen(false)
-                }}
-              >
-                Batal
-              </Button>
-              <Button type="submit" className="bg-orange-600 hover:bg-orange-700" disabled={loading}>
-                {selectedEntry ? 'Perbarui' : 'Simpan'}
-              </Button>
-            </div>
-          </form>
+            </form>
+          )}
         </DialogContent>
       </Dialog>
 
