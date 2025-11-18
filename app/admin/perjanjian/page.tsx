@@ -354,6 +354,12 @@ export default function PerjanjianPage() {
             >
               Surat Perjanjian Sewa
             </Link>
+            <Link
+              href="/admin/buku-besar"
+              className="border-b-2 border-transparent px-4 py-3 text-sm font-medium text-slate-600 hover:border-slate-300 hover:text-slate-900"
+            >
+              Buku Besar
+            </Link>
           </nav>
         </div>
       </header>
