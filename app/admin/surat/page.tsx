@@ -50,6 +50,8 @@ export default function SuratJalanPage() {
   const [previewSurat, setPreviewSurat] = useState<SuratJalan | null>(null)
   const [deleteAlertOpen, setDeleteAlertOpen] = useState(false)
   const [suratToDelete, setSuratToDelete] = useState<SuratJalan | null>(null)
+  const [currentPage, setCurrentPage] = useState(1)
+  const itemsPerPage = 10
 
   // Robust search function - case insensitive, searches across multiple fields
   const filteredSuratList = suratList.filter((surat) => {
@@ -66,6 +68,13 @@ export default function SuratJalanPage() {
       new Date(surat.tanggal).toLocaleDateString('id-ID').includes(query)
     )
   })
+
+  // Pagination logic
+  const totalPages = Math.ceil(filteredSuratList.length / itemsPerPage)
+  const paginatedSuratList = filteredSuratList.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  )
 
   const [formData, setFormData] = useState({
     tanggal: new Date().toISOString().split('T')[0],
@@ -88,6 +97,11 @@ export default function SuratJalanPage() {
       fetchSuratList()
     }
   }, [isAuthenticated])
+
+  // Reset pagination when search query changes
+  useEffect(() => {
+    setCurrentPage(1)
+  }, [searchQuery])
 
   const fetchSuratList = async () => {
     try {
@@ -393,8 +407,9 @@ export default function SuratJalanPage() {
           <div className="rounded-lg bg-white shadow overflow-hidden">
             <div className="px-6 py-4 border-b border-slate-200 bg-slate-50 flex items-center justify-between">
               <p className="text-sm text-slate-600">
-                Menampilkan <span className="font-semibold">{filteredSuratList.length}</span> dari{' '}
-                <span className="font-semibold">{suratList.length}</span> surat jalan
+                Menampilkan <span className="font-semibold">{(currentPage - 1) * itemsPerPage + 1}</span> -{' '}
+                <span className="font-semibold">{Math.min(currentPage * itemsPerPage, filteredSuratList.length)}</span>{' '}
+                dari <span className="font-semibold">{filteredSuratList.length}</span> surat jalan
               </p>
             </div>
             <table className="min-w-full divide-y divide-slate-200">
@@ -418,7 +433,7 @@ export default function SuratJalanPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-200">
-                {filteredSuratList.map((surat) => (
+                {paginatedSuratList.map((surat) => (
                   <tr key={surat.id} className="hover:bg-slate-50 transition-colors">
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-slate-900">
                       {surat.noSurat}
@@ -456,6 +471,43 @@ export default function SuratJalanPage() {
                 ))}
               </tbody>
             </table>
+
+            {/* Pagination Controls */}
+            {totalPages > 1 && (
+              <div className="px-6 py-4 border-t border-slate-200 bg-slate-50 flex items-center justify-between">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                  disabled={currentPage === 1}
+                >
+                  ← Sebelumnya
+                </Button>
+                <div className="flex items-center gap-2">
+                  {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                    <button
+                      key={page}
+                      onClick={() => setCurrentPage(page)}
+                      className={`px-3 py-2 rounded text-sm font-medium transition-colors ${
+                        currentPage === page
+                          ? 'bg-orange-600 text-white'
+                          : 'bg-white text-slate-600 border border-slate-300 hover:bg-slate-100'
+                      }`}
+                    >
+                      {page}
+                    </button>
+                  ))}
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                  disabled={currentPage === totalPages}
+                >
+                  Berikutnya →
+                </Button>
+              </div>
+            )}
           </div>
         )}
       </main>
