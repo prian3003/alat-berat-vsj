@@ -234,6 +234,28 @@ export function BukuBesarTemplate({
           padding: '20mm 15mm',
         }}
       >
+        {/* Logo - At very top, centered */}
+        <div style={{
+          textAlign: 'center',
+          marginBottom: '12px',
+          width: '100%',
+          display: 'block',
+          clear: 'both'
+        }}>
+          <img
+            src="/logo.png"
+            alt="VSJ Logo"
+            style={{
+              height: '70px',
+              width: 'auto',
+              margin: '0 auto',
+              display: 'block',
+              maxWidth: '100%',
+              clear: 'both'
+            }}
+          />
+        </div>
+
         {/* Header */}
         <div style={{
           marginBottom: '20px',
