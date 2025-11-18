@@ -316,13 +316,123 @@ export default function BukuBesarPage() {
     }).format(value)
   }
 
-  // Calculate running balance
-  const calculateBalance = (index: number) => {
-    let balance = saldoAwal
-    for (let i = 0; i <= index; i++) {
-      balance += filteredEntries[i].debit - filteredEntries[i].kredit
+  // Format date key for grouping (YYYY-MM-DD)
+  const getDateKey = (dateStr: string): string => {
+    try {
+      const date = new Date(dateStr + 'T00:00:00')
+      if (isNaN(date.getTime())) return ''
+      const year = date.getFullYear()
+      const month = String(date.getMonth() + 1).padStart(2, '0')
+      const day = String(date.getDate()).padStart(2, '0')
+      return `${year}-${month}-${day}`
+    } catch {
+      return ''
     }
-    return balance
+  }
+
+  // Format date display (format Indonesian)
+  const formatDateDisplay = (dateStr: string): string => {
+    try {
+      const date = new Date(dateStr + 'T00:00:00')
+      if (isNaN(date.getTime())) return ''
+      return date.toLocaleDateString('id-ID', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      })
+    } catch {
+      return ''
+    }
+  }
+
+  // Group entries by date with robust error handling
+  const groupedEntries = (() => {
+    try {
+      const grouped: { [key: string]: (BukuBesarEntry & { displayIndex: number })[] } = {}
+      let globalIndex = 0
+
+      filteredEntries.forEach((entry) => {
+        try {
+          const dateKey = getDateKey(entry.tanggal)
+          if (!dateKey) return
+
+          if (!grouped[dateKey]) {
+            grouped[dateKey] = []
+          }
+          grouped[dateKey].push({
+            ...entry,
+            displayIndex: globalIndex
+          })
+          globalIndex++
+        } catch (err) {
+          console.error('Error processing entry:', entry, err)
+        }
+      })
+
+      return grouped
+    } catch (err) {
+      console.error('Error grouping entries:', err)
+      return {}
+    }
+  })()
+
+  // Get sorted date keys
+  const sortedDateKeys = (() => {
+    try {
+      return Object.keys(groupedEntries).sort((a, b) => {
+        const dateA = new Date(a + 'T00:00:00').getTime()
+        const dateB = new Date(b + 'T00:00:00').getTime()
+        return dateA - dateB
+      })
+    } catch (err) {
+      console.error('Error sorting dates:', err)
+      return Object.keys(groupedEntries)
+    }
+  })()
+
+  // Paginate grouped entries
+  const paginatedDateKeys = (() => {
+    try {
+      const startIdx = (currentPage - 1) * itemsPerPage
+      const endIdx = startIdx + itemsPerPage
+      return sortedDateKeys.slice(startIdx, endIdx)
+    } catch (err) {
+      console.error('Error paginating:', err)
+      return sortedDateKeys
+    }
+  })()
+
+  // Calculate number of pages based on grouped dates
+  const totalPagesGrouped = Math.ceil(sortedDateKeys.length / itemsPerPage)
+
+  // Calculate running balance
+  const calculateBalance = (dateKey: string, entryIndex: number): number => {
+    try {
+      let balance = saldoAwal
+      const targetDateIndex = sortedDateKeys.indexOf(dateKey)
+
+      // Add balance from all dates before this date
+      for (let i = 0; i < targetDateIndex; i++) {
+        const dateEntries = groupedEntries[sortedDateKeys[i]] || []
+        dateEntries.forEach((entry) => {
+          balance += (entry.debit || 0) - (entry.kredit || 0)
+        })
+      }
+
+      // Add balance from entries in this date up to entryIndex
+      const currentDateEntries = groupedEntries[dateKey] || []
+      for (let i = 0; i <= entryIndex; i++) {
+        if (currentDateEntries[i]) {
+          balance += (currentDateEntries[i].debit || 0) - (currentDateEntries[i].kredit || 0)
+        }
+      }
+
+      return balance
+    } catch (err) {
+      console.error('Error calculating balance:', err)
+      return saldoAwal
+    }
   }
 
   if (isLoading) {
@@ -506,92 +616,129 @@ export default function BukuBesarPage() {
             </button>
           </div>
         ) : (
-          <div className="rounded-lg bg-white shadow overflow-hidden">
-            <div className="px-6 py-4 border-b border-slate-200 bg-slate-50 flex items-center justify-between">
+          <div className="space-y-4">
+            {/* Info Section */}
+            <div className="rounded-lg bg-white shadow p-4 border-b border-slate-200">
               <p className="text-sm text-slate-600">
-                Menampilkan <span className="font-semibold">{(currentPage - 1) * itemsPerPage + 1}</span> -{' '}
-                <span className="font-semibold">{Math.min(currentPage * itemsPerPage, filteredEntries.length)}</span>{' '}
-                dari <span className="font-semibold">{filteredEntries.length}</span> entri
+                Total: <span className="font-semibold">{filteredEntries.length}</span> entri {' '}
+                ({paginatedDateKeys.length > 0 ? `${paginatedDateKeys.length} hari` : '0 hari'})
               </p>
             </div>
 
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-slate-200">
-                <thead className="bg-slate-50">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-slate-900 uppercase tracking-wider">
-                      No.
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-slate-900 uppercase tracking-wider">
-                      Tanggal
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-slate-900 uppercase tracking-wider">
-                      Deskripsi
-                    </th>
-                    <th className="px-6 py-3 text-right text-xs font-medium text-slate-900 uppercase tracking-wider">
-                      Debit
-                    </th>
-                    <th className="px-6 py-3 text-right text-xs font-medium text-slate-900 uppercase tracking-wider">
-                      Kredit
-                    </th>
-                    <th className="px-6 py-3 text-right text-xs font-medium text-slate-900 uppercase tracking-wider">
-                      Saldo
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-slate-900 uppercase tracking-wider">
-                      Aksi
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-200">
-                  {paginatedEntries.map((entry, idx) => {
-                    const displayIndex = (currentPage - 1) * itemsPerPage + idx
-                    const balance = calculateBalance(displayIndex)
+            {/* Grouped Entries by Date */}
+            {paginatedDateKeys.length > 0 ? (
+              <div className="space-y-4">
+                {paginatedDateKeys.map((dateKey) => {
+                  try {
+                    const dateEntries = groupedEntries[dateKey] || []
+                    const displayDate = formatDateDisplay(dateKey)
+
+                    if (!displayDate || dateEntries.length === 0) return null
+
                     return (
-                      <tr key={entry.id} className="hover:bg-slate-50 transition-colors">
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-slate-900">
-                          {entry.nomor}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">
-                          {new Date(entry.tanggal).toLocaleDateString('id-ID')}
-                        </td>
-                        <td className="px-6 py-4 text-sm text-slate-600">
-                          {entry.deskripsi}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-right text-slate-600 font-mono">
-                          {entry.debit > 0 ? formatCurrency(entry.debit) : '-'}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-right text-slate-600 font-mono">
-                          {entry.kredit > 0 ? formatCurrency(entry.kredit) : '-'}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-right text-slate-900 font-mono font-bold">
-                          {formatCurrency(balance)}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm space-x-2">
-                          <button
-                            onClick={() => handleEditEntry(entry)}
-                            className="text-blue-600 hover:text-blue-900 font-medium inline-flex items-center gap-1"
-                          >
-                            <Edit2 className="w-4 h-4" />
-                            Edit
-                          </button>
-                          <button
-                            onClick={() => handleDeleteClick(entry)}
-                            className="text-red-600 hover:text-red-900 font-medium inline-flex items-center gap-1"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                            Hapus
-                          </button>
-                        </td>
-                      </tr>
+                      <div key={dateKey} className="rounded-lg bg-white shadow overflow-hidden">
+                        {/* Date Header */}
+                        <div className="px-6 py-3 bg-gradient-to-r from-orange-50 to-slate-50 border-b border-slate-200">
+                          <h3 className="text-sm font-semibold text-slate-900">
+                            {displayDate}
+                            <span className="ml-2 text-xs font-normal text-slate-500">
+                              ({dateEntries.length} {dateEntries.length === 1 ? 'entri' : 'entri'})
+                            </span>
+                          </h3>
+                        </div>
+
+                        {/* Entries Table for this date */}
+                        <div className="overflow-x-auto">
+                          <table className="min-w-full divide-y divide-slate-200">
+                            <thead className="bg-slate-50">
+                              <tr>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-slate-900 uppercase tracking-wider">
+                                  No.
+                                </th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-slate-900 uppercase tracking-wider">
+                                  Deskripsi
+                                </th>
+                                <th className="px-6 py-3 text-right text-xs font-medium text-slate-900 uppercase tracking-wider">
+                                  Debit
+                                </th>
+                                <th className="px-6 py-3 text-right text-xs font-medium text-slate-900 uppercase tracking-wider">
+                                  Kredit
+                                </th>
+                                <th className="px-6 py-3 text-right text-xs font-medium text-slate-900 uppercase tracking-wider">
+                                  Saldo
+                                </th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-slate-900 uppercase tracking-wider">
+                                  Aksi
+                                </th>
+                              </tr>
+                            </thead>
+                            <tbody className="divide-y divide-slate-200">
+                              {dateEntries.map((entry, entryIdx) => {
+                                try {
+                                  const balance = calculateBalance(dateKey, entryIdx)
+                                  return (
+                                    <tr key={entry.id} className="hover:bg-slate-50 transition-colors">
+                                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-slate-900">
+                                        {entry.nomor || '-'}
+                                      </td>
+                                      <td className="px-6 py-4 text-sm text-slate-600">
+                                        <div className="font-medium">{entry.deskripsi || '-'}</div>
+                                        {entry.keterangan && (
+                                          <div className="text-xs text-slate-500 mt-0.5">{entry.keterangan}</div>
+                                        )}
+                                      </td>
+                                      <td className="px-6 py-4 whitespace-nowrap text-sm text-right text-slate-600 font-mono">
+                                        {entry.debit && entry.debit > 0 ? formatCurrency(entry.debit) : '-'}
+                                      </td>
+                                      <td className="px-6 py-4 whitespace-nowrap text-sm text-right text-slate-600 font-mono">
+                                        {entry.kredit && entry.kredit > 0 ? formatCurrency(entry.kredit) : '-'}
+                                      </td>
+                                      <td className="px-6 py-4 whitespace-nowrap text-sm text-right text-slate-900 font-mono font-bold">
+                                        {formatCurrency(balance)}
+                                      </td>
+                                      <td className="px-6 py-4 whitespace-nowrap text-sm space-x-2">
+                                        <button
+                                          onClick={() => handleEditEntry(entry)}
+                                          className="text-blue-600 hover:text-blue-900 font-medium inline-flex items-center gap-1"
+                                        >
+                                          <Edit2 className="w-4 h-4" />
+                                          Edit
+                                        </button>
+                                        <button
+                                          onClick={() => handleDeleteClick(entry)}
+                                          className="text-red-600 hover:text-red-900 font-medium inline-flex items-center gap-1"
+                                        >
+                                          <Trash2 className="w-4 h-4" />
+                                          Hapus
+                                        </button>
+                                      </td>
+                                    </tr>
+                                  )
+                                } catch (err) {
+                                  console.error('Error rendering entry:', entry, err)
+                                  return null
+                                }
+                              })}
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
                     )
-                  })}
-                </tbody>
-              </table>
-            </div>
+                  } catch (err) {
+                    console.error('Error rendering date group:', dateKey, err)
+                    return null
+                  }
+                })}
+              </div>
+            ) : (
+              <div className="rounded-lg border-2 border-dashed border-slate-300 p-12 text-center bg-white">
+                <p className="text-slate-600">Tidak ada entri untuk periode ini</p>
+              </div>
+            )}
 
             {/* Pagination */}
-            {totalPages > 1 && (
-              <div className="px-6 py-4 border-t border-slate-200 bg-slate-50 flex items-center justify-between">
+            {totalPagesGrouped > 1 && (
+              <div className="rounded-lg bg-white shadow p-4 border-t border-slate-200 flex items-center justify-between">
                 <Button
                   variant="outline"
                   size="sm"
@@ -601,7 +748,7 @@ export default function BukuBesarPage() {
                   ← Sebelumnya
                 </Button>
                 <div className="flex items-center gap-2">
-                  {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                  {Array.from({ length: totalPagesGrouped }, (_, i) => i + 1).map((page) => (
                     <button
                       key={page}
                       onClick={() => setCurrentPage(page)}
@@ -618,8 +765,8 @@ export default function BukuBesarPage() {
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-                  disabled={currentPage === totalPages}
+                  onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPagesGrouped))}
+                  disabled={currentPage === totalPagesGrouped}
                 >
                   Berikutnya →
                 </Button>
