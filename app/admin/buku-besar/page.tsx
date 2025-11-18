@@ -956,6 +956,16 @@ export default function BukuBesarPage() {
                       placeholder="0"
                       value={formData.debit}
                       onChange={(e) => setFormData({ ...formData, debit: parseFloat(e.target.value) || 0, kredit: 0 })}
+                      onFocus={(e) => {
+                        if (parseFloat(e.target.value) === 0) {
+                          e.target.value = '';
+                        }
+                      }}
+                      onBlur={(e) => {
+                        if (e.target.value === '') {
+                          setFormData({ ...formData, debit: 0 });
+                        }
+                      }}
                       className="w-full px-4 py-2 text-base border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-600 transition-all"
                     />
                   </div>
@@ -966,6 +976,16 @@ export default function BukuBesarPage() {
                       placeholder="0"
                       value={formData.kredit}
                       onChange={(e) => setFormData({ ...formData, kredit: parseFloat(e.target.value) || 0, debit: 0 })}
+                      onFocus={(e) => {
+                        if (parseFloat(e.target.value) === 0) {
+                          e.target.value = '';
+                        }
+                      }}
+                      onBlur={(e) => {
+                        if (e.target.value === '') {
+                          setFormData({ ...formData, kredit: 0 });
+                        }
+                      }}
                       className="w-full px-4 py-2 text-base border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-600 transition-all"
                     />
                   </div>
@@ -1157,6 +1177,16 @@ export default function BukuBesarPage() {
                     type="number"
                     value={formData.debit}
                     onChange={(e) => setFormData({ ...formData, debit: parseFloat(e.target.value) || 0, kredit: 0 })}
+                    onFocus={(e) => {
+                      if (parseFloat(e.target.value) === 0) {
+                        e.target.value = '';
+                      }
+                    }}
+                    onBlur={(e) => {
+                      if (e.target.value === '') {
+                        setFormData({ ...formData, debit: 0 });
+                      }
+                    }}
                     className="w-full px-4 py-3 text-base border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-600 transition-all"
                     placeholder="0"
                   />
@@ -1168,6 +1198,16 @@ export default function BukuBesarPage() {
                     type="number"
                     value={formData.kredit}
                     onChange={(e) => setFormData({ ...formData, kredit: parseFloat(e.target.value) || 0, debit: 0 })}
+                    onFocus={(e) => {
+                      if (parseFloat(e.target.value) === 0) {
+                        e.target.value = '';
+                      }
+                    }}
+                    onBlur={(e) => {
+                      if (e.target.value === '') {
+                        setFormData({ ...formData, kredit: 0 });
+                      }
+                    }}
                     className="w-full px-4 py-3 text-base border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-600 transition-all"
                     placeholder="0"
                   />
