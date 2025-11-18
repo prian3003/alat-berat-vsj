@@ -211,6 +211,7 @@ model InvoiceItem {
   invoiceId   String   @map("invoice_id") @db.Uuid
   urutan      Int      // Order number (1, 2, 3, etc)
   namaItem    String   @map("nama_item") @db.VarChar(255)
+  tanggal     DateTime @db.Date // Date for this specific item
   quantity    Int      @db.Integer
   harga       Decimal  @db.Decimal(15, 2)
   diskon      Decimal  @default(0) @db.Decimal(15, 2)

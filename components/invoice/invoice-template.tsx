@@ -9,6 +9,7 @@ import Image from 'next/image'
 interface InvoiceItem {
   urutan: number
   namaItem: string
+  tanggal: string
   quantity: number
   harga: number
   diskon: number
@@ -198,12 +199,13 @@ export function InvoiceTemplate({ invoice }: InvoiceTemplateProps) {
           <table className="w-full border-2 border-black mb-3">
             <thead>
               <tr className="bg-gray-100">
-                <th className="border-2 border-black px-1.5 py-1" style={{ fontSize: '10px', width: '8%' }}>No.</th>
+                <th className="border-2 border-black px-1.5 py-1" style={{ fontSize: '10px', width: '6%' }}>No.</th>
                 <th className="border-2 border-black px-1.5 py-1" style={{ fontSize: '10px' }}>Nama Item</th>
-                <th className="border-2 border-black px-1.5 py-1 text-center" style={{ fontSize: '10px', width: '10%' }}>Qty</th>
-                <th className="border-2 border-black px-1.5 py-1 text-right" style={{ fontSize: '10px', width: '18%' }}>Harga</th>
-                <th className="border-2 border-black px-1.5 py-1 text-right" style={{ fontSize: '10px', width: '15%' }}>Diskon</th>
-                <th className="border-2 border-black px-1.5 py-1 text-right" style={{ fontSize: '10px', width: '20%' }}>Total Harga</th>
+                <th className="border-2 border-black px-1.5 py-1 text-center" style={{ fontSize: '10px', width: '12%' }}>Tanggal</th>
+                <th className="border-2 border-black px-1.5 py-1 text-center" style={{ fontSize: '10px', width: '8%' }}>Qty</th>
+                <th className="border-2 border-black px-1.5 py-1 text-right" style={{ fontSize: '10px', width: '15%' }}>Harga</th>
+                <th className="border-2 border-black px-1.5 py-1 text-right" style={{ fontSize: '10px', width: '12%' }}>Diskon</th>
+                <th className="border-2 border-black px-1.5 py-1 text-right" style={{ fontSize: '10px', width: '17%' }}>Total Harga</th>
               </tr>
             </thead>
             <tbody>
@@ -211,6 +213,7 @@ export function InvoiceTemplate({ invoice }: InvoiceTemplateProps) {
                 <tr key={index}>
                   <td className="border-2 border-black px-1.5 py-1" style={{ fontSize: '10px' }}>{item.urutan}</td>
                   <td className="border-2 border-black px-1.5 py-1" style={{ fontSize: '10px' }}>{item.namaItem}</td>
+                  <td className="border-2 border-black px-1.5 py-1 text-center" style={{ fontSize: '10px' }}>{formatDateShort(item.tanggal)}</td>
                   <td className="border-2 border-black px-1.5 py-1 text-center" style={{ fontSize: '10px' }}>{item.quantity}</td>
                   <td className="border-2 border-black px-1.5 py-1 text-right" style={{ fontSize: '10px' }}>
                     {formatCurrency(Number(item.harga))}
@@ -225,7 +228,7 @@ export function InvoiceTemplate({ invoice }: InvoiceTemplateProps) {
               ))}
               {/* Total Row */}
               <tr>
-                <td colSpan={2} className="border-2 border-black px-1.5 py-1" style={{ fontSize: '10px' }}>
+                <td colSpan={3} className="border-2 border-black px-1.5 py-1" style={{ fontSize: '10px' }}>
                   Dicetak pada tanggal : {formatDateShort(invoice.tanggal)}
                 </td>
                 <td colSpan={2} className="border-2 border-black px-1.5 py-1 text-right font-bold" style={{ fontSize: '10px' }}>

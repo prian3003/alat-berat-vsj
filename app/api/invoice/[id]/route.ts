@@ -79,6 +79,7 @@ export async function PUT(
       return {
         urutan: idx + 1,
         namaItem: item.namaItem,
+        tanggal: new Date(item.tanggal),
         quantity: item.quantity,
         harga: item.harga,
         diskon: item.diskon || 0,

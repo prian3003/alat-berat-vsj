@@ -8,6 +8,7 @@ import { Plus, Trash2 } from 'lucide-react'
 
 interface InvoiceItem {
   namaItem: string
+  tanggal: string
   quantity: number
   harga: number
   diskon: number
@@ -58,7 +59,7 @@ export function InvoiceFormDialog({ open, onOpenChange, invoice, onSuccess }: In
     accountName: 'YENI RETNAWATI',
     keterangan: '',
     status: 'draft',
-    items: [{ namaItem: '', quantity: 1, harga: 0, diskon: 0 }] as InvoiceItem[],
+    items: [{ namaItem: '', tanggal: new Date().toISOString().split('T')[0], quantity: 1, harga: 0, diskon: 0 }] as InvoiceItem[],
   })
 
   useEffect(() => {
@@ -78,6 +79,7 @@ export function InvoiceFormDialog({ open, onOpenChange, invoice, onSuccess }: In
         status: invoice.status || 'draft',
         items: invoice.items.map((item) => ({
           namaItem: item.namaItem,
+          tanggal: typeof item.tanggal === 'string' ? item.tanggal.split('T')[0] : new Date(item.tanggal).toISOString().split('T')[0],
           quantity: item.quantity,
           harga: Number(item.harga),
           diskon: Number(item.diskon),
@@ -97,7 +99,7 @@ export function InvoiceFormDialog({ open, onOpenChange, invoice, onSuccess }: In
         accountName: 'YENI RETNAWATI',
         keterangan: '',
         status: 'draft',
-        items: [{ namaItem: '', quantity: 1, harga: 0, diskon: 0 }],
+        items: [{ namaItem: '', tanggal: new Date().toISOString().split('T')[0], quantity: 1, harga: 0, diskon: 0 }],
       })
     }
   }, [invoice, open])
@@ -216,7 +218,7 @@ export function InvoiceFormDialog({ open, onOpenChange, invoice, onSuccess }: In
   const addItem = () => {
     setFormData({
       ...formData,
-      items: [...formData.items, { namaItem: '', quantity: 1, harga: 0, diskon: 0 }],
+      items: [...formData.items, { namaItem: '', tanggal: new Date().toISOString().split('T')[0], quantity: 1, harga: 0, diskon: 0 }],
     })
   }
 
@@ -426,7 +428,7 @@ export function InvoiceFormDialog({ open, onOpenChange, invoice, onSuccess }: In
                       </Button>
                     )}
                   </div>
-                  <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
+                  <div className="grid grid-cols-1 md:grid-cols-5 gap-3">
                     <div className="md:col-span-2">
                       <label className="block text-xs font-medium text-slate-700 mb-1">
                         Nama Item <span className="text-red-500">*</span>
@@ -436,6 +438,18 @@ export function InvoiceFormDialog({ open, onOpenChange, invoice, onSuccess }: In
                         required
                         value={item.namaItem}
                         onChange={(e) => updateItem(index, 'namaItem', e.target.value)}
+                        className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 text-sm"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium text-slate-700 mb-1">
+                        Tanggal <span className="text-red-500">*</span>
+                      </label>
+                      <input
+                        type="date"
+                        required
+                        value={item.tanggal}
+                        onChange={(e) => updateItem(index, 'tanggal', e.target.value)}
                         className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 text-sm"
                       />
                     </div>
@@ -476,7 +490,7 @@ export function InvoiceFormDialog({ open, onOpenChange, invoice, onSuccess }: In
                         className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 text-sm"
                       />
                     </div>
-                    <div className="md:col-span-4">
+                    <div className="md:col-span-5">
                       <label className="block text-xs font-medium text-slate-700 mb-1">
                         Diskon
                       </label>
