@@ -420,7 +420,7 @@ export function BukuBesarTemplate({
         {/* Summary */}
         <div style={{
           display: 'grid',
-          gridTemplateColumns: '1fr 1fr 1fr',
+          gridTemplateColumns: '1fr 1fr 1fr 1fr',
           gap: '15px',
           marginTop: '20px'
         }}>
@@ -443,6 +443,16 @@ export function BukuBesarTemplate({
           }}>
             <div style={{ fontSize: '9pt', color: '#666', marginBottom: '5px' }}>Total Kredit</div>
             <div style={{ fontSize: '11pt', fontWeight: 'bold' }}>{formatCurrency(totalKredit)}</div>
+          </div>
+          <div style={{
+            backgroundColor: '#f3e5f5',
+            padding: '10px',
+            borderRadius: '4px',
+            borderLeft: '3px solid #9C27B0',
+            textAlign: 'center'
+          }}>
+            <div style={{ fontSize: '9pt', color: '#666', marginBottom: '5px' }}>Total Saldo</div>
+            <div style={{ fontSize: '11pt', fontWeight: 'bold' }}>{formatCurrency(saldoAkhir)}</div>
           </div>
           <div style={{
             backgroundColor: '#e8f5e9',
