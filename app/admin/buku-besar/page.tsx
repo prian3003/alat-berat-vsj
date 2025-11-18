@@ -1281,26 +1281,28 @@ export default function BukuBesarPage() {
             console.error('Error handling PDF dialog:', err)
           }
         }}>
-          <DialogContent className="fixed inset-0 w-screen h-screen max-w-none p-0 rounded-none flex flex-col bg-white">
-            <div className="sticky top-0 bg-white border-b border-slate-200 z-10 px-6 py-4">
-              <div className="flex items-center justify-between">
-                <h2 className="text-2xl font-bold text-slate-900">Pratinjau Buku Besar PDF</h2>
-                <button
-                  onClick={() => {
-                    try {
-                      setIsPreviewOpen(false)
-                    } catch (err) {
-                      console.error('Error closing PDF dialog:', err)
-                    }
-                  }}
-                  className="text-slate-500 hover:text-slate-700 text-2xl leading-none font-bold"
-                >
-                  ✕
-                </button>
-              </div>
+          <DialogContent className="max-h-[98vh] max-w-7xl overflow-y-auto rounded-lg shadow-2xl">
+            <div className="sticky top-0 bg-white border-b border-slate-200 z-10">
+              <DialogHeader className="py-4">
+                <div className="flex items-center justify-between">
+                  <DialogTitle className="text-2xl">Pratinjau Buku Besar PDF</DialogTitle>
+                  <button
+                    onClick={() => {
+                      try {
+                        setIsPreviewOpen(false)
+                      } catch (err) {
+                        console.error('Error closing PDF dialog:', err)
+                      }
+                    }}
+                    className="text-slate-500 hover:text-slate-700 text-2xl leading-none"
+                  >
+                    ✕
+                  </button>
+                </div>
+              </DialogHeader>
             </div>
-            <div className="flex-1 overflow-y-auto bg-slate-50">
-              <div className="p-6">
+            <div className="overflow-y-auto" style={{ maxHeight: 'calc(98vh - 80px)' }}>
+              <div className="p-6 bg-slate-50">
                 <BukuBesarTemplate
                   entries={filteredEntries}
                   periode={periode}
