@@ -69,16 +69,14 @@ export function SuratPerjanjianPreviewModal({
   const applyOrphanWidowPrevention = useCallback(async (element: HTMLElement) => {
     if (!element) return
 
-    // Calculate actual A4 page height based on container width (210mm A4 width)
-    // Using actual CSS dimensions from the document
-    const containerWidth = element.offsetWidth || 800
-    const containerHeight = element.offsetHeight || 1200
+    // A4 page height in pixels: 297mm height, scaled for content area with margins
+    // Standard A4 at 96 DPI = 1122px, minus top/bottom margins (20mm) = ~1060px usable
+    // Using 1100px as conservative estimate for actual content area
+    const A4_PAGE_HEIGHT_PX = 1100
 
-    // Estimate page height: A4 is 297mm height, scale proportionally to width
-    // But use actual rendered content to be more accurate
-    // Typical A4 with margins: ~1050-1100px at 2x scale used in html2canvas
-    const A4_PAGE_HEIGHT_PX = 1080
-    const ORPHAN_THRESHOLD = 200 // If Pasal title is within 200px of page bottom, it's orphaned
+    // Thresholds for orphan detection
+    const MINIMUM_CONTENT_HEIGHT = 120 // Minimum px of content needed after title to avoid orphaning
+    const POSITION_THRESHOLD = 300 // If Pasal is within 300px of page bottom, consider for prevention
 
     // Get all Pasal containers
     const pasalDivs = Array.from(
@@ -86,50 +84,73 @@ export function SuratPerjanjianPreviewModal({
     ) as HTMLElement[]
 
     if (pasalDivs.length === 0) {
-      console.log('No Pasal divs found for orphan prevention')
+      console.log('[Orphan Prevention] No Pasal divs found')
       return
     }
 
-    // Reset margins first
+    // Reset margins first to get clean measurements
     resetOrphanWidowMargins(element)
-    await new Promise(r => setTimeout(r, 75))
+    await new Promise(r => setTimeout(r, 100))
 
-    let adjustmentsCount = 0
-    pasalDivs.forEach((pasalDiv, index) => {
-      const pasalTop = pasalDiv.offsetTop
-      const pasalHeight = pasalDiv.offsetHeight
+    console.log(`[Orphan Prevention] Checking ${pasalDivs.length} Pasals with A4_HEIGHT=${A4_PAGE_HEIGHT_PX}px`)
 
-      // Get the first paragraph (Pasal title) height
-      const titlePara = pasalDiv.querySelector('p')
-      const titleHeight = titlePara?.offsetHeight || 40
+    let pass = 1
+    let adjustmentsThisPass = 0
+    const maxPasses = 3 // Prevent infinite loops from cascading adjustments
 
-      // Calculate which page this Pasal starts on
-      const pageNumber = Math.floor(pasalTop / A4_PAGE_HEIGHT_PX)
-      const positionInPage = pasalTop % A4_PAGE_HEIGHT_PX
+    while (pass <= maxPasses) {
+      adjustmentsThisPass = 0
 
-      // Space remaining on current page after title
-      const spaceAfterTitle = A4_PAGE_HEIGHT_PX - positionInPage - titleHeight
+      pasalDivs.forEach((pasalDiv, index) => {
+        const pasalTop = pasalDiv.offsetTop
+        const pasalHeight = pasalDiv.offsetHeight
 
-      // If title and some content would fit but only title fits, it's orphaned
-      const isOrphaned = spaceAfterTitle < 80 && positionInPage > A4_PAGE_HEIGHT_PX - ORPHAN_THRESHOLD
+        // Get title and content paragraphs
+        const paragraphs = pasalDiv.querySelectorAll('p')
+        const titlePara = paragraphs[0]
+        const contentStart = Math.min(2, paragraphs.length) // First 1-2 paragraphs are title/subtitle
+        const contentParas = Array.from(paragraphs).slice(contentStart)
 
-      if (isOrphaned && index < pasalDivs.length - 1) {
-        // Push this Pasal to the next page with extra margin
-        const pushToNextPage = A4_PAGE_HEIGHT_PX - positionInPage + 20
-        pasalDiv.style.marginTop = `${pushToNextPage}px`
-        adjustmentsCount++
+        const titleHeight = titlePara?.offsetHeight || 40
+        const subtitleHeight = paragraphs[1]?.offsetHeight || 0
+        const contentHeight = Array.from(contentParas).reduce((sum, p) => sum + (p.offsetHeight || 20) + 10, 0) || 60
 
-        console.log(
-          `Pasal ${index + 1} ORPHANED: Top=${Math.round(pasalTop)}px, Page=${pageNumber}, PosInPage=${Math.round(positionInPage)}px, Space after title=${Math.round(spaceAfterTitle)}px. Pushing to next page with +${pushToNextPage}px margin.`
-        )
-      } else if (!isOrphaned) {
-        console.log(
-          `Pasal ${index + 1} OK: Top=${Math.round(pasalTop)}px, Page=${pageNumber}, PosInPage=${Math.round(positionInPage)}px, Space after title=${Math.round(spaceAfterTitle)}px`
-        )
+        // Calculate page and position
+        const pageNumber = Math.floor(pasalTop / A4_PAGE_HEIGHT_PX)
+        const positionInPage = pasalTop % A4_PAGE_HEIGHT_PX
+        const spaceRemainingOnPage = A4_PAGE_HEIGHT_PX - positionInPage
+
+        // Calculate if orphaned: title won't fit with meaningful content on same page
+        const titleBlockHeight = titleHeight + subtitleHeight + 15 // Title + subtitle + spacing
+        const spaceAfterTitle = spaceRemainingOnPage - titleBlockHeight
+
+        // Orphan if: title fits on page but not enough content follows, AND we're near page bottom
+        const isNearPageBottom = positionInPage > A4_PAGE_HEIGHT_PX - POSITION_THRESHOLD
+        const isOrphaned = isNearPageBottom && spaceAfterTitle < MINIMUM_CONTENT_HEIGHT && index < pasalDivs.length - 1
+
+        if (isOrphaned) {
+          // Move Pasal to next page
+          const spaceToPushDown = spaceRemainingOnPage + 30 // Push to next page + padding
+          pasalDiv.style.marginTop = `${spaceToPushDown}px`
+          adjustmentsThisPass++
+
+          console.log(
+            `  [Pass ${pass}] Pasal ${index + 1} PUSHED: Page=${pageNumber}, Pos=${Math.round(positionInPage)}px, TitleBlock=${Math.round(titleBlockHeight)}px, SpaceAfter=${Math.round(spaceAfterTitle)}px → +${spaceToPushDown}px margin`
+          )
+        }
+      })
+
+      if (adjustmentsThisPass === 0) {
+        console.log(`[Orphan Prevention] Complete: No orphans found in pass ${pass}`)
+        break
       }
-    })
 
-    console.log(`Orphan prevention complete: Applied ${adjustmentsCount} adjustments to ${pasalDivs.length} Pasal sections`)
+      // Allow DOM to reflow before next measurement pass
+      await new Promise(r => setTimeout(r, 120))
+      pass++
+    }
+
+    console.log(`[Orphan Prevention] Finished after ${pass} passes`)
   }, [resetOrphanWidowMargins])
 
   // Generate preview canvas
@@ -161,7 +182,7 @@ export function SuratPerjanjianPreviewModal({
 
       // Apply orphan/widow prevention before rendering
       await applyOrphanWidowPrevention(templateRef.current)
-      await new Promise(r => setTimeout(r, 100)) // Let DOM update
+      await new Promise(r => setTimeout(r, 200)) // Wait for DOM reflow
 
       const canvas = await html2canvas(templateRef.current, {
         scale: 2,
@@ -173,6 +194,8 @@ export function SuratPerjanjianPreviewModal({
         windowHeight: templateRef.current.scrollHeight,
         windowWidth: templateRef.current.scrollWidth,
       })
+
+      console.log(`Canvas rendered: ${canvas.width}x${canvas.height}`)
 
       setPreviewCanvas(canvas)
     } catch (error) {
