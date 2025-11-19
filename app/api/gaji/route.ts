@@ -129,7 +129,13 @@ export async function POST(request: NextRequest) {
       jabatan: pekerja.jabatan,
     })) || []
 
-    // Create salary record with items and workers
+    // Process deductions
+    const bonAmount = data.bonAmount ? parseFloat(data.bonAmount) : 0
+    const uangMakanAmount = data.uangMakanAmount ? parseFloat(data.uangMakanAmount) : 0
+    const totalPotongan = bonAmount + uangMakanAmount
+    const gajiNetto = totalGaji - totalPotongan
+
+    // Create salary record with items, workers, and deductions
     const gaji = await prisma.gaji.create({
       data: {
         nomorGaji,
@@ -139,6 +145,10 @@ export async function POST(request: NextRequest) {
         tanggalMulai: new Date(data.tanggalMulai),
         tanggalSelesai: new Date(data.tanggalSelesai),
         totalGaji,
+        bonAmount,
+        uangMakanAmount,
+        totalPotongan,
+        gajiNetto,
         keterangan: data.keterangan || null,
         status: data.status || 'draft',
         createdBy: auth.email,

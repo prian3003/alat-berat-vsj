@@ -81,6 +81,12 @@ export async function PUT(
     // Calculate total salary
     const totalGaji = items?.reduce((sum: number, item: any) => sum + parseFloat(item.jumlah), 0) || 0
 
+    // Process deductions
+    const bonAmount = data.bonAmount ? parseFloat(data.bonAmount) : 0
+    const uangMakanAmount = data.uangMakanAmount ? parseFloat(data.uangMakanAmount) : 0
+    const totalPotongan = bonAmount + uangMakanAmount
+    const gajiNetto = totalGaji - totalPotongan
+
     // Delete old items
     await prisma.gajiItem.deleteMany({
       where: { gajiId: id },
@@ -96,6 +102,10 @@ export async function PUT(
         tanggalMulai: new Date(data.tanggalMulai),
         tanggalSelesai: new Date(data.tanggalSelesai),
         totalGaji,
+        bonAmount,
+        uangMakanAmount,
+        totalPotongan,
+        gajiNetto,
         keterangan: data.keterangan || null,
         status: data.status || 'draft',
         items: {

@@ -271,7 +271,11 @@ model Gaji {
   tahun           Int?      // Year for monthly salary
   tanggalMulai    DateTime  @map("tanggal_mulai") @db.Date
   tanggalSelesai  DateTime  @map("tanggal_selesai") @db.Date
-  totalGaji       Decimal   @map("total_gaji") @db.Decimal(15, 2)
+  totalGaji       Decimal   @map("total_gaji") @db.Decimal(15, 2) // Gross salary
+  bonAmount       Decimal   @default(0) @map("bon_amount") @db.Decimal(15, 2) // Bon/Advance deduction
+  uangMakanAmount Decimal   @default(0) @map("uang_makan_amount") @db.Decimal(15, 2) // Meal allowance deduction
+  totalPotongan   Decimal   @default(0) @map("total_potongan") @db.Decimal(15, 2) // Total deductions
+  gajiNetto       Decimal   @default(0) @map("gaji_netto") @db.Decimal(15, 2) // Net salary (totalGaji - totalPotongan)
   keterangan      String?   @db.Text
   status          String    @default("draft") @db.VarChar(50) // draft, completed
   createdBy       String?   @map("created_by") @db.VarChar(255)

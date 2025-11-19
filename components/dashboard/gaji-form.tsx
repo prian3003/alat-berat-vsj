@@ -38,6 +38,8 @@ export function GajiForm({ onSuccess, onCancel }: GajiFormProps) {
     tanggalMulai: '',
     tanggalSelesai: '',
     totalGaji: 0,
+    bonAmount: 0,
+    uangMakanAmount: 0,
     keterangan: '',
     status: 'draft',
   })
@@ -163,6 +165,11 @@ export function GajiForm({ onSuccess, onCancel }: GajiFormProps) {
     setLoading(true)
 
     try {
+      const bonAmount = parseFloat(String(formData.bonAmount || 0))
+      const uangMakanAmount = parseFloat(String(formData.uangMakanAmount || 0))
+      const totalPotongan = bonAmount + uangMakanAmount
+      const gajiNetto = formData.totalGaji - totalPotongan
+
       const data = {
         tipe,
         bulan: tipe === 'monthly' ? bulan : null,
@@ -170,6 +177,10 @@ export function GajiForm({ onSuccess, onCancel }: GajiFormProps) {
         tanggalMulai: formData.tanggalMulai,
         tanggalSelesai: formData.tanggalSelesai,
         totalGaji: formData.totalGaji,
+        bonAmount,
+        uangMakanAmount,
+        totalPotongan,
+        gajiNetto,
         keterangan: formData.keterangan || null,
         status: formData.status,
         items: tipe === 'weekly' ? items : [],
@@ -472,6 +483,39 @@ export function GajiForm({ onSuccess, onCancel }: GajiFormProps) {
               </div>
             )}
 
+            {/* Deductions Section */}
+            <div className="space-y-4 border-t pt-6 bg-red-50 p-4 rounded-lg border border-red-200">
+              <h3 className="font-semibold text-lg text-red-900">Potongan Gaji</h3>
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div className="space-y-2">
+                  <Label htmlFor="bonAmount">Bon (Advance/Pinjaman)</Label>
+                  <Input
+                    id="bonAmount"
+                    type="number"
+                    min="0"
+                    step="10000"
+                    placeholder="0"
+                    value={formData.bonAmount || ''}
+                    onChange={(e) => setFormData({ ...formData, bonAmount: parseFloat(e.target.value) || 0 })}
+                  />
+                  <p className="text-xs text-red-600">{formatCurrency(formData.bonAmount || 0)}</p>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="uangMakanAmount">Uang Makan</Label>
+                  <Input
+                    id="uangMakanAmount"
+                    type="number"
+                    min="0"
+                    step="10000"
+                    placeholder="0"
+                    value={formData.uangMakanAmount || ''}
+                    onChange={(e) => setFormData({ ...formData, uangMakanAmount: parseFloat(e.target.value) || 0 })}
+                  />
+                  <p className="text-xs text-red-600">{formatCurrency(formData.uangMakanAmount || 0)}</p>
+                </div>
+              </div>
+            </div>
+
             {/* Notes */}
             <div className="space-y-2 border-t pt-6">
               <Label htmlFor="keterangan">Keterangan (Opsional)</Label>
@@ -484,10 +528,29 @@ export function GajiForm({ onSuccess, onCancel }: GajiFormProps) {
               />
             </div>
 
-            {/* Total Display */}
-            <div className="bg-orange-50 border border-orange-200 rounded-lg p-4">
-              <div className="text-2xl font-bold text-orange-600">
-                Total Gaji: {formatCurrency(formData.totalGaji)}
+            {/* Salary Summary Display */}
+            <div className="space-y-3 border rounded-lg p-4">
+              <div className="flex justify-between items-center pb-3 border-b">
+                <span className="text-slate-700 font-medium">Gaji Bruto (Gross):</span>
+                <span className="text-lg font-bold text-orange-600">{formatCurrency(formData.totalGaji)}</span>
+              </div>
+              <div className="space-y-2 pb-3 border-b">
+                <div className="flex justify-between items-center">
+                  <span className="text-slate-600">- Bon:</span>
+                  <span className="text-red-600 font-medium">{formatCurrency(formData.bonAmount || 0)}</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-slate-600">- Uang Makan:</span>
+                  <span className="text-red-600 font-medium">{formatCurrency(formData.uangMakanAmount || 0)}</span>
+                </div>
+              </div>
+              <div className="flex justify-between items-center pt-2">
+                <span className="text-slate-900 font-bold text-lg">Gaji Netto (Net):</span>
+                <span className="text-2xl font-bold text-green-600">
+                  {formatCurrency(
+                    formData.totalGaji - (formData.bonAmount || 0) - (formData.uangMakanAmount || 0)
+                  )}
+                </span>
               </div>
             </div>
           </div>

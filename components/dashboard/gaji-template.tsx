@@ -28,7 +28,11 @@ interface GajiTemplateProps {
     tahun?: number
     tanggalMulai: string
     tanggalSelesai: string
-    totalGaji: number
+    totalGaji: number | string
+    bonAmount?: number | string
+    uangMakanAmount?: number | string
+    totalPotongan?: number | string
+    gajiNetto?: number | string
     keterangan?: string
     items?: GajiItem[]
     pekerjas?: GajiPekerja[]
@@ -232,10 +236,42 @@ export function GajiTemplate({ gaji }: GajiTemplateProps) {
             </>
           )}
 
-          {/* Total Section */}
-          <div style={{ marginTop: '12px', padding: '8px', border: '0.5pt solid #999', backgroundColor: '#f0f0f0' }}>
-            <div style={{ fontSize: '10pt', fontWeight: 'bold', textAlign: 'right' }}>
-              Total Gaji: <span style={{ fontSize: '12pt', color: '#d97706' }}>Rp {formatCurrency(Number(gaji.totalGaji))}</span>
+          {/* Total and Deductions Section */}
+          <div style={{ marginTop: '12px', border: '0.5pt solid #999' }}>
+            {/* Gross Salary */}
+            <div style={{ padding: '8px', backgroundColor: '#f5f5f5', borderBottom: '0.5pt solid #ddd' }}>
+              <div style={{ fontSize: '9pt', display: 'flex', justifyContent: 'space-between' }}>
+                <span>Gaji Bruto (Gross):</span>
+                <span style={{ fontWeight: 'bold' }}>Rp {formatCurrency(Number(gaji.totalGaji))}</span>
+              </div>
+            </div>
+
+            {/* Deductions */}
+            {(gaji.bonAmount || gaji.uangMakanAmount) && (
+              <div style={{ padding: '8px', backgroundColor: '#fef2f2', borderBottom: '0.5pt solid #fecaca' }}>
+                <div style={{ fontSize: '8.5pt', marginBottom: '4px', fontWeight: 'bold', color: '#991b1b' }}>
+                  Potongan Gaji:
+                </div>
+                {gaji.bonAmount && Number(gaji.bonAmount) > 0 && (
+                  <div style={{ fontSize: '8pt', display: 'flex', justifyContent: 'space-between', marginBottom: '2px' }}>
+                    <span>- Bon (Advance):</span>
+                    <span>Rp {formatCurrency(Number(gaji.bonAmount))}</span>
+                  </div>
+                )}
+                {gaji.uangMakanAmount && Number(gaji.uangMakanAmount) > 0 && (
+                  <div style={{ fontSize: '8pt', display: 'flex', justifyContent: 'space-between' }}>
+                    <span>- Uang Makan:</span>
+                    <span>Rp {formatCurrency(Number(gaji.uangMakanAmount))}</span>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Net Salary */}
+            <div style={{ padding: '8px', backgroundColor: '#f0fdf4', borderTop: '0.5pt solid #dcfce7' }}>
+              <div style={{ fontSize: '10pt', fontWeight: 'bold', textAlign: 'right', color: '#16a34a' }}>
+                Gaji Netto (Net): <span style={{ fontSize: '12pt' }}>Rp {formatCurrency(Number(gaji.gajiNetto || gaji.totalGaji))}</span>
+              </div>
             </div>
           </div>
 
