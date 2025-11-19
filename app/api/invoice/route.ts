@@ -112,13 +112,14 @@ export async function POST(request: NextRequest) {
 
     const noFaktur = `${dateStr}-${String(sequence).padStart(6, '0')}`
 
-    // Generate Nomor PO if not provided (format: T1 XXX)
+    // Generate Nomor PO if not provided (format: YYYY-XXXXX)
     let nomorPO = data.nomorPO
     if (!nomorPO || nomorPO.trim() === '') {
+      const year = now.getFullYear()
       const lastPO = await prisma.invoice.findFirst({
         where: {
           nomorPO: {
-            startsWith: 'T1 ',
+            startsWith: `${year}-`,
           },
         },
         orderBy: {
@@ -128,13 +129,13 @@ export async function POST(request: NextRequest) {
 
       let poSequence = 1
       if (lastPO && lastPO.nomorPO) {
-        const lastSeq = parseInt(lastPO.nomorPO.replace('T1 ', ''))
+        const lastSeq = parseInt(lastPO.nomorPO.replace(`${year}-`, ''))
         if (!isNaN(lastSeq)) {
           poSequence = lastSeq + 1
         }
       }
 
-      nomorPO = `T1 ${String(poSequence).padStart(3, '0')}`
+      nomorPO = `${year}-${String(poSequence).padStart(5, '0')}`
     }
 
     // Calculate totals
