@@ -366,31 +366,40 @@ export function GajiForm({ onSuccess, onCancel }: GajiFormProps) {
             {/* Weekly Items */}
             {tipe === 'weekly' && (
               <div className="space-y-4 border-t pt-6">
-                <h3 className="font-semibold text-lg">Detail Gaji Mingguan</h3>
+                <div className="flex items-center justify-between">
+                  <h3 className="font-semibold text-lg">Detail Gaji Mingguan</h3>
+                  {items.length > 0 && (
+                    <span className="text-sm text-slate-600">
+                      {items.length} item
+                    </span>
+                  )}
+                </div>
 
                 {/* Add Item Form */}
-                <div className="bg-slate-50 p-4 rounded-lg space-y-4">
-                  <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="itemTanggal">Tanggal</Label>
+                <div className="bg-gradient-to-br from-slate-50 to-slate-100 p-4 rounded-lg border border-slate-200 space-y-3">
+                  <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5 items-end">
+                    <div className="space-y-1">
+                      <Label htmlFor="itemTanggal" className="text-xs font-semibold">Tanggal</Label>
                       <Input
                         id="itemTanggal"
                         type="date"
                         value={newItem.tanggal}
                         onChange={(e) => setNewItem({ ...newItem, tanggal: e.target.value })}
+                        className="h-9"
                       />
                     </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="itemKeterangan">Keterangan</Label>
+                    <div className="space-y-1">
+                      <Label htmlFor="itemKeterangan" className="text-xs font-semibold">Keterangan</Label>
                       <Input
                         id="itemKeterangan"
-                        placeholder="8 jam, Libur, Over time, dll"
+                        placeholder="8 jam, Libur, OT..."
                         value={newItem.keterangan}
                         onChange={(e) => setNewItem({ ...newItem, keterangan: e.target.value })}
+                        className="h-9"
                       />
                     </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="itemJam">Jam (Opsional)</Label>
+                    <div className="space-y-1">
+                      <Label htmlFor="itemJam" className="text-xs font-semibold">Jam</Label>
                       <Input
                         id="itemJam"
                         type="number"
@@ -398,27 +407,31 @@ export function GajiForm({ onSuccess, onCancel }: GajiFormProps) {
                         placeholder="8"
                         value={newItem.jam || ''}
                         onChange={(e) => setNewItem({ ...newItem, jam: e.target.value ? parseFloat(e.target.value) : 0 })}
+                        className="h-9"
                       />
                     </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="itemJumlah">Jumlah</Label>
+                    <div className="space-y-1">
+                      <Label htmlFor="itemJumlah" className="text-xs font-semibold">Jumlah *</Label>
                       <Input
                         id="itemJumlah"
                         type="number"
                         placeholder="250000"
                         value={newItem.jumlah || ''}
                         onChange={(e) => setNewItem({ ...newItem, jumlah: parseFloat(e.target.value) || 0 })}
-                        required
+                        className="h-9"
                       />
                     </div>
+                    <Button
+                      type="button"
+                      onClick={handleAddItem}
+                      className="bg-green-600 hover:bg-green-700 h-9 px-4"
+                    >
+                      <svg className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                      </svg>
+                      Tambah
+                    </Button>
                   </div>
-                  <Button
-                    type="button"
-                    onClick={handleAddItem}
-                    className="w-full bg-green-600 hover:bg-green-700"
-                  >
-                    Tambah Item
-                  </Button>
                 </div>
 
                 {/* Items List */}
@@ -437,7 +450,7 @@ export function GajiForm({ onSuccess, onCancel }: GajiFormProps) {
                         </thead>
                         <tbody>
                           {items.map((item, index) => (
-                            <tr key={index} className="border-b hover:bg-slate-50">
+                            <tr key={index} className="border-b hover:bg-slate-50 transition-colors">
                               <td className="px-4 py-2">{new Date(item.tanggal).toLocaleDateString('id-ID')}</td>
                               <td className="px-4 py-2">{item.keterangan}</td>
                               <td className="px-4 py-2 text-right">{item.jam ? item.jam : '-'}</td>
@@ -446,9 +459,12 @@ export function GajiForm({ onSuccess, onCancel }: GajiFormProps) {
                                 <button
                                   type="button"
                                   onClick={() => handleRemoveItem(index)}
-                                  className="text-red-600 hover:text-red-700 font-medium text-sm"
+                                  className="inline-flex items-center justify-center w-6 h-6 text-red-600 hover:text-red-700 hover:bg-red-50 rounded transition-colors"
+                                  title="Hapus item"
                                 >
-                                  Hapus
+                                  <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                  </svg>
                                 </button>
                               </td>
                             </tr>
