@@ -96,14 +96,14 @@ export function GajiTemplate({ gaji }: GajiTemplateProps) {
       await new Promise(r => setTimeout(r, 500))
 
       const canvas = await html2canvas(element, {
-        scale: 2,
+        scale: 1.5, // Reduced from 2 for smaller file size
         logging: false,
         useCORS: true,
         allowTaint: true,
         backgroundColor: '#ffffff',
       })
 
-      const imgData = canvas.toDataURL('image/png')
+      const imgData = canvas.toDataURL('image/jpeg', 0.85)
       const pdf = new jsPDF({
         orientation: 'portrait',
         unit: 'mm',
@@ -116,18 +116,18 @@ export function GajiTemplate({ gaji }: GajiTemplateProps) {
       const imgHeight = (canvas.height * pdfWidth) / canvas.width
 
       if (imgHeight <= pdfHeight) {
-        pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight)
+        pdf.addImage(imgData, 'JPEG', 0, 0, imgWidth, imgHeight)
       } else {
         let heightLeft = imgHeight
         let position = 0
 
-        pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight)
+        pdf.addImage(imgData, 'JPEG', 0, position, imgWidth, imgHeight)
         heightLeft -= pdfHeight
 
         while (heightLeft >= 0) {
           position = heightLeft - imgHeight
           pdf.addPage()
-          pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight)
+          pdf.addImage(imgData, 'JPEG', 0, position, imgWidth, imgHeight)
           heightLeft -= pdfHeight
         }
       }

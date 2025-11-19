@@ -16,7 +16,7 @@ import { useAuth } from '@/context/AuthContext'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { BukuBesarTemplate } from '@/components/buku-besar/buku-besar-template'
-import { Eye, Trash2, Edit2, Plus } from 'lucide-react'
+import { Eye, Trash2, Edit2, Plus, Share2, Copy, ExternalLink } from 'lucide-react'
 
 interface BukuBesarEntry {
   id: string
@@ -43,6 +43,7 @@ export default function BukuBesarPage() {
   const [currentPage, setCurrentPage] = useState(1)
   const [isBulkMode, setIsBulkMode] = useState(false)
   const [bulkEntries, setBulkEntries] = useState<any[]>([])
+  const [copySuccess, setCopySuccess] = useState(false)
   const itemsPerPage = 10
 
   // Get current date safely
@@ -356,6 +357,35 @@ export default function BukuBesarPage() {
     } finally {
       setLoading(false)
     }
+  }
+
+  // Generate shareable link
+  const generateShareLink = () => {
+    const baseUrl = typeof window !== 'undefined' ? window.location.origin : ''
+    const params = new URLSearchParams({
+      periode: selectedPeriodKey,
+      entries: JSON.stringify(filteredEntries)
+    })
+    return `${baseUrl}/admin/buku-besar/preview?${params.toString()}`
+  }
+
+  // Copy share link to clipboard
+  const handleCopyLink = async () => {
+    try {
+      const shareLink = generateShareLink()
+      await navigator.clipboard.writeText(shareLink)
+      setCopySuccess(true)
+      setTimeout(() => setCopySuccess(false), 2000)
+    } catch (error) {
+      console.error('Failed to copy link:', error)
+      alert('Gagal menyalin link')
+    }
+  }
+
+  // Open share link in new tab
+  const handleOpenInNewTab = () => {
+    const shareLink = generateShareLink()
+    window.open(shareLink, '_blank')
   }
 
   const resetForm = () => {
@@ -1346,20 +1376,53 @@ export default function BukuBesarPage() {
           <DialogContent className="max-h-[98vh] w-full overflow-y-auto rounded-lg shadow-2xl" style={{maxWidth: '95vw'}}>
             <div className="sticky top-0 bg-white border-b border-slate-200 z-10">
               <DialogHeader className="py-4">
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between gap-4">
                   <DialogTitle className="text-2xl">Pratinjau Buku Besar PDF</DialogTitle>
-                  <button
-                    onClick={() => {
-                      try {
-                        setIsPreviewOpen(false)
-                      } catch (err) {
-                        console.error('Error closing PDF dialog:', err)
-                      }
-                    }}
-                    className="text-slate-500 hover:text-slate-700 text-2xl leading-none"
-                  >
-                    ✕
-                  </button>
+                  <div className="flex items-center gap-2">
+                    {/* Copy Link Button */}
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handleCopyLink}
+                      className="gap-2"
+                    >
+                      {copySuccess ? (
+                        <>
+                          <svg className="w-4 h-4 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                          </svg>
+                          Tersalin!
+                        </>
+                      ) : (
+                        <>
+                          <Copy className="w-4 h-4" />
+                          Salin Link
+                        </>
+                      )}
+                    </Button>
+                    {/* Open in New Tab Button */}
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handleOpenInNewTab}
+                      className="gap-2"
+                    >
+                      <ExternalLink className="w-4 h-4" />
+                      Buka di Tab Baru
+                    </Button>
+                    <button
+                      onClick={() => {
+                        try {
+                          setIsPreviewOpen(false)
+                        } catch (err) {
+                          console.error('Error closing PDF dialog:', err)
+                        }
+                      }}
+                      className="text-slate-500 hover:text-slate-700 text-2xl leading-none"
+                    >
+                      ✕
+                    </button>
+                  </div>
                 </div>
               </DialogHeader>
             </div>

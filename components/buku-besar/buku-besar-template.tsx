@@ -106,7 +106,7 @@ export function BukuBesarTemplate({
       const rowPositions = getTableRowPositions()
 
       const canvas = await html2canvas(element, {
-        scale: 2,
+        scale: 1.5, // Reduced from 2 to 1.5 for smaller file size (still good quality)
         logging: false,
         allowTaint: true,
         useCORS: true,
@@ -121,8 +121,9 @@ export function BukuBesarTemplate({
 
       setDownloadProgress(60)
 
-      // Convert mm to px (at scale 2)
-      const MM_TO_PX = (mmValue: number) => (mmValue * 96) / 25.4 * 2
+      // Convert mm to px (at scale 1.5)
+      const CANVAS_SCALE = 1.5
+      const MM_TO_PX = (mmValue: number) => (mmValue * 96) / 25.4 * CANVAS_SCALE
       const pageHeightPx = MM_TO_PX(A4_MM.height)
       const contentHeightPerPagePx = pageHeightPx - MM_TO_PX(MARGIN_MM * 2)
 
@@ -140,8 +141,8 @@ export function BukuBesarTemplate({
           return breaks
         }
 
-        // Convert DOM positions to canvas pixels (accounting for scale 2)
-        const rowPixels = rowPositions.map((pos) => pos * 2)
+        // Convert DOM positions to canvas pixels (accounting for CANVAS_SCALE)
+        const rowPixels = rowPositions.map((pos) => pos * CANVAS_SCALE)
 
         let currentPageEnd = contentHeightPerPagePx
         let rowIdx = 0
@@ -208,14 +209,14 @@ export function BukuBesarTemplate({
           )
         }
 
-        // Convert page canvas to image data (PNG for better text clarity)
-        const pageImgData = pageCanvas.toDataURL('image/png', 0.98)
+        // Convert page canvas to image data (JPEG for smaller file size)
+        const pageImgData = pageCanvas.toDataURL('image/jpeg', 0.85)
 
         // Calculate image height based on width scaling
         const imgHeight = (cropHeightPx * imgWidth) / canvasWidth
 
         // Add image to PDF
-        pdf.addImage(pageImgData, 'PNG', MARGIN_MM, MARGIN_MM, imgWidth, imgHeight)
+        pdf.addImage(pageImgData, 'JPEG', MARGIN_MM, MARGIN_MM, imgWidth, imgHeight)
       }
 
       setDownloadProgress(90)

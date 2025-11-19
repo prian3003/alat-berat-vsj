@@ -125,7 +125,7 @@ export function SuratPerjanjianTemplate({
       const CONTENT_WIDTH_MM = A4_MM.width - MARGIN_MM * 2
 
       const canvas = await html2canvas(element, {
-        scale: 2, // Higher scale for better quality
+        scale: 1.5, // Reduced from 2 to 1.5 for smaller file size (still good quality)
         logging: false,
         allowTaint: true,
         useCORS: true,
@@ -140,8 +140,9 @@ export function SuratPerjanjianTemplate({
 
       setDownloadProgress(60)
 
-      // Convert mm to px (at scale 2)
-      const MM_TO_PX = (mmValue: number) => (mmValue * 96) / 25.4 * 2
+      // Convert mm to px (at scale 1.5)
+      const CANVAS_SCALE = 1.5
+      const MM_TO_PX = (mmValue: number) => (mmValue * 96) / 25.4 * CANVAS_SCALE
       const pageHeightPx = MM_TO_PX(A4_MM.height)
       const contentHeightPerPagePx = pageHeightPx - MM_TO_PX(MARGIN_MM * 2)
 
@@ -185,14 +186,14 @@ export function SuratPerjanjianTemplate({
           )
         }
 
-        // Convert page canvas to image data
-        const pageImgData = pageCanvas.toDataURL('image/png', 0.98)
+        // Convert page canvas to image data (JPEG for smaller file size)
+        const pageImgData = pageCanvas.toDataURL('image/jpeg', 0.85)
 
         // Calculate image height based on width scaling
         const imgHeight = (cropHeightPx * imgWidth) / canvasWidth
 
         // Add image to PDF
-        pdf.addImage(pageImgData, 'PNG', MARGIN_MM, MARGIN_MM, imgWidth, imgHeight)
+        pdf.addImage(pageImgData, 'JPEG', MARGIN_MM, MARGIN_MM, imgWidth, imgHeight)
       }
 
       setDownloadProgress(90)
