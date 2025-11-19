@@ -225,3 +225,48 @@ model InvoiceItem {
   @@index([invoiceId])
   @@unique([invoiceId, urutan])
 }
+
+// Gaji (Salary) model
+model Gaji {
+  id              String    @id @default(uuid()) @db.Uuid
+  nomorGaji       String    @unique @map("nomor_gaji") @db.VarChar(50)
+  tipe            String    @db.VarChar(20) // weekly or monthly
+  bulan           Int?      // Month (1-12) for monthly salary
+  tahun           Int?      // Year for monthly salary
+  tanggalMulai    DateTime  @map("tanggal_mulai") @db.Date
+  tanggalSelesai  DateTime  @map("tanggal_selesai") @db.Date
+  totalGaji       Decimal   @map("total_gaji") @db.Decimal(15, 2)
+  keterangan      String?   @db.Text
+  status          String    @default("draft") @db.VarChar(50) // draft, completed
+  createdBy       String?   @map("created_by") @db.VarChar(255)
+  createdAt       DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt       DateTime  @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  // Relations
+  items GajiItem[]
+
+  @@map("gaji")
+  @@index([tanggalMulai])
+  @@index([tipe])
+  @@index([status])
+}
+
+// Gaji Items model (for weekly/detailed entries)
+model GajiItem {
+  id          String   @id @default(uuid()) @db.Uuid
+  gajiId      String   @map("gaji_id") @db.Uuid
+  urutan      Int      // Order number (1, 2, 3, etc)
+  tanggal     DateTime @db.Date
+  keterangan  String   @db.VarChar(255) // e.g., "8 jam", "Libur", "Over time", "Bteker", "Uang makan"
+  jam         Decimal? // Number of hours/days
+  jumlah      Decimal  @db.Decimal(15, 2) // Amount for this item
+  tipe        String   @db.VarChar(50) // regular, overtime, break, allowance, libur
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  // Relations
+  gaji Gaji @relation(fields: [gajiId], references: [id], onDelete: Cascade)
+
+  @@map("gaji_items")
+  @@index([gajiId])
+  @@unique([gajiId, urutan])
+}

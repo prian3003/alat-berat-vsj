@@ -1,0 +1,419 @@
+'use client'
+
+import { useState, useEffect } from 'react'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Textarea } from '@/components/ui/textarea'
+import { useToast } from '@/hooks/use-toast'
+
+interface GajiItem {
+  tanggal: string
+  keterangan: string
+  jam?: number
+  jumlah: number
+  tipe: 'regular' | 'overtime' | 'break' | 'allowance' | 'libur'
+}
+
+interface GajiFormProps {
+  onSuccess: () => void
+  onCancel: () => void
+}
+
+export function GajiForm({ onSuccess, onCancel }: GajiFormProps) {
+  const { toast } = useToast()
+  const [loading, setLoading] = useState(false)
+  const [tipe, setTipe] = useState<'weekly' | 'monthly'>('weekly')
+  const [formData, setFormData] = useState({
+    tanggalMulai: '',
+    tanggalSelesai: '',
+    totalGaji: 0,
+    keterangan: '',
+    status: 'draft',
+  })
+  const [items, setItems] = useState<GajiItem[]>([])
+  const [newItem, setNewItem] = useState<GajiItem>({
+    tanggal: '',
+    keterangan: '',
+    jam: 0,
+    jumlah: 0,
+    tipe: 'regular',
+  })
+  const [bulan, setBulan] = useState(new Date().getMonth() + 1)
+  const [tahun, setTahun] = useState(new Date().getFullYear())
+
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat('id-ID', {
+      style: 'currency',
+      currency: 'IDR',
+      minimumFractionDigits: 0,
+    }).format(amount)
+  }
+
+  const calculateTotal = (itemsList: GajiItem[]) => {
+    return itemsList.reduce((sum, item) => sum + item.jumlah, 0)
+  }
+
+  const handleAddItem = () => {
+    if (!newItem.tanggal || !newItem.keterangan || newItem.jumlah <= 0) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Lengkapi semua field item gaji",
+      })
+      return
+    }
+
+    const updatedItems = [...items, { ...newItem }]
+    setItems(updatedItems)
+    setFormData(prev => ({
+      ...prev,
+      totalGaji: calculateTotal(updatedItems),
+    }))
+    setNewItem({
+      tanggal: '',
+      keterangan: '',
+      jam: 0,
+      jumlah: 0,
+      tipe: 'regular',
+    })
+
+    toast({
+      variant: "success",
+      title: "Berhasil",
+      description: "Item gaji ditambahkan",
+    })
+  }
+
+  const handleRemoveItem = (index: number) => {
+    const updatedItems = items.filter((_, i) => i !== index)
+    setItems(updatedItems)
+    setFormData(prev => ({
+      ...prev,
+      totalGaji: calculateTotal(updatedItems),
+    }))
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+
+    if (tipe === 'weekly' && items.length === 0) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Tambahkan minimal 1 item gaji",
+      })
+      return
+    }
+
+    if (!formData.tanggalMulai || !formData.tanggalSelesai) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Lengkapi tanggal mulai dan selesai",
+      })
+      return
+    }
+
+    setLoading(true)
+
+    try {
+      const data = {
+        tipe,
+        bulan: tipe === 'monthly' ? bulan : null,
+        tahun: tipe === 'monthly' ? tahun : null,
+        tanggalMulai: formData.tanggalMulai,
+        tanggalSelesai: formData.tanggalSelesai,
+        totalGaji: formData.totalGaji,
+        keterangan: formData.keterangan || null,
+        status: formData.status,
+        items: tipe === 'weekly' ? items : [],
+      }
+
+      const response = await fetch('/api/gaji', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      })
+
+      if (!response.ok) {
+        const error = await response.json()
+        throw new Error(error.error || 'Failed to save salary record')
+      }
+
+      toast({
+        variant: "success",
+        title: "Berhasil",
+        description: "Data gaji berhasil disimpan",
+      })
+
+      onSuccess()
+    } catch (error) {
+      console.error('Error saving salary:', error)
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: error instanceof Error ? error.message : "Gagal menyimpan data gaji",
+      })
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  return (
+    <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center overflow-y-auto">
+      <div className="w-full h-full bg-white flex flex-col">
+        {/* Header */}
+        <div className="border-b sticky top-0 bg-white z-10 p-6">
+          <div className="flex items-center justify-between max-w-7xl mx-auto">
+            <div>
+              <h2 className="text-2xl font-bold text-slate-900">Tambah Gaji</h2>
+              <p className="text-sm text-slate-600 mt-1">Mingguan atau Bulanan</p>
+            </div>
+            <button
+              onClick={onCancel}
+              className="text-slate-500 hover:text-slate-700"
+            >
+              <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        {/* Form Content */}
+        <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto">
+          <div className="max-w-7xl mx-auto px-6 py-8 space-y-6">
+            {/* Type Toggle */}
+            <div className="space-y-2">
+              <Label>Tipe Gaji</Label>
+              <div className="flex gap-4">
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="radio"
+                    checked={tipe === 'weekly'}
+                    onChange={() => setTipe('weekly')}
+                    className="h-4 w-4"
+                  />
+                  <span className="text-sm font-medium">Mingguan</span>
+                </label>
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="radio"
+                    checked={tipe === 'monthly'}
+                    onChange={() => setTipe('monthly')}
+                    className="h-4 w-4"
+                  />
+                  <span className="text-sm font-medium">Bulanan</span>
+                </label>
+              </div>
+            </div>
+
+            {/* Date Range */}
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div className="space-y-2">
+                <Label htmlFor="tanggalMulai">Tanggal Mulai</Label>
+                <Input
+                  id="tanggalMulai"
+                  type="date"
+                  value={formData.tanggalMulai}
+                  onChange={(e) => setFormData({ ...formData, tanggalMulai: e.target.value })}
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="tanggalSelesai">Tanggal Selesai</Label>
+                <Input
+                  id="tanggalSelesai"
+                  type="date"
+                  value={formData.tanggalSelesai}
+                  onChange={(e) => setFormData({ ...formData, tanggalSelesai: e.target.value })}
+                  required
+                />
+              </div>
+            </div>
+
+            {/* Monthly Salary Input */}
+            {tipe === 'monthly' && (
+              <div className="grid gap-4 sm:grid-cols-3">
+                <div className="space-y-2">
+                  <Label htmlFor="bulan">Bulan</Label>
+                  <select
+                    id="bulan"
+                    value={bulan}
+                    onChange={(e) => setBulan(parseInt(e.target.value))}
+                    className="w-full rounded-lg border border-slate-300 px-3 py-2"
+                  >
+                    {[...Array(12)].map((_, i) => (
+                      <option key={i + 1} value={i + 1}>
+                        {new Date(2024, i).toLocaleDateString('id-ID', { month: 'long' })}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="tahun">Tahun</Label>
+                  <Input
+                    id="tahun"
+                    type="number"
+                    value={tahun}
+                    onChange={(e) => setTahun(parseInt(e.target.value))}
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="totalGaji">Total Gaji</Label>
+                  <Input
+                    id="totalGaji"
+                    type="number"
+                    value={formData.totalGaji}
+                    onChange={(e) => setFormData({ ...formData, totalGaji: parseFloat(e.target.value) })}
+                    required
+                  />
+                </div>
+              </div>
+            )}
+
+            {/* Weekly Items */}
+            {tipe === 'weekly' && (
+              <div className="space-y-4 border-t pt-6">
+                <h3 className="font-semibold text-lg">Detail Gaji Mingguan</h3>
+
+                {/* Add Item Form */}
+                <div className="bg-slate-50 p-4 rounded-lg space-y-4">
+                  <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="itemTanggal">Tanggal</Label>
+                      <Input
+                        id="itemTanggal"
+                        type="date"
+                        value={newItem.tanggal}
+                        onChange={(e) => setNewItem({ ...newItem, tanggal: e.target.value })}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="itemKeterangan">Keterangan</Label>
+                      <Input
+                        id="itemKeterangan"
+                        placeholder="8 jam, Libur, Over time, dll"
+                        value={newItem.keterangan}
+                        onChange={(e) => setNewItem({ ...newItem, keterangan: e.target.value })}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="itemJam">Jam (Opsional)</Label>
+                      <Input
+                        id="itemJam"
+                        type="number"
+                        step="0.5"
+                        placeholder="8"
+                        value={newItem.jam || ''}
+                        onChange={(e) => setNewItem({ ...newItem, jam: e.target.value ? parseFloat(e.target.value) : 0 })}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="itemJumlah">Jumlah</Label>
+                      <Input
+                        id="itemJumlah"
+                        type="number"
+                        placeholder="250000"
+                        value={newItem.jumlah || ''}
+                        onChange={(e) => setNewItem({ ...newItem, jumlah: parseFloat(e.target.value) || 0 })}
+                        required
+                      />
+                    </div>
+                  </div>
+                  <Button
+                    type="button"
+                    onClick={handleAddItem}
+                    className="w-full bg-green-600 hover:bg-green-700"
+                  >
+                    Tambah Item
+                  </Button>
+                </div>
+
+                {/* Items List */}
+                {items.length > 0 && (
+                  <div className="space-y-2">
+                    <div className="overflow-x-auto border rounded-lg">
+                      <table className="w-full text-sm">
+                        <thead className="bg-slate-100 border-b">
+                          <tr>
+                            <th className="px-4 py-2 text-left font-medium">Tanggal</th>
+                            <th className="px-4 py-2 text-left font-medium">Keterangan</th>
+                            <th className="px-4 py-2 text-right font-medium">Jam</th>
+                            <th className="px-4 py-2 text-right font-medium">Jumlah</th>
+                            <th className="px-4 py-2 text-center font-medium">Aksi</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {items.map((item, index) => (
+                            <tr key={index} className="border-b hover:bg-slate-50">
+                              <td className="px-4 py-2">{new Date(item.tanggal).toLocaleDateString('id-ID')}</td>
+                              <td className="px-4 py-2">{item.keterangan}</td>
+                              <td className="px-4 py-2 text-right">{item.jam ? item.jam : '-'}</td>
+                              <td className="px-4 py-2 text-right font-medium">{formatCurrency(item.jumlah)}</td>
+                              <td className="px-4 py-2 text-center">
+                                <button
+                                  type="button"
+                                  onClick={() => handleRemoveItem(index)}
+                                  className="text-red-600 hover:text-red-700 font-medium text-sm"
+                                >
+                                  Hapus
+                                </button>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Notes */}
+            <div className="space-y-2 border-t pt-6">
+              <Label htmlFor="keterangan">Keterangan (Opsional)</Label>
+              <Textarea
+                id="keterangan"
+                value={formData.keterangan}
+                onChange={(e) => setFormData({ ...formData, keterangan: e.target.value })}
+                placeholder="Catatan tambahan..."
+                rows={3}
+              />
+            </div>
+
+            {/* Total Display */}
+            <div className="bg-orange-50 border border-orange-200 rounded-lg p-4">
+              <div className="text-2xl font-bold text-orange-600">
+                Total Gaji: {formatCurrency(formData.totalGaji)}
+              </div>
+            </div>
+          </div>
+
+          {/* Footer */}
+          <div className="border-t sticky bottom-0 bg-white p-6">
+            <div className="max-w-7xl mx-auto flex justify-end gap-4">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={onCancel}
+                disabled={loading}
+              >
+                Batal
+              </Button>
+              <Button
+                type="submit"
+                disabled={loading}
+                className="bg-black hover:bg-slate-800"
+              >
+                {loading ? 'Menyimpan...' : 'Simpan & Preview'}
+              </Button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  )
+}
