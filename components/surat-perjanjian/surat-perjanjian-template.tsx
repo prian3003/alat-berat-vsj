@@ -314,7 +314,7 @@ export function SuratPerjanjianTemplate({
           </p>
           <p className="text-xs text-gray-600 mt-1">
             <span className="block">Jln. Werdi Bhuwana, Kec. Mengwi, Kab. Badung-Bali, 80351</span>
-            <span className="block">Telp. (+62) 813-7026-6314 | www.vaniasugiarta.com</span>
+            <span className="block">Telp. (+62) 813-7026-6314 | www.vaniasugiartajaya.com</span>
           </p>
         </div>
 
@@ -322,6 +322,14 @@ export function SuratPerjanjianTemplate({
         <h2 className="mb-6 text-center text-base font-bold border-b-2 border-black pb-3">
           SURAT PERJANJIAN SEWA PAKAI ALAT BERAT
         </h2>
+
+        {/* Document Number */}
+        <div className="mb-4 text-sm">
+          <div className="flex justify-between items-center border-b border-black pb-2">
+            <span className="font-bold">Nomor Perjanjian:</span>
+            <span className="font-bold">{noPerjanjian}</span>
+          </div>
+        </div>
 
         {/* Pihak Information Section */}
         <div className="mb-4 text-sm space-y-3">
@@ -533,7 +541,7 @@ export function SuratPerjanjianTemplate({
         <div className="mt-6 pt-2 border-t border-gray-400 text-center text-xs text-gray-600">
           <p className="font-semibold">PT. VANIA SUGIARTA JAYA</p>
           <p className="text-xs">Jln. Werdi Bhuwana, Kec. Mengwi, Kab. Badung-Bali, 80351</p>
-          <p className="text-xs">Telp. (+62) 813-7026-6314 | www.vaniasugiarta.com</p>
+          <p className="text-xs">Telp. (+62) 813-7026-6314 | www.vaniasugiartajaya.com</p>
         </div>
 
         {/* Print-specific styles */}

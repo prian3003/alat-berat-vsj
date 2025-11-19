@@ -10,7 +10,7 @@ export function WhatsAppFloat() {
   const containerRef = useRef<HTMLDivElement>(null)
 
   const contacts = [
-    { name: 'Admin', number: '6285813718988' },
+    { name: 'Admin', number: '6281325805326' },
     { name: 'Owner', number: '6282230958088' }
   ]
 

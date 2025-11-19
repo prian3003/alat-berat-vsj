@@ -9,7 +9,7 @@ export function StructuredData() {
     "url": "https://vaniasugiartajaya.com",
     "logo": "https://vaniasugiartajaya.com/logo.png",
     "image": "https://vaniasugiartajaya.com/logo.png",
-    "telephone": "+62 858-1371-8988",
+    "telephone": "+62 813-2580-5326",
     "email": "info@vaniasugiartajaya.com",
     "address": {
       "@type": "PostalAddress",

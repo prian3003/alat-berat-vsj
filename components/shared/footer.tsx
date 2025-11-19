@@ -70,7 +70,7 @@ export function Footer() {
               </li>
               <li>
                 <a
-                  href={`https://wa.me/6285813718988?text=${encodeURIComponent(`*PT. VANIA SUGIARTA JAYA*
+                  href={`https://wa.me/6281325805326?text=${encodeURIComponent(`*PT. VANIA SUGIARTA JAYA*
 _Sewa Alat Berat Profesional_
 
 Halo, saya tertarik dengan layanan sewa alat berat Anda.
@@ -101,7 +101,7 @@ Terima kasih.`)}`}
                   rel="noopener noreferrer"
                   className="text-slate-600 hover:text-green-600 transition-colors break-all inline-block relative after:content-[''] after:absolute after:w-0 after:h-[2px] after:bottom-0 after:left-0 after:bg-green-600 after:transition-all after:duration-300 hover:after:w-full"
                 >
-                  WA Admin: +62 858-1371-8988
+                  WA Admin: +62 813-2580-5326
                 </a>
               </li>
               <li>
@@ -146,7 +146,7 @@ Terima kasih.`)}`}
 
         <div className="mt-6 sm:mt-8 border-t pt-6 sm:pt-8">
           <p className="text-center text-xs sm:text-sm text-slate-600">
-            &copy; {currentYear} vaniasugiarta.com Semua hak dilindungi.
+            &copy; {currentYear} vaniasugiartajaya.com Semua hak dilindungi.
           </p>
         </div>
       </div>

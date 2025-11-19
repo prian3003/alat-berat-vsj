@@ -235,7 +235,7 @@ export function HeroSection() {
         >
           <div className="w-full max-w-sm px-4">
             <Image
-              src="/katalog.svg"
+              src="/herologo2.svg"
               alt="Katalog Alat Berat Bali"
               width={400}
               height={500}

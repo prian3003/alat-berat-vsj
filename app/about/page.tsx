@@ -293,7 +293,7 @@ export default function AboutPage() {
               variant="outline"
               className="border-white text-green hover:bg-orange-700 font-semibold px-8 py-3 text-lg"
             >
-              <a href="https://wa.me/6285813718988" target="_blank" rel="noopener noreferrer">
+              <a href="https://wa.me/6281325805326" target="_blank" rel="noopener noreferrer">
                 Chat WhatsApp
               </a>
             </Button>

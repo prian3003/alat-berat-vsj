@@ -25,7 +25,7 @@ export function ContactSection() {
           </p>
           <div className="mt-6 sm:mt-8 flex flex-col sm:flex-row gap-3 sm:gap-4 sm:justify-center">
             <a
-              href={`https://wa.me/6285813718988?text=${encodeURIComponent(`*PT. VANIA SUGIARTA JAYA*
+              href={`https://wa.me/6281325805326?text=${encodeURIComponent(`*PT. VANIA SUGIARTA JAYA*
 _Sewa Alat Berat Profesional_
 
 Halo, saya tertarik dengan layanan sewa alat berat Anda.
@@ -67,7 +67,7 @@ Terima kasih.`)}`}
               <span className="sm:hidden">Chat WhatsApp</span>
             </a>
             <a
-              href="tel:+6285813718988"
+              href="tel:+6281325805326"
               className="inline-flex items-center justify-center gap-2 rounded-lg border-2 border-slate-900 px-6 py-3 text-sm sm:text-base font-medium text-slate-900 transition-colors hover:bg-slate-900 hover:text-white active:bg-slate-800"
             >
               <svg

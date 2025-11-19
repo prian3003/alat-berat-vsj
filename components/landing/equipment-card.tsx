@@ -47,7 +47,7 @@ export function EquipmentCard({ equipment, onClick }: EquipmentCardProps) {
     e.stopPropagation()
 
     // WhatsApp Business Number for VSJ
-    const whatsappNumber = '6285813718988'
+    const whatsappNumber = '6281325805326'
 
     // Build message with equipment details
     const message = `*PT. VANIA SUGIARTA JAYA*

@@ -58,8 +58,8 @@ function ContactContent() {
     {
       icon: MessageCircle,
       title: 'WhatsApp Admin',
-      value: '+62 858-1371-8988',
-      href: 'https://wa.me/6285813718988',
+      value: '+62 813-2580-5326',
+      href: 'https://wa.me/6281325805326',
       description: 'Chat langsung dengan admin kami untuk respons cepat.'
     },
     {
@@ -297,7 +297,7 @@ function ContactContent() {
               asChild
               className="bg-white text-orange-600 hover:bg-orange-50 font-semibold px-8 py-3 text-lg"
             >
-              <a href="https://wa.me/6285813718988" target="_blank" rel="noopener noreferrer">
+              <a href="https://wa.me/6281325805326" target="_blank" rel="noopener noreferrer">
                 Chat WhatsApp Sekarang
               </a>
             </Button>
