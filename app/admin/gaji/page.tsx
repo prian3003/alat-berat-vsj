@@ -9,7 +9,7 @@ import { Toaster } from '@/components/ui/toaster'
 import { useConfirm } from '@/hooks/use-confirm'
 import { GajiForm } from '@/components/dashboard/gaji-form'
 import { GajiTemplate } from '@/components/dashboard/gaji-template'
-import { Plus, Eye, CheckCircle, Trash2, ArrowLeft } from 'lucide-react'
+import { Plus, Eye, CheckCircle, Trash2, ArrowLeft, Calendar, Search } from 'lucide-react'
 
 interface GajiItem {
   id: string
@@ -58,6 +58,7 @@ export default function AdminGajiPage() {
   const [selectedGaji, setSelectedGaji] = useState<Gaji | null>(null)
   const [showPreview, setShowPreview] = useState(false)
   const [filterType, setFilterType] = useState<'all' | 'weekly' | 'monthly'>('all')
+  const [searchQuery, setSearchQuery] = useState('')
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -166,9 +167,27 @@ export default function AdminGajiPage() {
     })
   }
 
-  const filteredGaji = filterType === 'all'
-    ? gajiList
-    : gajiList.filter(gaji => gaji.tipe === filterType)
+  const filteredGaji = gajiList
+    .filter(gaji => {
+      // Filter by type
+      if (filterType !== 'all' && gaji.tipe !== filterType) return false
+
+      // Filter by search query
+      if (searchQuery.trim()) {
+        const query = searchQuery.toLowerCase()
+        const matchesNomor = gaji.nomorGaji.toLowerCase().includes(query)
+        const matchesWorker = gaji.pekerjas?.some(p =>
+          p.pekerjaNama.toLowerCase().includes(query) ||
+          p.jabatan.toLowerCase().includes(query)
+        )
+        const matchesDate = formatDate(gaji.tanggalMulai).includes(query) ||
+                           formatDate(gaji.tanggalSelesai).includes(query)
+
+        return matchesNomor || matchesWorker || matchesDate
+      }
+
+      return true
+    })
 
   if (isLoading) {
     return (
@@ -318,6 +337,28 @@ export default function AdminGajiPage() {
             </button>
           </div>
 
+          {/* Search Bar */}
+          <div className="mb-4">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
+              <input
+                type="text"
+                placeholder="Cari nomor gaji, nama pekerja, jabatan, atau tanggal..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+              />
+              {searchQuery && (
+                <button
+                  onClick={() => setSearchQuery('')}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                >
+                  ✕
+                </button>
+              )}
+            </div>
+          </div>
+
           {/* Filter Tabs */}
           <div className="flex gap-2 border-b">
             <button
@@ -408,9 +449,15 @@ export default function AdminGajiPage() {
 
                   {/* Period Info */}
                   <div className="text-xs text-slate-600 mb-4 space-y-1 bg-slate-50 p-2 rounded">
-                    <p>📅 {formatDate(gaji.tanggalMulai)} - {formatDate(gaji.tanggalSelesai)}</p>
+                    <p className="flex items-center gap-1">
+                      <Calendar className="h-3 w-3" />
+                      {formatDate(gaji.tanggalMulai)} - {formatDate(gaji.tanggalSelesai)}
+                    </p>
                     {gaji.tipe === 'monthly' && gaji.bulan && (
-                      <p>📆 {new Date(2024, gaji.bulan - 1).toLocaleDateString('id-ID', { month: 'long', year: 'numeric' })}</p>
+                      <p className="flex items-center gap-1">
+                        <Calendar className="h-3 w-3" />
+                        {new Date(2024, gaji.bulan - 1).toLocaleDateString('id-ID', { month: 'long', year: 'numeric' })}
+                      </p>
                     )}
                   </div>
 

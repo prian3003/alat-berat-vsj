@@ -25,7 +25,33 @@ export function ContactSection() {
           </p>
           <div className="mt-6 sm:mt-8 flex flex-col sm:flex-row gap-3 sm:gap-4 sm:justify-center">
             <a
-              href="https://wa.me/6285813718988"
+              href={`https://wa.me/6285813718988?text=${encodeURIComponent(`*PT. VANIA SUGIARTA JAYA*
+_Sewa Alat Berat Profesional_
+
+Halo, saya tertarik dengan layanan sewa alat berat Anda.
+
+───────────────────────
+*DAFTAR HARGA PENAWARAN*
+
+*Excavator PC 200*
+• Bucket: Rp 450.000 all in/jam
+• Breaker: Rp 500.000 all in/jam
+
+*Excavator PC 78*
+• Bucket: Rp 300.000 all in/jam
+• Breaker: Rp 350.000 all in/jam
+
+*Backhoe Loader Dashwheel*
+• Rp 350.000 all in/jam
+
+*Excavator PC 58 / PC 40 / PC 30*
+• Rp 250.000 - Rp 300.000 all in/jam
+
+───────────────────────
+
+Mohon informasi lebih lanjut.
+
+Terima kasih.`)}`}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center justify-center gap-2 rounded-lg bg-green-600 px-6 py-3 text-sm sm:text-base font-medium text-white transition-colors hover:bg-green-700 active:bg-green-800"

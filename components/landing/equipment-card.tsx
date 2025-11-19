@@ -50,7 +50,37 @@ export function EquipmentCard({ equipment, onClick }: EquipmentCardProps) {
     const whatsappNumber = '6285813718988'
 
     // Build message with equipment details
-    const message = `Halo, saya tertarik dengan alat berat berikut:\n\n*${equipment.name}*\nKategori: ${getCategoryLabel(equipment.category)}\n${specs?.brand ? `Brand: ${specs.brand}\n` : ''}${specs?.model ? `Model: ${specs.model}\n` : ''}Harga: ${formatPrice(equipment.price_per_hour)}/jam\n\nApakah tersedia untuk disewa?`
+    const message = `*PT. VANIA SUGIARTA JAYA*
+_Sewa Alat Berat Profesional_
+
+Halo, saya tertarik dengan alat berat berikut:
+
+*${equipment.name}*
+Kategori: ${getCategoryLabel(equipment.category)}
+${specs?.brand ? `Brand: ${specs.brand}\n` : ''}${specs?.model ? `Model: ${specs.model}\n` : ''}Harga: ${formatPrice(equipment.price_per_hour)}/jam
+
+───────────────────────
+*DAFTAR HARGA PENAWARAN*
+
+*Excavator PC 200*
+• Bucket: Rp 450.000 all in/jam
+• Breaker: Rp 500.000 all in/jam
+
+*Excavator PC 78*
+• Bucket: Rp 300.000 all in/jam
+• Breaker: Rp 350.000 all in/jam
+
+*Backhoe Loader Dashwheel*
+• Rp 350.000 all in/jam
+
+*Excavator PC 58 / PC 40 / PC 30*
+• Rp 250.000 - Rp 300.000 all in/jam
+
+───────────────────────
+
+Apakah tersedia untuk disewa?
+
+Terima kasih.`
 
     // Encode message for URL
     const encodedMessage = encodeURIComponent(message)
@@ -117,7 +147,19 @@ export function EquipmentCard({ equipment, onClick }: EquipmentCardProps) {
         <div className="mt-4 border-t pt-4">
           <div className="flex justify-between">
             <span className="text-sm text-slate-600">Harga per jam:</span>
-            <span className="text-lg font-bold text-orange-600">{formatPrice(equipment.price_per_hour)}</span>
+            {equipment.price_per_hour ? (
+              <span className="text-lg font-bold text-orange-600">{formatPrice(equipment.price_per_hour)}</span>
+            ) : (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation()
+                  handleWhatsAppContact(e)
+                }}
+                className="text-lg font-bold text-orange-600 hover:text-orange-700 underline cursor-pointer"
+              >
+                {formatPrice(equipment.price_per_hour)}
+              </button>
+            )}
           </div>
         </div>
       </CardContent>

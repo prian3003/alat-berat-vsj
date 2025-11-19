@@ -70,7 +70,33 @@ export function Footer() {
               </li>
               <li>
                 <a
-                  href="https://wa.me/6285813718988"
+                  href={`https://wa.me/6285813718988?text=${encodeURIComponent(`*PT. VANIA SUGIARTA JAYA*
+_Sewa Alat Berat Profesional_
+
+Halo, saya tertarik dengan layanan sewa alat berat Anda.
+
+───────────────────────
+*DAFTAR HARGA PENAWARAN*
+
+*Excavator PC 200*
+• Bucket: Rp 450.000 all in/jam
+• Breaker: Rp 500.000 all in/jam
+
+*Excavator PC 78*
+• Bucket: Rp 300.000 all in/jam
+• Breaker: Rp 350.000 all in/jam
+
+*Backhoe Loader Dashwheel*
+• Rp 350.000 all in/jam
+
+*Excavator PC 58 / PC 40 / PC 30*
+• Rp 250.000 - Rp 300.000 all in/jam
+
+───────────────────────
+
+Mohon informasi lebih lanjut.
+
+Terima kasih.`)}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-slate-600 hover:text-green-600 transition-colors break-all inline-block relative after:content-[''] after:absolute after:w-0 after:h-[2px] after:bottom-0 after:left-0 after:bg-green-600 after:transition-all after:duration-300 hover:after:w-full"
@@ -80,7 +106,33 @@ export function Footer() {
               </li>
               <li>
                 <a
-                  href="https://wa.me/6282230958088"
+                  href={`https://wa.me/6282230958088?text=${encodeURIComponent(`*PT. VANIA SUGIARTA JAYA*
+_Sewa Alat Berat Profesional_
+
+Halo, saya tertarik dengan layanan sewa alat berat Anda.
+
+───────────────────────
+*DAFTAR HARGA PENAWARAN*
+
+*Excavator PC 200*
+• Bucket: Rp 450.000 all in/jam
+• Breaker: Rp 500.000 all in/jam
+
+*Excavator PC 78*
+• Bucket: Rp 300.000 all in/jam
+• Breaker: Rp 350.000 all in/jam
+
+*Backhoe Loader Dashwheel*
+• Rp 350.000 all in/jam
+
+*Excavator PC 58 / PC 40 / PC 30*
+• Rp 250.000 - Rp 300.000 all in/jam
+
+───────────────────────
+
+Mohon informasi lebih lanjut.
+
+Terima kasih.`)}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-slate-600 hover:text-green-600 transition-colors break-all inline-block relative after:content-[''] after:absolute after:w-0 after:h-[2px] after:bottom-0 after:left-0 after:bg-green-600 after:transition-all after:duration-300 hover:after:w-full"

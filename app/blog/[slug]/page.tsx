@@ -1,88 +1,90 @@
-'use client'
-
-import { useEffect, useState } from 'react'
-import { useParams } from 'next/navigation'
+import { Metadata } from 'next'
 import { Navbar } from '@/components/shared/navbar'
 import { Footer } from '@/components/shared/footer'
 import { WhatsAppFloat } from '@/components/shared/whatsapp-float'
-import { BlogPostDetail } from '@/components/blog/blog-post-detail'
-import { BlogPost } from '@/types'
+import { BlogPostDetailWrapper } from '@/components/blog/blog-post-detail-wrapper'
 
-export default function BlogPostPage() {
-  const params = useParams()
-  const slug = params?.slug as string
-  const [post, setPost] = useState<BlogPost | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(false)
+// Generate metadata for SEO
+export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
+  try {
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://vaniasugiartajaya.com'
+    const response = await fetch(`${baseUrl}/api/blog/public/${params.slug}`, {
+      cache: 'no-store'
+    })
 
-  useEffect(() => {
-    if (!slug) return
-
-    const fetchPost = async () => {
-      try {
-        const response = await fetch(`/api/blog/public/${slug}`)
-
-        if (!response.ok) {
-          setError(true)
-          setLoading(false)
-          return
-        }
-
-        const { data } = await response.json()
-        setPost(data)
-      } catch (err) {
-        console.error('Error fetching post:', err)
-        setError(true)
-      } finally {
-        setLoading(false)
+    if (!response.ok) {
+      return {
+        title: 'Artikel Tidak Ditemukan - VSJ Sewa Alat Berat Bali',
+        description: 'Artikel yang Anda cari tidak ditemukan.'
       }
     }
 
-    fetchPost()
-  }, [slug])
+    const { data } = await response.json()
 
-  if (loading) {
-    return (
-      <div className="min-h-screen">
-        <Navbar />
-        <div className="flex min-h-screen items-center justify-center">
-          <div className="text-center">
-            <div className="mb-4 inline-block h-12 w-12 animate-spin rounded-full border-4 border-orange-600 border-t-transparent"></div>
-            <p className="text-slate-600">Memuat artikel...</p>
-          </div>
-        </div>
-        <Footer />
-      </div>
-    )
+    // Extract text from content (remove HTML tags for description)
+    const stripHtml = (html: string) => {
+      return html.replace(/<[^>]*>/g, '').substring(0, 160)
+    }
+
+    const description = data.excerpt || stripHtml(data.content) || 'Artikel tentang sewa alat berat di Bali'
+
+    return {
+      title: `${data.title} - VSJ Sewa Alat Berat Bali`,
+      description: description,
+      keywords: [
+        'sewa alat berat',
+        'rental alat berat bali',
+        'excavator bali',
+        'bulldozer bali',
+        'crane bali',
+        data.category,
+        ...data.tags || []
+      ].join(', '),
+      openGraph: {
+        title: data.title,
+        description: description,
+        url: `${baseUrl}/blog/${params.slug}`,
+        siteName: 'PT. Vania Sugiarta Jaya',
+        images: data.featured_image ? [
+          {
+            url: data.featured_image,
+            width: 1200,
+            height: 630,
+            alt: data.title
+          }
+        ] : [],
+        locale: 'id_ID',
+        type: 'article',
+        publishedTime: data.published_at,
+        modifiedTime: data.updated_at,
+        authors: [data.author || 'VSJ Team']
+      },
+      twitter: {
+        card: 'summary_large_image',
+        title: data.title,
+        description: description,
+        images: data.featured_image ? [data.featured_image] : []
+      },
+      alternates: {
+        canonical: `${baseUrl}/blog/${params.slug}`
+      }
+    }
+  } catch (error) {
+    console.error('Error generating metadata:', error)
+    return {
+      title: 'Blog - VSJ Sewa Alat Berat Bali',
+      description: 'Artikel tentang sewa alat berat di Bali'
+    }
   }
+}
 
-  if (error || !post) {
-    return (
-      <div className="min-h-screen">
-        <Navbar />
-        <div className="flex min-h-screen items-center justify-center">
-          <div className="text-center">
-            <h1 className="mb-4 text-4xl font-bold text-slate-900">404</h1>
-            <p className="mb-8 text-lg text-slate-600">Artikel tidak ditemukan</p>
-            <a
-              href="/blog"
-              className="inline-flex items-center gap-2 rounded-lg bg-orange-600 px-6 py-3 text-white transition-colors hover:bg-orange-700"
-            >
-              Kembali ke Blog
-            </a>
-          </div>
-        </div>
-        <Footer />
-      </div>
-    )
-  }
-
+export default function BlogPostPage({ params }: { params: { slug: string } }) {
   return (
     <div className="min-h-screen">
       <Navbar />
       <WhatsAppFloat />
       <main>
-        <BlogPostDetail post={post} />
+        <BlogPostDetailWrapper slug={params.slug} />
       </main>
       <Footer />
     </div>

@@ -14,7 +14,33 @@ export function WhatsAppFloat() {
     { name: 'Owner', number: '6282230958088' }
   ]
 
-  const message = encodeURIComponent('Halo, saya tertarik dengan layanan sewa alat berat Anda.')
+  const message = encodeURIComponent(`*PT. VANIA SUGIARTA JAYA*
+_Sewa Alat Berat Profesional_
+
+Halo, saya tertarik dengan layanan sewa alat berat Anda.
+
+───────────────────────
+*DAFTAR HARGA PENAWARAN*
+
+*Excavator PC 200*
+• Bucket: Rp 450.000 all in/jam
+• Breaker: Rp 500.000 all in/jam
+
+*Excavator PC 78*
+• Bucket: Rp 300.000 all in/jam
+• Breaker: Rp 350.000 all in/jam
+
+*Backhoe Loader Dashwheel*
+• Rp 350.000 all in/jam
+
+*Excavator PC 58 / PC 40 / PC 30*
+• Rp 250.000 - Rp 300.000 all in/jam
+
+───────────────────────
+
+Mohon informasi lebih lanjut.
+
+Terima kasih.`)
 
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen)

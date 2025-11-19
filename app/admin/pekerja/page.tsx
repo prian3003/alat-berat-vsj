@@ -9,7 +9,7 @@ import { useToast } from '@/hooks/use-toast'
 import { useAuth } from '@/context/AuthContext'
 import { Toaster } from '@/components/ui/toaster'
 import { useConfirm } from '@/hooks/use-confirm'
-import { Plus, Edit2, Trash2, LogOut, Home } from 'lucide-react'
+import { Plus, Edit2, Trash2, LogOut, Home, Search } from 'lucide-react'
 
 interface Pekerja {
   id: string
@@ -30,6 +30,7 @@ export default function AdminPekerjaPage() {
   const [loading, setLoading] = useState(true)
   const [showForm, setShowForm] = useState(false)
   const [editingId, setEditingId] = useState<string | null>(null)
+  const [searchQuery, setSearchQuery] = useState('')
   const [formData, setFormData] = useState({
     nama: '',
     jabatan: '',
@@ -176,6 +177,19 @@ export default function AdminPekerjaPage() {
     })
   }
 
+  const filteredPekerja = pekerjaList.filter(pekerja => {
+    if (!searchQuery.trim()) return true
+
+    const query = searchQuery.toLowerCase()
+    return (
+      pekerja.nama.toLowerCase().includes(query) ||
+      pekerja.jabatan.toLowerCase().includes(query) ||
+      pekerja.nomorTelepon?.toLowerCase().includes(query) ||
+      pekerja.alamat?.toLowerCase().includes(query) ||
+      pekerja.status.toLowerCase().includes(query)
+    )
+  })
+
   if (isLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center">
@@ -277,7 +291,7 @@ export default function AdminPekerjaPage() {
       {/* Main Content */}
       <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6">
             <div>
               <h2 className="text-2xl font-bold text-slate-900">Kelola Pekerja</h2>
               <p className="mt-2 text-slate-600">Tambah, ubah, atau hapus data pekerja</p>
@@ -299,6 +313,28 @@ export default function AdminPekerjaPage() {
               <Plus className="h-5 w-5" />
               Tambah Pekerja
             </button>
+          </div>
+
+          {/* Search Bar */}
+          <div className="mb-4">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
+              <input
+                type="text"
+                placeholder="Cari nama, jabatan, telepon, alamat, atau status..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+              />
+              {searchQuery && (
+                <button
+                  onClick={() => setSearchQuery('')}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                >
+                  ✕
+                </button>
+              )}
+            </div>
           </div>
         </div>
 
@@ -398,7 +434,7 @@ export default function AdminPekerjaPage() {
           <div className="text-center py-12">
             <p className="text-slate-600">Memuat data pekerja...</p>
           </div>
-        ) : pekerjaList.length > 0 ? (
+        ) : filteredPekerja.length > 0 ? (
           <div className="bg-white rounded-lg shadow overflow-x-auto">
             <table className="w-full">
               <thead className="bg-slate-100 border-b">
@@ -411,7 +447,7 @@ export default function AdminPekerjaPage() {
                 </tr>
               </thead>
               <tbody>
-                {pekerjaList.map((pekerja, index) => (
+                {filteredPekerja.map((pekerja, index) => (
                   <tr key={pekerja.id} className={index % 2 === 0 ? 'bg-white' : 'bg-slate-50'}>
                     <td className="px-6 py-4 text-sm font-medium text-slate-900">{pekerja.nama}</td>
                     <td className="px-6 py-4 text-sm text-slate-600">{pekerja.jabatan}</td>
@@ -447,6 +483,16 @@ export default function AdminPekerjaPage() {
                 ))}
               </tbody>
             </table>
+          </div>
+        ) : searchQuery ? (
+          <div className="rounded-lg border-2 border-dashed border-slate-300 p-12 text-center">
+            <p className="text-slate-600">Tidak ada pekerja yang cocok dengan "{searchQuery}"</p>
+            <button
+              onClick={() => setSearchQuery('')}
+              className="mt-4 text-orange-600 hover:text-orange-700 font-medium"
+            >
+              Hapus pencarian
+            </button>
           </div>
         ) : (
           <div className="rounded-lg border-2 border-dashed border-slate-300 p-12 text-center">
