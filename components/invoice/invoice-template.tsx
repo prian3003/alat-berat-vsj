@@ -144,98 +144,96 @@ export function InvoiceTemplate({ invoice }: InvoiceTemplateProps) {
       </div>
 
       {/* Invoice Document */}
-      <div ref={printRef} className="bg-white p-6 mx-auto" style={{ width: '210mm', minHeight: '297mm' }}>
-        {/* Header with Border */}
-        <div className="border-3 border-black p-3">
+      <div ref={printRef} className="bg-white p-6 mx-auto" style={{ width: '210mm', minHeight: '297mm', fontFamily: "'Segoe UI', 'Calibri', 'Arial', sans-serif" }}>
+        {/* Header with subtle top border */}
+        <div style={{ borderTop: '1pt solid #000', paddingTop: '8px', paddingBottom: '8px' }}>
           {/* Company Info and Customer Info */}
-          <div className="flex justify-between items-start mb-3">
+          <div className="flex justify-between items-start mb-4">
             <div className="flex items-start gap-3">
-              <div className="w-16 h-16 border-2 border-black flex items-center justify-center bg-white">
-                <img src="/logo.png" alt="VSJ Logo" className="w-14 h-14 object-contain" />
+              <div className="flex items-center justify-center" style={{ width: '48px', height: '48px' }}>
+                <img src="/logo.png" alt="VSJ Logo" style={{ width: '48px', height: '48px', objectFit: 'contain' }} />
               </div>
-              <div style={{ fontSize: '10px' }}>
-                <h1 className="text-sm font-bold">PT. VANIA SUGIARTA JAYA</h1>
-                <p>Jl. Raya Denpasar No.16</p>
-                <p>Mangwi - Badung</p>
-                <p>No. HP : 0821-3965-9136</p>
+              <div style={{ fontSize: '8.5pt', lineHeight: '1.3' }}>
+                <h1 style={{ fontSize: '11pt', fontWeight: 'bold', margin: '0 0 2px 0' }}>PT. VANIA SUGIARTA JAYA</h1>
+                <p style={{ margin: '0' }}>Jl. Raya Denpasar No.16</p>
+                <p style={{ margin: '0' }}>Mangwi - Badung</p>
+                <p style={{ margin: '0' }}>No. HP : 0821-3965-9136</p>
               </div>
             </div>
-            <div className="border-2 border-black p-2" style={{ fontSize: '9px' }}>
-              <div className="space-y-0.5">
-                <div className="flex">
-                  <span className="font-bold w-20">Customer</span>
-                  <span>: {invoice.customerName}</span>
-                </div>
-                <div className="flex">
-                  <span className="font-bold w-20">LOKASI</span>
-                  <span>: {invoice.customerLocation}</span>
-                </div>
-                <div className="flex">
-                  <span className="font-bold w-20">Pembayara</span>
-                  <span>: {invoice.pembayara || ''}</span>
-                </div>
-                <div className="flex">
-                  <span className="font-bold w-20">Jatuh Tempo</span>
-                  <span>: {formatDateShort(invoice.jatuhTempo)}</span>
-                </div>
-                <div className="flex">
-                  <span className="font-bold w-20">Nomor P.O</span>
-                  <span>: {invoice.nomorPO || 'T1 234'}</span>
-                </div>
+            <div style={{ border: '1pt solid #999', padding: '6px', fontSize: '8pt', lineHeight: '1.4' }}>
+              <div style={{ display: 'flex', marginBottom: '3px' }}>
+                <span style={{ fontWeight: 'bold', width: '70px' }}>Customer</span>
+                <span style={{ marginLeft: '4px' }}>: {invoice.customerName}</span>
+              </div>
+              <div style={{ display: 'flex', marginBottom: '3px' }}>
+                <span style={{ fontWeight: 'bold', width: '70px' }}>LOKASI</span>
+                <span style={{ marginLeft: '4px' }}>: {invoice.customerLocation}</span>
+              </div>
+              <div style={{ display: 'flex', marginBottom: '3px' }}>
+                <span style={{ fontWeight: 'bold', width: '70px' }}>Pembayara</span>
+                <span style={{ marginLeft: '4px' }}>: {invoice.pembayara || ''}</span>
+              </div>
+              <div style={{ display: 'flex', marginBottom: '3px' }}>
+                <span style={{ fontWeight: 'bold', width: '70px' }}>Jatuh Tempo</span>
+                <span style={{ marginLeft: '4px' }}>: {formatDateShort(invoice.jatuhTempo)}</span>
+              </div>
+              <div style={{ display: 'flex' }}>
+                <span style={{ fontWeight: 'bold', width: '70px' }}>Nomor P.O</span>
+                <span style={{ marginLeft: '4px' }}>: {invoice.nomorPO || 'T1 234'}</span>
               </div>
             </div>
           </div>
 
           {/* Date and Invoice Number */}
-          <div style={{ fontSize: '10px' }} className="mb-2">
+          <div style={{ fontSize: '8.5pt', marginBottom: '6px', lineHeight: '1.4' }}>
             <div>Tanggal : {formatDateShort(invoice.tanggal)}</div>
             <div>No. Faktur : {invoice.noFaktur}</div>
           </div>
 
           {/* Title */}
-          <h2 className="text-xl font-bold text-center mb-3">TAGIHAN</h2>
+          <h2 style={{ fontSize: '14pt', fontWeight: 'bold', textAlign: 'center', marginBottom: '8px', margin: '4px 0' }}>TAGIHAN</h2>
 
           {/* Items Table */}
-          <table className="w-full border-2 border-black mb-3">
+          <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '8px', fontSize: '8.5pt', fontFamily: "'Segoe UI', 'Calibri', 'Arial', sans-serif" }}>
             <thead>
-              <tr className="bg-gray-100">
-                <th className="border-2 border-black px-1.5 py-1" style={{ fontSize: '10px', width: '6%' }}>No.</th>
-                <th className="border-2 border-black px-1.5 py-1" style={{ fontSize: '10px' }}>Nama Item</th>
-                <th className="border-2 border-black px-1.5 py-1 text-center" style={{ fontSize: '10px', width: '12%' }}>Tanggal</th>
-                <th className="border-2 border-black px-1.5 py-1 text-center" style={{ fontSize: '10px', width: '8%' }}>Qty</th>
-                <th className="border-2 border-black px-1.5 py-1 text-right" style={{ fontSize: '10px', width: '15%' }}>Harga</th>
-                <th className="border-2 border-black px-1.5 py-1 text-right" style={{ fontSize: '10px', width: '12%' }}>Diskon</th>
-                <th className="border-2 border-black px-1.5 py-1 text-right" style={{ fontSize: '10px', width: '17%' }}>Total Harga</th>
+              <tr style={{ backgroundColor: '#f0f0f0' }}>
+                <th style={{ border: '0.5pt solid #666', padding: '4px 3px', textAlign: 'center', fontWeight: 'bold', width: '5%', fontSize: '8pt' }}>No.</th>
+                <th style={{ border: '0.5pt solid #666', padding: '4px 3px', textAlign: 'left', fontWeight: 'bold', fontSize: '8pt' }}>Nama Item</th>
+                <th style={{ border: '0.5pt solid #666', padding: '4px 3px', textAlign: 'center', fontWeight: 'bold', width: '12%', fontSize: '8pt' }}>Tanggal</th>
+                <th style={{ border: '0.5pt solid #666', padding: '4px 3px', textAlign: 'center', fontWeight: 'bold', width: '7%', fontSize: '8pt' }}>Qty</th>
+                <th style={{ border: '0.5pt solid #666', padding: '4px 3px', textAlign: 'right', fontWeight: 'bold', width: '13%', fontSize: '8pt' }}>Harga</th>
+                <th style={{ border: '0.5pt solid #666', padding: '4px 3px', textAlign: 'right', fontWeight: 'bold', width: '12%', fontSize: '8pt' }}>Diskon</th>
+                <th style={{ border: '0.5pt solid #666', padding: '4px 3px', textAlign: 'right', fontWeight: 'bold', width: '15%', fontSize: '8pt' }}>Total Harga</th>
               </tr>
             </thead>
             <tbody>
               {invoice.items.map((item, index) => (
-                <tr key={index}>
-                  <td className="border-2 border-black px-1.5 py-1" style={{ fontSize: '10px' }}>{item.urutan}</td>
-                  <td className="border-2 border-black px-1.5 py-1" style={{ fontSize: '10px' }}>{item.namaItem}</td>
-                  <td className="border-2 border-black px-1.5 py-1 text-center" style={{ fontSize: '10px' }}>{formatDateShort(item.tanggal)}</td>
-                  <td className="border-2 border-black px-1.5 py-1 text-center" style={{ fontSize: '10px' }}>{item.quantity}</td>
-                  <td className="border-2 border-black px-1.5 py-1 text-right" style={{ fontSize: '10px' }}>
+                <tr key={index} style={{ backgroundColor: index % 2 === 0 ? '#fff' : '#f9f9f9' }}>
+                  <td style={{ border: '0.5pt solid #ddd', padding: '3px', textAlign: 'center', fontSize: '8pt' }}>{item.urutan}</td>
+                  <td style={{ border: '0.5pt solid #ddd', padding: '3px', fontSize: '8pt' }}>{item.namaItem}</td>
+                  <td style={{ border: '0.5pt solid #ddd', padding: '3px', textAlign: 'center', fontSize: '8pt' }}>{formatDateShort(item.tanggal)}</td>
+                  <td style={{ border: '0.5pt solid #ddd', padding: '3px', textAlign: 'center', fontSize: '8pt' }}>{item.quantity}</td>
+                  <td style={{ border: '0.5pt solid #ddd', padding: '3px', textAlign: 'right', fontSize: '8pt' }}>
                     {formatCurrency(Number(item.harga))}
                   </td>
-                  <td className="border-2 border-black px-1.5 py-1 text-right" style={{ fontSize: '10px' }}>
+                  <td style={{ border: '0.5pt solid #ddd', padding: '3px', textAlign: 'right', fontSize: '8pt' }}>
                     {formatCurrency(Number(item.diskon))}
                   </td>
-                  <td className="border-2 border-black px-1.5 py-1 text-right" style={{ fontSize: '10px' }}>
+                  <td style={{ border: '0.5pt solid #ddd', padding: '3px', textAlign: 'right', fontSize: '8pt' }}>
                     Rp {formatCurrency(Number(item.totalHarga))}
                   </td>
                 </tr>
               ))}
               {/* Total Row */}
               <tr>
-                <td colSpan={3} className="border-2 border-black px-1.5 py-1" style={{ fontSize: '10px' }}>
+                <td colSpan={3} style={{ border: '0.5pt solid #666', padding: '4px', fontSize: '8pt' }}>
                   Dicetak pada tanggal : {formatDateShort(invoice.tanggal)}
                 </td>
-                <td colSpan={2} className="border-2 border-black px-1.5 py-1 text-right font-bold" style={{ fontSize: '10px' }}>
+                <td colSpan={2} style={{ border: '0.5pt solid #666', padding: '4px', textAlign: 'right', fontWeight: 'bold', fontSize: '8pt' }}>
                   admin :
                 </td>
-                <td className="border-2 border-black px-1.5 py-1 text-right font-bold" style={{ fontSize: '10px' }}>JUMLAH</td>
-                <td className="border-2 border-black px-1.5 py-1 text-right font-bold" style={{ fontSize: '10px' }}>
+                <td style={{ border: '0.5pt solid #666', padding: '4px', textAlign: 'right', fontWeight: 'bold', fontSize: '8pt' }}>JUMLAH</td>
+                <td style={{ border: '0.5pt solid #666', padding: '4px', textAlign: 'right', fontWeight: 'bold', fontSize: '8pt' }}>
                   Rp {formatCurrency(Number(invoice.total))}
                 </td>
               </tr>
@@ -243,33 +241,33 @@ export function InvoiceTemplate({ invoice }: InvoiceTemplateProps) {
           </table>
 
           {/* Footer Section */}
-          <div className="grid grid-cols-2 gap-3">
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginTop: '12px' }}>
             {/* Signatures */}
-            <div className="border-2 border-black p-3">
-              <div className="flex justify-between mb-10" style={{ fontSize: '10px' }}>
-                <span className="font-bold">Penerima</span>
-                <span className="font-bold">Hormat kami</span>
+            <div style={{ border: '0.5pt solid #999', padding: '8px', fontSize: '8.5pt', fontFamily: "'Segoe UI', 'Calibri', 'Arial', sans-serif" }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '28px', fontWeight: 'bold', fontSize: '8pt' }}>
+                <span>Penerima</span>
+                <span>Hormat kami</span>
               </div>
-              <div className="flex justify-between">
-                <div className="border-b-2 border-dotted border-black w-28"></div>
-                <div className="border-b-2 border-dotted border-black w-28"></div>
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <div style={{ borderBottom: '1pt dotted #000', width: '45%', height: '20px' }}></div>
+                <div style={{ borderBottom: '1pt dotted #000', width: '45%', height: '20px' }}></div>
               </div>
             </div>
 
             {/* Payment Info */}
-            <div className="border-2 border-black p-3">
-              <div className="mb-2" style={{ fontSize: '10px' }}>
-                <div className="font-bold mb-1">Transfer ke:</div>
+            <div style={{ border: '0.5pt solid #999', padding: '8px', fontSize: '8pt', fontFamily: "'Segoe UI', 'Calibri', 'Arial', sans-serif", lineHeight: '1.3' }}>
+              <div style={{ marginBottom: '6px' }}>
+                <div style={{ fontWeight: 'bold', marginBottom: '2px' }}>Transfer ke:</div>
                 <div>Bank {invoice.bankName || 'BCA'}</div>
                 <div>No Rek : {invoice.accountNumber || '1801410397'}</div>
                 <div>an. {invoice.accountName || 'YENI RETNAWATI'}</div>
               </div>
-              <div className="space-y-1.5">
-                <div className="border-2 border-black p-1.5 text-right" style={{ fontSize: '10px' }}>
-                  <span className="font-bold">Rp -</span>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                <div style={{ border: '0.5pt solid #999', padding: '4px', textAlign: 'right', fontWeight: 'bold', fontSize: '8pt' }}>
+                  <span>Rp -</span>
                 </div>
-                <div className="border-2 border-black p-1.5 text-right" style={{ fontSize: '10px' }}>
-                  <span className="font-bold">TOTAL Rp {formatCurrency(Number(invoice.total))}</span>
+                <div style={{ border: '0.5pt solid #999', padding: '4px', textAlign: 'right', fontWeight: 'bold', fontSize: '8pt', backgroundColor: '#f0f0f0' }}>
+                  <span>TOTAL Rp {formatCurrency(Number(invoice.total))}</span>
                 </div>
               </div>
             </div>

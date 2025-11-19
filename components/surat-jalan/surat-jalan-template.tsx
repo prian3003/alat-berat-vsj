@@ -295,7 +295,7 @@ export function SuratJalanTemplate({
             margin: '8px 0 0 0'
           }}>
             <span style={{ display: 'block', margin: '2px 0' }}>Jln. Werdi Bhuwana, Kec. Mengwi, Kab. Badung-Bali, 80351</span>
-            <span style={{ display: 'block', margin: '2px 0' }}>Telp. (+62) 813-7026-6314 | Email: vaniasugiartajaya25@gmail.com</span>
+            <span style={{ display: 'block', margin: '2px 0' }}>Telp. +62 858-1371-8988 | +62 822-3095-8088 | Email: vaniasugiartajaya25@gmail.com</span>
             <span style={{ display: 'block', margin: '2px 0' }}>www.vaniasugiarta.com</span>
           </p>
         </div>
@@ -382,77 +382,89 @@ export function SuratJalanTemplate({
 
         {/* Items Table */}
         <table style={{
-          marginBottom: '32px',
+          marginBottom: '16px',
           width: '100%',
           borderCollapse: 'collapse',
-          fontSize: '9pt'
+          fontSize: '8pt',
+          fontFamily: "'Segoe UI', 'Calibri', 'Arial', sans-serif",
+          lineHeight: '1.2'
         }}>
           <thead>
-            <tr style={{ backgroundColor: '#1f2937', color: '#fff' }}>
+            <tr style={{ backgroundColor: '#2c3e50', color: '#fff' }}>
               <th style={{
-                border: '1px solid #1f2937',
-                padding: '8px 12px',
+                border: '0.5pt solid #2c3e50',
+                padding: '3px 4px',
                 textAlign: 'center',
                 fontWeight: 'bold',
-                width: '8%'
+                width: '5%',
+                fontSize: '7.5pt'
               }}>NO</th>
               <th style={{
-                border: '1px solid #1f2937',
-                padding: '8px 12px',
+                border: '0.5pt solid #2c3e50',
+                padding: '3px 4px',
                 textAlign: 'left',
-                fontWeight: 'bold'
+                fontWeight: 'bold',
+                fontSize: '7.5pt'
               }}>JENIS UNIT</th>
               <th style={{
-                border: '1px solid #1f2937',
-                padding: '8px 12px',
+                border: '0.5pt solid #2c3e50',
+                padding: '3px 4px',
                 textAlign: 'left',
-                fontWeight: 'bold'
+                fontWeight: 'bold',
+                fontSize: '7.5pt'
               }}>SERI</th>
               <th style={{
-                border: '1px solid #1f2937',
-                padding: '8px 12px',
+                border: '0.5pt solid #2c3e50',
+                padding: '3px 4px',
                 textAlign: 'left',
-                fontWeight: 'bold'
+                fontWeight: 'bold',
+                fontSize: '7.5pt'
               }}>LOKASI</th>
               <th style={{
-                border: '1px solid #1f2937',
-                padding: '8px 12px',
+                border: '0.5pt solid #2c3e50',
+                padding: '3px 4px',
                 textAlign: 'left',
-                fontWeight: 'bold'
+                fontWeight: 'bold',
+                fontSize: '7.5pt'
               }}>KETERANGAN</th>
             </tr>
           </thead>
           <tbody>
             {items.map((item, idx) => (
               <tr key={item.urutan} style={{
-                backgroundColor: idx % 2 === 0 ? '#fff' : '#f9fafb'
+                backgroundColor: idx % 2 === 0 ? '#fff' : '#f8f9fa'
               }}>
                 <td style={{
-                  border: '1px solid #d1d5db',
-                  padding: '8px 12px',
-                  textAlign: 'center'
+                  border: '0.5pt solid #d1d5db',
+                  padding: '2px 4px',
+                  textAlign: 'center',
+                  fontSize: '8pt'
                 }}>
                   {item.urutan}
                 </td>
                 <td style={{
-                  border: '1px solid #d1d5db',
-                  padding: '8px 12px'
+                  border: '0.5pt solid #d1d5db',
+                  padding: '2px 4px',
+                  fontSize: '8pt'
                 }}>
                   {item.jenisUnit}
                 </td>
                 <td style={{
-                  border: '1px solid #d1d5db',
-                  padding: '8px 12px'
+                  border: '0.5pt solid #d1d5db',
+                  padding: '2px 4px',
+                  fontSize: '8pt'
                 }}>{item.seri}</td>
                 <td style={{
-                  border: '1px solid #d1d5db',
-                  padding: '8px 12px'
+                  border: '0.5pt solid #d1d5db',
+                  padding: '2px 4px',
+                  fontSize: '8pt'
                 }}>
                   {item.lokasi}
                 </td>
                 <td style={{
-                  border: '1px solid #d1d5db',
-                  padding: '8px 12px'
+                  border: '0.5pt solid #d1d5db',
+                  padding: '2px 4px',
+                  fontSize: '8pt'
                 }}>
                   {item.keterangan || '-'}
                 </td>
@@ -463,62 +475,51 @@ export function SuratJalanTemplate({
 
         {/* Notes Section */}
         <div style={{
-          marginBottom: '32px',
-          fontSize: '9pt',
-          borderLeft: '4px solid #9ca3af',
-          paddingLeft: '12px',
-          paddingTop: '8px',
-          paddingBottom: '8px',
+          marginBottom: '12px',
+          fontSize: '7.5pt',
+          borderLeft: '2px solid #9ca3af',
+          paddingLeft: '8px',
+          paddingTop: '4px',
+          paddingBottom: '4px',
           backgroundColor: '#f9fafb',
-          width: '100%'
+          width: '100%',
+          fontFamily: "'Segoe UI', 'Calibri', 'Arial', sans-serif",
+          lineHeight: '1.3'
         }}>
-          <p style={{ fontWeight: 'bold', marginBottom: '4px' }}>Keterangan:</p>
-          <p style={{ marginBottom: '4px' }}>Mohon untuk dicek dan diterima oleh pihak yang berwenang</p>
-          {tujuan && <p style={{ marginBottom: '4px' }}><span style={{ fontWeight: 'bold' }}>Tujuan:</span> {tujuan}</p>}
-          {keterangan && <p><span style={{ fontWeight: 'bold' }}>Catatan:</span> {keterangan}</p>}
+          <p style={{ fontWeight: 'bold', marginBottom: '2px', margin: '0 0 2px 0' }}>Keterangan:</p>
+          <p style={{ marginBottom: '2px', margin: '0 0 2px 0' }}>Mohon untuk dicek dan diterima oleh pihak yang berwenang</p>
+          {tujuan && <p style={{ marginBottom: '2px', margin: '0 0 2px 0' }}><span style={{ fontWeight: 'bold' }}>Tujuan:</span> {tujuan}</p>}
+          {keterangan && <p style={{ margin: '0' }}><span style={{ fontWeight: 'bold' }}>Catatan:</span> {keterangan}</p>}
         </div>
 
         {/* Signature Section */}
         <div style={{
           display: 'grid',
           gridTemplateColumns: '1fr 1fr 1fr',
-          gap: '16px',
+          gap: '8px',
           textAlign: 'center',
-          fontSize: '9pt',
-          width: '100%'
+          fontSize: '8pt',
+          width: '100%',
+          fontFamily: "'Segoe UI', 'Calibri', 'Arial', sans-serif",
+          marginTop: '8px'
         }}>
           <div>
-            <p style={{ fontWeight: 'bold', marginBottom: '64px' }}>PENGEMUDI</p>
-            <div style={{ borderTop: '2px solid #000', paddingTop: '4px', height: '48px', marginBottom: '4px' }}></div>
-            <p style={{ fontSize: '9pt' }}>Tanda Tangan</p>
+            <p style={{ fontWeight: 'bold', marginBottom: '32px', margin: '0 0 32px 0', fontSize: '8pt' }}>PENGEMUDI</p>
+            <div style={{ borderTop: '1pt solid #000', paddingTop: '2px', height: '36px', marginBottom: '2px' }}></div>
+            <p style={{ fontSize: '7.5pt', margin: '2px 0 0 0' }}>Tanda Tangan</p>
           </div>
 
           <div>
-            <p style={{ fontWeight: 'bold', marginBottom: '64px' }}>PERUSAHAAN</p>
-            <div style={{ borderTop: '2px solid #000', paddingTop: '4px', height: '48px', marginBottom: '4px' }}></div>
-            <p style={{ fontSize: '9pt' }}>Tanda Tangan</p>
+            <p style={{ fontWeight: 'bold', marginBottom: '32px', margin: '0 0 32px 0', fontSize: '8pt' }}>PERUSAHAAN</p>
+            <div style={{ borderTop: '1pt solid #000', paddingTop: '2px', height: '36px', marginBottom: '2px' }}></div>
+            <p style={{ fontSize: '7.5pt', margin: '2px 0 0 0' }}>Tanda Tangan</p>
           </div>
 
           <div>
-            <p style={{ fontWeight: 'bold', marginBottom: '64px' }}>PENERIMA</p>
-            <div style={{ borderTop: '2px solid #000', paddingTop: '4px', height: '48px', marginBottom: '4px' }}></div>
-            <p style={{ fontSize: '9pt' }}>Tanda Tangan</p>
+            <p style={{ fontWeight: 'bold', marginBottom: '32px', margin: '0 0 32px 0', fontSize: '8pt' }}>PENERIMA</p>
+            <div style={{ borderTop: '1pt solid #000', paddingTop: '2px', height: '36px', marginBottom: '2px' }}></div>
+            <p style={{ fontSize: '7.5pt', margin: '2px 0 0 0' }}>Tanda Tangan</p>
           </div>
-        </div>
-
-        {/* Footer */}
-        <div style={{
-          marginTop: '32px',
-          paddingTop: '8px',
-          borderTop: '1px solid #d1d5db',
-          textAlign: 'center',
-          fontSize: '9pt',
-          color: '#4b5563',
-          width: '100%'
-        }}>
-          <p style={{ fontWeight: '600', fontSize: '9pt', margin: '4px 0' }}>PT. VANIA SUGIARTA JAYA</p>
-          <p style={{ fontSize: '9pt', margin: '2px 0' }}>Jln. Werdi Bhuwana, Kec. Mengwi, Kab. Badung-Bali, 80351</p>
-          <p style={{ fontSize: '9pt', margin: '2px 0' }}>Telp. (+62) 813-7026-6314 | www.vaniasugiarta.com</p>
         </div>
 
         {/* Print-specific styles */}

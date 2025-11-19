@@ -172,8 +172,11 @@ export function PartnerStatsSection() {
             transition={{ duration: 0.5, delay: 0.1 }}
           >
             <div className="flex flex-col items-center text-center">
-              <div className="text-3xl sm:text-4xl md:text-5xl font-bold text-slate-900">2025</div>
+              <div className="text-3xl sm:text-4xl md:text-5xl font-bold text-slate-900">2023</div>
               <div className="mt-2 text-xs sm:text-sm font-medium text-slate-600">Tahun Berdiri</div>
+            </div>
+            <div className="absolute inset-0 opacity-5 pointer-events-none">
+              <Image src="/logo.png" alt="VSJ Logo" fill className="object-contain p-8" />
             </div>
           </motion.div>
 
@@ -197,6 +200,9 @@ export function PartnerStatsSection() {
                 <span className="ml-1 text-2xl sm:text-3xl md:text-4xl font-bold text-orange-600">+</span>
               </div>
               <div className="mt-2 text-xs sm:text-sm font-medium text-slate-600">Proyek Selesai</div>
+            </div>
+            <div className="absolute inset-0 opacity-5 pointer-events-none">
+              <Image src="/logo.png" alt="VSJ Logo" fill className="object-contain p-8" />
             </div>
           </motion.div>
         </div>
