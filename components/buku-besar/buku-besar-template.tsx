@@ -2,6 +2,7 @@
 
 import { useRef, useState } from 'react'
 import { Button } from '@/components/ui/button'
+import { Printer, Download, Loader2 } from 'lucide-react'
 import html2canvas from 'html2canvas-pro'
 import jsPDF from 'jspdf'
 
@@ -77,6 +78,11 @@ export function BukuBesarTemplate({
       console.warn = originalWarn
       console.log = originalLog
 
+      // Use landscape A4 dimensions for proper page splitting
+      const A4_MM = { width: 297, height: 210 } // Landscape
+      const MARGIN_MM = 10
+      const CONTENT_WIDTH_MM = A4_MM.width - MARGIN_MM * 2
+
       const canvas = await html2canvas(element, {
         scale: 2,
         logging: false,
@@ -87,37 +93,65 @@ export function BukuBesarTemplate({
         ignoreElements: (el) => {
           return false
         },
-        windowHeight: element.scrollHeight,
-        windowWidth: element.scrollWidth,
+        scrollY: 0,
+        scrollX: 0,
       })
 
       setDownloadProgress(60)
 
-      const imgData = canvas.toDataURL('image/jpeg', 0.98)
+      // Convert mm to px (at scale 2)
+      const MM_TO_PX = (mmValue: number) => (mmValue * 96) / 25.4 * 2
+      const pageHeightPx = MM_TO_PX(A4_MM.height)
+      const contentHeightPerPagePx = pageHeightPx - MM_TO_PX(MARGIN_MM * 2)
+
+      // Create PDF from canvas
       const pdf = new jsPDF({
         orientation: 'landscape',
         unit: 'mm',
         format: 'a4',
       })
 
-      const pageWidth = pdf.internal.pageSize.getWidth()
-      const pageHeight = pdf.internal.pageSize.getHeight()
-      const margin = 10
+      const imgWidth = CONTENT_WIDTH_MM
+      const canvasWidth = canvas.width
+      const canvasHeight = canvas.height
 
-      const imgWidth = pageWidth - margin * 2
-      const imgHeight = (canvas.height * imgWidth) / canvas.width
+      // Calculate how many pages we need
+      const totalPages = Math.ceil(canvasHeight / contentHeightPerPagePx)
 
-      let heightLeft = imgHeight
-      let position = margin
+      for (let pageIdx = 0; pageIdx < totalPages; pageIdx++) {
+        if (pageIdx > 0) {
+          pdf.addPage()
+        }
 
-      pdf.addImage(imgData, 'JPEG', margin, position, imgWidth, imgHeight)
-      heightLeft -= pageHeight - margin * 2
+        // Calculate crop area for this page
+        const cropStartPx = pageIdx * contentHeightPerPagePx
+        const cropEndPx = Math.min(cropStartPx + contentHeightPerPagePx, canvasHeight)
+        const cropHeightPx = cropEndPx - cropStartPx
 
-      while (heightLeft > 0) {
-        position = heightLeft - imgHeight + margin
-        pdf.addPage()
-        pdf.addImage(imgData, 'JPEG', margin, position, imgWidth, imgHeight)
-        heightLeft -= pageHeight - margin * 2
+        // Create a temporary canvas for this page's content
+        const pageCanvas = document.createElement('canvas')
+        pageCanvas.width = canvasWidth
+        pageCanvas.height = cropHeightPx
+
+        const ctx = pageCanvas.getContext('2d')
+        if (ctx) {
+          ctx.drawImage(
+            canvas,
+            0, cropStartPx, // Source position (crop)
+            canvasWidth, cropHeightPx, // Source size
+            0, 0, // Destination position
+            canvasWidth, cropHeightPx // Destination size
+          )
+        }
+
+        // Convert page canvas to image data (PNG for better text clarity)
+        const pageImgData = pageCanvas.toDataURL('image/png', 0.98)
+
+        // Calculate image height based on width scaling
+        const imgHeight = (cropHeightPx * imgWidth) / canvasWidth
+
+        // Add image to PDF
+        pdf.addImage(pageImgData, 'PNG', MARGIN_MM, MARGIN_MM, imgWidth, imgHeight)
       }
 
       setDownloadProgress(90)
@@ -169,44 +203,18 @@ export function BukuBesarTemplate({
       <div className="mb-4 space-y-3 print:hidden">
         <div className="flex gap-2">
           <Button onClick={handlePrint} variant="outline" size="sm" disabled={isDownloading}>
-            <svg
-              className="mr-2 h-4 w-4"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2z"
-              />
-            </svg>
+            <Printer className="mr-2 h-4 w-4" />
             Cetak
           </Button>
           <Button onClick={handleDownloadPDF} variant="outline" size="sm" disabled={isDownloading}>
             {isDownloading ? (
               <>
-                <svg className="mr-2 h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                  <circle cx="12" cy="12" r="10" strokeWidth="2" />
-                </svg>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 Mengunduh...
               </>
             ) : (
               <>
-                <svg
-                  className="mr-2 h-4 w-4"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                  />
-                </svg>
+                <Download className="mr-2 h-4 w-4" />
                 Download PDF
               </>
             )}
@@ -487,37 +495,71 @@ export function BukuBesarTemplate({
             margin: 20mm 15mm 20mm 15mm;
           }
           @media print {
-            html, body {
+            html, body, div, p, h1, h2, h3, h4, h5, h6, table, tr, td, th {
               margin: 0;
               padding: 0;
+              overflow: visible !important;
+              -webkit-print-color-adjust: exact !important;
+              print-color-adjust: exact !important;
+              box-sizing: border-box;
+            }
+            html, body {
               width: 100%;
               height: 100%;
-            }
-            body {
+              background: white;
+              color: #000;
               font-size: 9pt;
               line-height: 1.3;
-              color: #000;
             }
             .print\\:hidden {
               display: none !important;
             }
-            * {
-              -webkit-print-color-adjust: exact !important;
-              print-color-adjust: exact !important;
-            }
             h1, h2, h3, h4 {
-              page-break-after: avoid;
+              page-break-after: avoid !important;
+              page-break-inside: avoid !important;
               margin: 0.1em 0 0.05em 0;
               padding: 0;
+              overflow: visible !important;
             }
+            p {
+              margin: 0;
+              padding: 0;
+              line-height: 1.3;
+              orphans: 3 !important;
+              widows: 3 !important;
+              page-break-inside: avoid !important;
+              overflow: visible !important;
+            }
+            div {
+              overflow: visible !important;
+            }
+            /* Table and row page break prevention */
             table {
-              page-break-inside: avoid;
+              page-break-inside: avoid !important;
               border-collapse: collapse;
               width: 100%;
               font-size: 9pt;
+              overflow: visible !important;
+            }
+            tbody {
+              display: table-row-group;
+              overflow: visible !important;
+            }
+            thead {
+              display: table-header-group;
+              overflow: visible !important;
             }
             tr {
-              page-break-inside: avoid;
+              page-break-inside: avoid !important;
+              break-inside: avoid-page !important;
+              display: table-row;
+              overflow: visible !important;
+            }
+            td, th {
+              page-break-inside: avoid !important;
+              overflow: visible !important;
+              display: table-cell;
+              vertical-align: top;
             }
           }
         `}</style>
