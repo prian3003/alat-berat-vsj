@@ -130,7 +130,7 @@ export function SuratPerjanjianTemplate({
         allowTaint: true,
         useCORS: true,
         backgroundColor: '#ffffff',
-        imageTimeout: 15000,
+        imageTimeout: 16000,
         ignoreElements: (el) => {
           return false
         },

@@ -226,21 +226,21 @@ export function HeroSection() {
           </motion.div>
         </motion.div>
 
-        {/* Mobile Katalog Image - Fill empty space on mobile */}
+        {/* Mobile Katalog Image - Full width on mobile */}
         <motion.div
           className="md:hidden mt-8 sm:mt-10 w-full flex justify-center pb-8"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.6 }}
         >
-          <div className="w-full max-w-sm px-4">
+          <div className="w-full px-0">
             <Image
               src="/herologo2.svg"
               alt="Katalog Alat Berat Bali"
-              width={400}
-              height={500}
+              width={800}
+              height={400}
               loading="lazy"
-              className="w-full h-auto rounded-lg"
+              className="w-full h-auto"
             />
           </div>
         </motion.div>

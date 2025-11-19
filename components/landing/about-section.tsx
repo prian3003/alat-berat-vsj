@@ -119,6 +119,26 @@ export function AboutSection() {
             </div>
           </div>
         </div>
+
+        {/* Google Maps Location */}
+        <div className="mt-12 sm:mt-16 max-w-4xl mx-auto">
+          <div className="text-center mb-6">
+            <h3 className="text-xl sm:text-2xl font-bold text-slate-900 mb-2">Lokasi Kami</h3>
+            <p className="text-sm sm:text-base text-slate-600">
+              Jl. Raya Denpasar No.16, Mangwi - Badung, Bali
+            </p>
+          </div>
+          <div className="relative w-full overflow-hidden rounded-xl shadow-lg border-2 border-slate-200" style={{ paddingBottom: '56.25%', height: 0 }}>
+            <iframe
+              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3946.8976469945844!2d115.17355887500983!3d-8.516481291525156!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2dd23b4ad161a047%3A0xbb7da6bad4bc14f0!2sPT%20Vania%20Sugiarta%20Jaya!5e0!3m2!1sen!2sid!4v1737365000000!5m2!1sen!2sid"
+              className="absolute top-0 left-0 w-full h-full border-0"
+              allowFullScreen
+              loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
+              title="PT. Vania Sugiarta Jaya Location"
+            />
+          </div>
+        </div>
       </div>
     </section>
   )

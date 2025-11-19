@@ -270,6 +270,58 @@ export default function AboutPage() {
         </div>
       </section>
 
+      {/* Location Map Section */}
+      <section className="py-12 sm:py-16 md:py-20 px-4 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-4xl">
+          <h2 className="text-3xl sm:text-4xl font-bold text-slate-900 mb-4 text-center">
+            Lokasi Kami
+          </h2>
+          <p className="text-center text-slate-600 mb-8 text-lg">
+            Kunjungi kantor kami di Jl. Raya Denpasar No.16, Mangwi - Badung, Bali
+          </p>
+          <div className="relative w-full overflow-hidden rounded-xl shadow-lg border-2 border-slate-200" style={{ paddingBottom: '56.25%', height: 0 }}>
+            <iframe
+              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3946.8976469945844!2d115.17355887500983!3d-8.516481291525156!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2dd23b4ad161a047%3A0xbb7da6bad4bc14f0!2sPT%20Vania%20Sugiarta%20Jaya!5e0!3m2!1sen!2sid!4v1737365000000!5m2!1sen!2sid"
+              className="absolute top-0 left-0 w-full h-full border-0"
+              allowFullScreen
+              loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
+              title="PT. Vania Sugiarta Jaya Location"
+            />
+          </div>
+
+          {/* Contact Info Below Map */}
+          <div className="mt-8 grid md:grid-cols-3 gap-6 text-center">
+            <div className="bg-slate-50 rounded-lg p-6 border border-slate-200">
+              <MapPin className="w-8 h-8 text-orange-600 mx-auto mb-3" />
+              <h3 className="font-bold text-slate-900 mb-2">Alamat</h3>
+              <p className="text-sm text-slate-600">
+                Jl. Raya Denpasar No.16<br />
+                Mangwi - Badung, Bali
+              </p>
+            </div>
+            <div className="bg-slate-50 rounded-lg p-6 border border-slate-200">
+              <Phone className="w-8 h-8 text-orange-600 mx-auto mb-3" />
+              <h3 className="font-bold text-slate-900 mb-2">Telepon</h3>
+              <p className="text-sm text-slate-600">
+                +62 813-2580-5326<br />
+                +62 822-3095-8088
+              </p>
+            </div>
+            <div className="bg-slate-50 rounded-lg p-6 border border-slate-200">
+              <svg className="w-8 h-8 text-orange-600 mx-auto mb-3" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <h3 className="font-bold text-slate-900 mb-2">Jam Operasional</h3>
+              <p className="text-sm text-slate-600">
+                Senin - Minggu<br />
+                24/7 Service
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* CTA Section */}
       <section className="py-12 sm:py-16 md:py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-r from-orange-600 to-orange-500">
         <div className="mx-auto max-w-4xl text-center">
