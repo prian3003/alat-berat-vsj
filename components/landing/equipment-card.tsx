@@ -47,7 +47,7 @@ export function EquipmentCard({ equipment, onClick }: EquipmentCardProps) {
     e.stopPropagation()
 
     // WhatsApp Business Number for VSJ
-    const whatsappNumber = '6282139659136'
+    const whatsappNumber = '6285813718988'
 
     // Build message with equipment details
     const message = `Halo, saya tertarik dengan alat berat berikut:\n\n*${equipment.name}*\nKategori: ${getCategoryLabel(equipment.category)}\n${specs?.brand ? `Brand: ${specs.brand}\n` : ''}${specs?.model ? `Model: ${specs.model}\n` : ''}Harga: ${formatPrice(equipment.price_per_hour)}/jam\n\nApakah tersedia untuk disewa?`
