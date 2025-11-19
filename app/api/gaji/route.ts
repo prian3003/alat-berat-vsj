@@ -52,6 +52,7 @@ export async function GET(request: NextRequest) {
             urutan: 'asc',
           },
         },
+        pekerjas: true,
       },
       orderBy: {
         tanggalMulai: 'desc',

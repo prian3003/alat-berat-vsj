@@ -31,6 +31,7 @@ export async function GET(
             urutan: 'asc',
           },
         },
+        pekerjas: true,
       },
     })
 
@@ -103,6 +104,7 @@ export async function PUT(
       },
       include: {
         items: true,
+        pekerjas: true,
       },
     })
 

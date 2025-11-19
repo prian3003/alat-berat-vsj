@@ -22,6 +22,13 @@ interface GajiItem {
   createdAt: string
 }
 
+interface GajiPekerja {
+  id: string
+  pekerjaNama: string
+  pekerjaId?: string
+  jabatan: string
+}
+
 interface Gaji {
   id: string
   nomorGaji: string
@@ -37,6 +44,7 @@ interface Gaji {
   createdAt: string
   updatedAt: string
   items: GajiItem[]
+  pekerjas?: GajiPekerja[]
 }
 
 export default function AdminGajiPage() {
@@ -48,6 +56,7 @@ export default function AdminGajiPage() {
   const [showForm, setShowForm] = useState(false)
   const [selectedGaji, setSelectedGaji] = useState<Gaji | null>(null)
   const [showPreview, setShowPreview] = useState(false)
+  const [filterType, setFilterType] = useState<'all' | 'weekly' | 'monthly'>('all')
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -110,6 +119,36 @@ export default function AdminGajiPage() {
     }
   }
 
+  const handleMarkAsPaid = async (gajiId: string) => {
+    try {
+      const response = await fetch(`/api/gaji/${gajiId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: 'completed' }),
+      })
+
+      if (!response.ok) {
+        const data = await response.json()
+        throw new Error(data.error || 'Failed to update status')
+      }
+
+      toast({
+        variant: "success",
+        title: "Berhasil",
+        description: "Status gaji diubah menjadi Lunas",
+      })
+
+      fetchGaji()
+    } catch (error) {
+      console.error('Error updating status:', error)
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: error instanceof Error ? error.message : "Gagal mengubah status",
+      })
+    }
+  }
+
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('id-ID', {
       style: 'currency',
@@ -125,6 +164,10 @@ export default function AdminGajiPage() {
       year: 'numeric',
     })
   }
+
+  const filteredGaji = filterType === 'all'
+    ? gajiList
+    : gajiList.filter(gaji => gaji.tipe === filterType)
 
   if (isLoading) {
     return (
@@ -259,7 +302,7 @@ export default function AdminGajiPage() {
       {/* Main Content */}
       <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6">
             <div>
               <h2 className="text-2xl font-bold text-slate-900">Kelola Gaji</h2>
               <p className="mt-2 text-slate-600">Tambah, ubah, atau hapus data gaji karyawan</p>
@@ -274,6 +317,40 @@ export default function AdminGajiPage() {
               Tambah Gaji
             </button>
           </div>
+
+          {/* Filter Tabs */}
+          <div className="flex gap-2 border-b">
+            <button
+              onClick={() => setFilterType('all')}
+              className={`px-4 py-2 font-medium text-sm transition-colors ${
+                filterType === 'all'
+                  ? 'text-orange-600 border-b-2 border-orange-600'
+                  : 'text-slate-600 border-b-2 border-transparent hover:text-slate-900'
+              }`}
+            >
+              Semua ({gajiList.length})
+            </button>
+            <button
+              onClick={() => setFilterType('weekly')}
+              className={`px-4 py-2 font-medium text-sm transition-colors ${
+                filterType === 'weekly'
+                  ? 'text-orange-600 border-b-2 border-orange-600'
+                  : 'text-slate-600 border-b-2 border-transparent hover:text-slate-900'
+              }`}
+            >
+              Mingguan ({gajiList.filter(g => g.tipe === 'weekly').length})
+            </button>
+            <button
+              onClick={() => setFilterType('monthly')}
+              className={`px-4 py-2 font-medium text-sm transition-colors ${
+                filterType === 'monthly'
+                  ? 'text-orange-600 border-b-2 border-orange-600'
+                  : 'text-slate-600 border-b-2 border-transparent hover:text-slate-900'
+              }`}
+            >
+              Bulanan ({gajiList.filter(g => g.tipe === 'monthly').length})
+            </button>
+          </div>
         </div>
 
         {/* Salary List */}
@@ -283,57 +360,82 @@ export default function AdminGajiPage() {
               <div key={i} className="h-64 bg-slate-100 rounded-lg animate-pulse" />
             ))}
           </div>
-        ) : gajiList.length > 0 ? (
+        ) : filteredGaji.length > 0 ? (
           <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-            {gajiList.map((gaji) => (
+            {filteredGaji.map((gaji) => (
               <div
                 key={gaji.id}
-                className="rounded-lg bg-white shadow-sm hover:shadow-md transition-shadow overflow-hidden"
+                className="rounded-lg bg-white shadow-sm hover:shadow-lg transition-all overflow-hidden border border-slate-200"
               >
                 <div className="p-6">
+                  {/* Header */}
                   <div className="flex items-start justify-between mb-4">
-                    <div>
-                      <h3 className="font-semibold text-slate-900">{gaji.nomorGaji}</h3>
-                      <p className="text-sm text-slate-500 mt-1">
-                        {gaji.tipe === 'monthly' ? 'Bulanan' : 'Mingguan'} - {formatDate(gaji.tanggalMulai)}
+                    <div className="flex-1">
+                      <h3 className="font-bold text-lg text-slate-900">{gaji.nomorGaji}</h3>
+                      <p className="text-xs text-slate-500 mt-1">
+                        {gaji.tipe === 'monthly' ? 'Bulanan' : 'Mingguan'} • {formatDate(gaji.tanggalMulai)}
                       </p>
                     </div>
-                    <span className={`inline-block px-2 py-1 rounded text-xs font-medium ${
+                    <span className={`inline-block px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap ml-2 ${
                       gaji.status === 'completed'
                         ? 'bg-green-100 text-green-700'
                         : 'bg-yellow-100 text-yellow-700'
                     }`}>
-                      {gaji.status === 'completed' ? 'Selesai' : 'Draft'}
+                      {gaji.status === 'completed' ? 'Lunas' : 'Draft'}
                     </span>
                   </div>
 
-                  <div className="mb-4 p-3 bg-slate-50 rounded">
-                    <p className="text-sm text-slate-600">Total Gaji</p>
-                    <p className="text-2xl font-bold text-orange-600">
-                      {gaji.totalGaji > 0 ? (new Intl.NumberFormat('id-ID', { notation: 'compact', compactDisplay: 'short' }).format(gaji.totalGaji)) : 'Rp 0'}
+                  {/* Worker Info */}
+                  {gaji.pekerjas && gaji.pekerjas.length > 0 && (
+                    <div className="mb-3 p-2 bg-blue-50 rounded border border-blue-100">
+                      <p className="text-xs text-blue-600 font-semibold">Pekerja</p>
+                      <p className="text-sm text-blue-900 font-medium">
+                        {gaji.pekerjas[0].pekerjaNama}
+                      </p>
+                      <p className="text-xs text-blue-700">
+                        {gaji.pekerjas[0].jabatan}
+                      </p>
+                    </div>
+                  )}
+
+                  {/* Total Display */}
+                  <div className="mb-4 p-4 bg-gradient-to-r from-orange-50 to-orange-100 rounded-lg border border-orange-200">
+                    <p className="text-xs text-orange-600 font-semibold uppercase">Total Gaji</p>
+                    <p className="text-3xl font-bold text-orange-600 mt-1">
+                      {formatCurrency(gaji.totalGaji)}
                     </p>
                   </div>
 
-                  <div className="text-xs text-slate-500 mb-4 space-y-1">
-                    <p>Periode: {formatDate(gaji.tanggalMulai)} - {formatDate(gaji.tanggalSelesai)}</p>
+                  {/* Period Info */}
+                  <div className="text-xs text-slate-600 mb-4 space-y-1 bg-slate-50 p-2 rounded">
+                    <p>📅 {formatDate(gaji.tanggalMulai)} - {formatDate(gaji.tanggalSelesai)}</p>
                     {gaji.tipe === 'monthly' && gaji.bulan && (
-                      <p>Bulan: {gaji.bulan}/{gaji.tahun}</p>
+                      <p>📆 {new Date(2024, gaji.bulan - 1).toLocaleDateString('id-ID', { month: 'long', year: 'numeric' })}</p>
                     )}
                   </div>
 
+                  {/* Action Buttons */}
                   <div className="flex gap-2">
                     <button
                       onClick={() => {
                         setSelectedGaji(gaji)
                         setShowPreview(true)
                       }}
-                      className="flex-1 text-sm font-medium text-orange-600 hover:text-orange-700 bg-orange-50 hover:bg-orange-100 rounded py-2 transition-colors"
+                      className="flex-1 text-sm font-medium text-orange-600 hover:text-orange-700 bg-orange-50 hover:bg-orange-100 rounded-lg py-2 transition-colors"
                     >
                       Preview
                     </button>
+                    {gaji.status !== 'completed' && (
+                      <button
+                        onClick={() => handleMarkAsPaid(gaji.id)}
+                        className="flex-1 text-sm font-medium text-green-600 hover:text-green-700 bg-green-50 hover:bg-green-100 rounded-lg py-2 transition-colors"
+                      >
+                        Lunas
+                      </button>
+                    )}
                     <button
                       onClick={() => handleDelete(gaji.id, gaji.nomorGaji)}
-                      className="flex-1 text-sm font-medium text-red-600 hover:text-red-700 bg-red-50 hover:bg-red-100 rounded py-2 transition-colors"
+                      className="flex-1 text-sm font-medium text-red-600 hover:text-red-700 bg-red-50 hover:bg-red-100 rounded-lg py-2 transition-colors"
                     >
                       Hapus
                     </button>
