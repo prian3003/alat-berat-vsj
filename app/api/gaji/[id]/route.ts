@@ -68,6 +68,26 @@ export async function PUT(
     const body = await request.json()
     const { items, ...data } = body
 
+    // Check if this is a simple status update (only status field sent)
+    const isStatusOnlyUpdate = Object.keys(body).length === 1 && body.status !== undefined
+
+    if (isStatusOnlyUpdate) {
+      // Simple status update - just update the status field
+      const gaji = await prisma.gaji.update({
+        where: { id },
+        data: {
+          status: body.status,
+        },
+        include: {
+          items: true,
+          pekerjas: true,
+        },
+      })
+
+      return NextResponse.json(gaji)
+    }
+
+    // Full update with items
     // Process items
     const itemsData = items?.map((item: any, idx: number) => ({
       urutan: idx + 1,

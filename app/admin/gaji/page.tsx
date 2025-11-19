@@ -59,6 +59,7 @@ export default function AdminGajiPage() {
   const [showPreview, setShowPreview] = useState(false)
   const [filterType, setFilterType] = useState<'all' | 'weekly' | 'monthly'>('all')
   const [searchQuery, setSearchQuery] = useState('')
+  const [updatingStatus, setUpdatingStatus] = useState<string | null>(null)
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -122,6 +123,7 @@ export default function AdminGajiPage() {
   }
 
   const handleMarkAsPaid = async (gajiId: string) => {
+    setUpdatingStatus(gajiId)
     try {
       const response = await fetch(`/api/gaji/${gajiId}`, {
         method: 'PUT',
@@ -148,6 +150,8 @@ export default function AdminGajiPage() {
         title: "Error",
         description: error instanceof Error ? error.message : "Gagal mengubah status",
       })
+    } finally {
+      setUpdatingStatus(null)
     }
   }
 
@@ -476,10 +480,20 @@ export default function AdminGajiPage() {
                     {gaji.status !== 'completed' && (
                       <button
                         onClick={() => handleMarkAsPaid(gaji.id)}
-                        className="flex-1 flex items-center justify-center gap-2 text-sm font-medium text-green-600 hover:text-green-700 bg-green-50 hover:bg-green-100 rounded-lg py-2 transition-colors"
+                        disabled={updatingStatus === gaji.id}
+                        className="flex-1 flex items-center justify-center gap-2 text-sm font-medium text-green-600 hover:text-green-700 bg-green-50 hover:bg-green-100 rounded-lg py-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                       >
-                        <CheckCircle className="h-4 w-4" />
-                        Lunas
+                        {updatingStatus === gaji.id ? (
+                          <>
+                            <div className="h-4 w-4 animate-spin rounded-full border-2 border-green-600 border-t-transparent"></div>
+                            Memproses...
+                          </>
+                        ) : (
+                          <>
+                            <CheckCircle className="h-4 w-4" />
+                            Lunas
+                          </>
+                        )}
                       </button>
                     )}
                     <button
