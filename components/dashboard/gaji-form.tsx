@@ -59,16 +59,18 @@ export function GajiForm({ onSuccess, onCancel }: GajiFormProps) {
   const fetchPekerja = async () => {
     try {
       const response = await fetch('/api/pekerja?status=aktif')
-      if (!response.ok) throw new Error('Failed to fetch workers')
+      if (!response.ok) {
+        console.error('Error fetching workers:', response.statusText)
+        // Still set loading to false so form can be used
+        setPekerjaLoading(false)
+        return
+      }
       const data = await response.json()
       setPekerjaList(data)
     } catch (error) {
       console.error('Error fetching workers:', error)
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Gagal memuat daftar pekerja",
-      })
+      // Still set loading to false so form can be used
+      setPekerjaLoading(false)
     } finally {
       setPekerjaLoading(false)
     }
@@ -129,7 +131,8 @@ export function GajiForm({ onSuccess, onCancel }: GajiFormProps) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
-    if (!selectedPekerja) {
+    // Only require worker selection if workers are available
+    if (pekerjaList.length > 0 && !selectedPekerja) {
       toast({
         variant: "destructive",
         title: "Error",
@@ -169,13 +172,13 @@ export function GajiForm({ onSuccess, onCancel }: GajiFormProps) {
         keterangan: formData.keterangan || null,
         status: formData.status,
         items: tipe === 'weekly' ? items : [],
-        pekerjas: [
+        pekerjas: selectedPekerja ? [
           {
             pekerjaNama: selectedPekerja.nama,
             pekerjaId: selectedPekerja.id,
             jabatan: selectedPekerja.jabatan,
           }
-        ],
+        ] : [],
       }
 
       const response = await fetch('/api/gaji', {
