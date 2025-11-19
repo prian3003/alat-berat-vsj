@@ -9,6 +9,7 @@ import { useToast } from '@/hooks/use-toast'
 import { useAuth } from '@/context/AuthContext'
 import { Toaster } from '@/components/ui/toaster'
 import { useConfirm } from '@/hooks/use-confirm'
+import { Plus, Edit2, Trash2, LogOut, Home } from 'lucide-react'
 
 interface Pekerja {
   id: string
@@ -198,10 +199,14 @@ export default function AdminPekerjaPage() {
               <p className="text-sm text-slate-600">Kelola alat berat dan konten website</p>
             </div>
             <div className="flex gap-2">
-              <Button asChild variant="outline">
-                <Link href="/">Kembali ke Website</Link>
+              <Button asChild variant="outline" className="flex items-center gap-2">
+                <Link href="/" className="flex items-center gap-2">
+                  <Home className="h-4 w-4" />
+                  Kembali ke Website
+                </Link>
               </Button>
-              <Button variant="outline" onClick={logout}>
+              <Button variant="outline" onClick={logout} className="flex items-center gap-2">
+                <LogOut className="h-4 w-4" />
                 Logout
               </Button>
             </div>
@@ -291,9 +296,7 @@ export default function AdminPekerjaPage() {
               }}
               className="mt-4 sm:mt-0 inline-flex items-center gap-2 rounded-lg bg-orange-600 px-6 py-3 text-white font-medium hover:bg-orange-700 transition-colors"
             >
-              <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-              </svg>
+              <Plus className="h-5 w-5" />
               Tambah Pekerja
             </button>
           </div>
@@ -423,18 +426,20 @@ export default function AdminPekerjaPage() {
                       </span>
                     </td>
                     <td className="px-6 py-4 text-center">
-                      <div className="flex gap-2 justify-center">
+                      <div className="flex gap-3 justify-center">
                         <button
                           onClick={() => handleEdit(pekerja)}
-                          className="text-blue-600 hover:text-blue-700 font-medium text-sm"
+                          className="text-blue-600 hover:text-blue-700 hover:bg-blue-50 p-2 rounded transition-colors"
+                          title="Edit pekerja"
                         >
-                          Edit
+                          <Edit2 className="h-4 w-4" />
                         </button>
                         <button
                           onClick={() => handleDelete(pekerja.id, pekerja.nama)}
-                          className="text-red-600 hover:text-red-700 font-medium text-sm"
+                          className="text-red-600 hover:text-red-700 hover:bg-red-50 p-2 rounded transition-colors"
+                          title="Hapus pekerja"
                         >
-                          Hapus
+                          <Trash2 className="h-4 w-4" />
                         </button>
                       </div>
                     </td>

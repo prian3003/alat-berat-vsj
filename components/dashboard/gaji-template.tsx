@@ -15,6 +15,11 @@ interface GajiItem {
   tipe: string
 }
 
+interface GajiPekerja {
+  pekerjaNama: string
+  jabatan: string
+}
+
 interface GajiTemplateProps {
   gaji: {
     nomorGaji: string
@@ -26,6 +31,7 @@ interface GajiTemplateProps {
     totalGaji: number
     keterangan?: string
     items?: GajiItem[]
+    pekerjas?: GajiPekerja[]
   }
 }
 
@@ -178,6 +184,20 @@ export function GajiTemplate({ gaji }: GajiTemplateProps) {
               </div>
             )}
           </div>
+
+          {/* Worker Info */}
+          {gaji.pekerjas && gaji.pekerjas.length > 0 && (
+            <div style={{ fontSize: '8.5pt', marginBottom: '6px', lineHeight: '1.4', border: '0.5pt solid #999', padding: '6px', backgroundColor: '#f5f5ff' }}>
+              <div className="flex justify-between">
+                <div>
+                  <span>Nama Pekerja: <strong>{gaji.pekerjas[0].pekerjaNama}</strong></span>
+                </div>
+                <div>
+                  <span>Jabatan: <strong>{gaji.pekerjas[0].jabatan}</strong></span>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Items Table for Weekly */}
           {gaji.tipe === 'weekly' && gaji.items && gaji.items.length > 0 && (

@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { useToast } from '@/hooks/use-toast'
+import { X, Plus } from 'lucide-react'
 
 interface Pekerja {
   id: string
@@ -223,11 +224,9 @@ export function GajiForm({ onSuccess, onCancel }: GajiFormProps) {
             </div>
             <button
               onClick={onCancel}
-              className="text-slate-500 hover:text-slate-700"
+              className="text-slate-500 hover:text-slate-700 transition-colors"
             >
-              <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
+              <X className="h-6 w-6" />
             </button>
           </div>
         </div>
@@ -424,11 +423,9 @@ export function GajiForm({ onSuccess, onCancel }: GajiFormProps) {
                     <Button
                       type="button"
                       onClick={handleAddItem}
-                      className="bg-green-600 hover:bg-green-700 h-9 px-4"
+                      className="bg-green-600 hover:bg-green-700 h-9 px-4 flex items-center gap-1"
                     >
-                      <svg className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                      </svg>
+                      <Plus className="h-4 w-4" />
                       Tambah
                     </Button>
                   </div>
@@ -462,9 +459,7 @@ export function GajiForm({ onSuccess, onCancel }: GajiFormProps) {
                                   className="inline-flex items-center justify-center w-6 h-6 text-red-600 hover:text-red-700 hover:bg-red-50 rounded transition-colors"
                                   title="Hapus item"
                                 >
-                                  <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                                  </svg>
+                                  <X className="h-4 w-4" />
                                 </button>
                               </td>
                             </tr>

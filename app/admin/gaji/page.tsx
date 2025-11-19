@@ -9,6 +9,7 @@ import { Toaster } from '@/components/ui/toaster'
 import { useConfirm } from '@/hooks/use-confirm'
 import { GajiForm } from '@/components/dashboard/gaji-form'
 import { GajiTemplate } from '@/components/dashboard/gaji-template'
+import { Plus, Eye, CheckCircle, Trash2, ArrowLeft } from 'lucide-react'
 
 interface GajiItem {
   id: string
@@ -201,9 +202,10 @@ export default function AdminGajiPage() {
             <div className="flex items-center justify-between">
               <button
                 onClick={() => setShowPreview(false)}
-                className="text-slate-600 hover:text-slate-900"
+                className="flex items-center gap-2 text-slate-600 hover:text-slate-900 transition-colors"
               >
-                ← Kembali
+                <ArrowLeft className="h-5 w-5" />
+                Kembali
               </button>
               <h1 className="text-2xl font-bold text-slate-900">Preview Gaji</h1>
               <div></div>
@@ -311,9 +313,7 @@ export default function AdminGajiPage() {
               onClick={() => setShowForm(true)}
               className="mt-4 sm:mt-0 inline-flex items-center gap-2 rounded-lg bg-orange-600 px-6 py-3 text-white font-medium hover:bg-orange-700 transition-colors"
             >
-              <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-              </svg>
+              <Plus className="h-5 w-5" />
               Tambah Gaji
             </button>
           </div>
@@ -421,22 +421,25 @@ export default function AdminGajiPage() {
                         setSelectedGaji(gaji)
                         setShowPreview(true)
                       }}
-                      className="flex-1 text-sm font-medium text-orange-600 hover:text-orange-700 bg-orange-50 hover:bg-orange-100 rounded-lg py-2 transition-colors"
+                      className="flex-1 flex items-center justify-center gap-2 text-sm font-medium text-orange-600 hover:text-orange-700 bg-orange-50 hover:bg-orange-100 rounded-lg py-2 transition-colors"
                     >
+                      <Eye className="h-4 w-4" />
                       Preview
                     </button>
                     {gaji.status !== 'completed' && (
                       <button
                         onClick={() => handleMarkAsPaid(gaji.id)}
-                        className="flex-1 text-sm font-medium text-green-600 hover:text-green-700 bg-green-50 hover:bg-green-100 rounded-lg py-2 transition-colors"
+                        className="flex-1 flex items-center justify-center gap-2 text-sm font-medium text-green-600 hover:text-green-700 bg-green-50 hover:bg-green-100 rounded-lg py-2 transition-colors"
                       >
+                        <CheckCircle className="h-4 w-4" />
                         Lunas
                       </button>
                     )}
                     <button
                       onClick={() => handleDelete(gaji.id, gaji.nomorGaji)}
-                      className="flex-1 text-sm font-medium text-red-600 hover:text-red-700 bg-red-50 hover:bg-red-100 rounded-lg py-2 transition-colors"
+                      className="flex-1 flex items-center justify-center gap-2 text-sm font-medium text-red-600 hover:text-red-700 bg-red-50 hover:bg-red-100 rounded-lg py-2 transition-colors"
                     >
+                      <Trash2 className="h-4 w-4" />
                       Hapus
                     </button>
                   </div>
