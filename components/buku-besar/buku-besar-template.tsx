@@ -83,6 +83,28 @@ export function BukuBesarTemplate({
       const MARGIN_MM = 10
       const CONTENT_WIDTH_MM = A4_MM.width - MARGIN_MM * 2
 
+      // DOM-based page break detection - scan table rows BEFORE rendering
+      const getTableRowPositions = (): number[] => {
+        const positions: number[] = []
+        const table = element.querySelector('table')
+        if (!table) return positions
+
+        const rows = Array.from(table.querySelectorAll('tr'))
+        const tableRect = table.getBoundingClientRect()
+        const elementRect = element.getBoundingClientRect()
+
+        rows.forEach((row) => {
+          const rowRect = row.getBoundingClientRect()
+          // Get position relative to the element
+          const relativeY = rowRect.bottom - elementRect.top
+          positions.push(relativeY)
+        })
+
+        return positions
+      }
+
+      const rowPositions = getTableRowPositions()
+
       const canvas = await html2canvas(element, {
         scale: 2,
         logging: false,
@@ -104,6 +126,53 @@ export function BukuBesarTemplate({
       const pageHeightPx = MM_TO_PX(A4_MM.height)
       const contentHeightPerPagePx = pageHeightPx - MM_TO_PX(MARGIN_MM * 2)
 
+      // Use DOM row positions to determine page breaks
+      const detectPageBreaks = (): number[] => {
+        const breaks: number[] = [0]
+
+        if (rowPositions.length === 0) {
+          // Fallback: use simple pixel-based splitting if no rows found
+          const canvasHeight = canvas.height
+          for (let i = contentHeightPerPagePx; i < canvasHeight; i += contentHeightPerPagePx) {
+            breaks.push(i)
+          }
+          breaks.push(canvasHeight)
+          return breaks
+        }
+
+        // Convert DOM positions to canvas pixels (accounting for scale 2)
+        const rowPixels = rowPositions.map((pos) => pos * 2)
+
+        let currentPageEnd = contentHeightPerPagePx
+        let rowIdx = 0
+
+        while (rowIdx < rowPixels.length) {
+          // Find the last row that fits on this page
+          while (rowIdx < rowPixels.length && rowPixels[rowIdx] <= currentPageEnd) {
+            rowIdx++
+          }
+
+          // Back up to last row that fits
+          if (rowIdx > 0) {
+            const lastRowThatFits = rowPixels[rowIdx - 1]
+            breaks.push(lastRowThatFits)
+            currentPageEnd = lastRowThatFits + contentHeightPerPagePx
+          } else {
+            // First row is too long for a page, force it anyway
+            currentPageEnd += contentHeightPerPagePx
+          }
+        }
+
+        // Ensure last page is included
+        if (breaks[breaks.length - 1] !== canvas.height) {
+          breaks.push(canvas.height)
+        }
+
+        return breaks
+      }
+
+      const pageBreaks = detectPageBreaks()
+
       // Create PDF from canvas
       const pdf = new jsPDF({
         orientation: 'landscape',
@@ -113,19 +182,14 @@ export function BukuBesarTemplate({
 
       const imgWidth = CONTENT_WIDTH_MM
       const canvasWidth = canvas.width
-      const canvasHeight = canvas.height
 
-      // Calculate how many pages we need
-      const totalPages = Math.ceil(canvasHeight / contentHeightPerPagePx)
-
-      for (let pageIdx = 0; pageIdx < totalPages; pageIdx++) {
-        if (pageIdx > 0) {
+      for (let breakIdx = 0; breakIdx < pageBreaks.length - 1; breakIdx++) {
+        if (breakIdx > 0) {
           pdf.addPage()
         }
 
-        // Calculate crop area for this page
-        const cropStartPx = pageIdx * contentHeightPerPagePx
-        const cropEndPx = Math.min(cropStartPx + contentHeightPerPagePx, canvasHeight)
+        const cropStartPx = pageBreaks[breakIdx]
+        const cropEndPx = pageBreaks[breakIdx + 1]
         const cropHeightPx = cropEndPx - cropStartPx
 
         // Create a temporary canvas for this page's content
