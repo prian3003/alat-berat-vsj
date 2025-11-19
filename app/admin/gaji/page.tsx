@@ -246,6 +246,12 @@ export default function AdminGajiPage() {
             >
               Gaji
             </Link>
+            <Link
+              href="/admin/pekerja"
+              className="border-b-2 border-transparent px-4 py-3 text-sm font-medium text-slate-600 hover:border-slate-300 hover:text-slate-900 whitespace-nowrap"
+            >
+              Pekerja
+            </Link>
           </nav>
         </div>
       </header>
