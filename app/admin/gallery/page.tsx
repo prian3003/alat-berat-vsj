@@ -37,6 +37,10 @@ export default function AdminGalleryPage() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [filePreviewUrl, setFilePreviewUrl] = useState<string | null>(null)
   const [mediaType, setMediaType] = useState<'image' | 'video' | null>(null)
+  const [inputType, setInputType] = useState<'upload' | 'url'>('upload')
+  const [urlInput, setUrlInput] = useState('')
+  const [urlLoading, setUrlLoading] = useState(false)
+  const [urlError, setUrlError] = useState<string | null>(null)
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -74,6 +78,88 @@ export default function AdminGalleryPage() {
     } finally {
       setLoading(false)
     }
+  }
+
+  const validateMediaUrl = async (url: string) => {
+    if (!url) {
+      setUrlError(null)
+      return false
+    }
+
+    try {
+      new URL(url)
+    } catch {
+      setUrlError('URL tidak valid')
+      return false
+    }
+
+    setUrlLoading(true)
+    setUrlError(null)
+
+    try {
+      const response = await fetch(url, { method: 'HEAD' })
+      const contentType = response.headers.get('content-type') || ''
+
+      const isImage = contentType.startsWith('image/')
+      const isVideo = contentType.startsWith('video/')
+
+      if (!isImage && !isVideo) {
+        setUrlError('URL harus berupa gambar atau video')
+        setUrlLoading(false)
+        return false
+      }
+
+      setUrlError(null)
+      setUrlLoading(false)
+      return true
+    } catch (error) {
+      setUrlError('Tidak dapat memverifikasi URL ini')
+      setUrlLoading(false)
+      return false
+    }
+  }
+
+  const handleAddMediaUrl = async () => {
+    if (!urlInput.trim()) {
+      setUrlError('Masukkan URL gambar atau video terlebih dahulu')
+      return
+    }
+
+    const isValid = await validateMediaUrl(urlInput)
+    if (!isValid) return
+
+    // Set form data with URL
+    const isVideo = urlInput.toLowerCase().includes('.mp4') || urlInput.toLowerCase().includes('.webm')
+
+    if (isVideo) {
+      setFormData(prev => ({
+        ...prev,
+        video_url: urlInput,
+        media_type: 'video'
+      }))
+      setMediaType('video')
+      toast({
+        variant: "success",
+        title: "Berhasil",
+        description: "URL video berhasil ditambahkan",
+      })
+    } else {
+      setFormData(prev => ({
+        ...prev,
+        image_url: urlInput,
+        media_type: 'image'
+      }))
+      setMediaType('image')
+      toast({
+        variant: "success",
+        title: "Berhasil",
+        description: "URL gambar berhasil ditambahkan",
+      })
+    }
+
+    setUrlInput('')
+    setUrlError(null)
+    setInputType('upload')
   }
 
   const handleFileSelect = (file: File) => {
@@ -430,9 +516,36 @@ export default function AdminGalleryPage() {
             </div>
 
             <div className="mt-4">
-              <label className="block text-sm font-medium text-slate-900 mb-3">Upload Gambar</label>
+              <label className="block text-sm font-medium text-slate-900 mb-3">Tambah Media</label>
+
+              {/* Toggle between Upload and URL */}
+              <div className="mb-3 flex gap-2 bg-slate-100 rounded-lg p-1 w-fit">
+                <button
+                  type="button"
+                  onClick={() => setInputType('upload')}
+                  className={`px-4 py-2 text-sm font-medium rounded transition-colors ${
+                    inputType === 'upload'
+                      ? 'bg-blue-600 text-white'
+                      : 'text-slate-700 hover:bg-slate-200'
+                  }`}
+                >
+                  Upload File
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setInputType('url')}
+                  className={`px-4 py-2 text-sm font-medium rounded transition-colors ${
+                    inputType === 'url'
+                      ? 'bg-blue-600 text-white'
+                      : 'text-slate-700 hover:bg-slate-200'
+                  }`}
+                >
+                  Dari URL
+                </button>
+              </div>
 
               {/* File Upload Button */}
+              {inputType === 'upload' && (
               <div className="space-y-3">
                 <div className="flex gap-2">
                   <button
@@ -567,6 +680,51 @@ export default function AdminGalleryPage() {
                   </div>
                 )}
               </div>
+              )}
+
+              {/* URL Input Section */}
+              {inputType === 'url' && (
+              <div className="space-y-3 p-4 bg-slate-50 rounded-lg border border-slate-300">
+                <div className="flex gap-2">
+                  <input
+                    type="url"
+                    value={urlInput}
+                    onChange={(e) => {
+                      setUrlInput(e.target.value)
+                      setUrlError(null)
+                    }}
+                    placeholder="https://example.com/image.jpg atau https://example.com/video.mp4"
+                    className={`flex-1 rounded-lg border px-3 py-2 text-sm focus:outline-none focus:ring-2 ${
+                      urlError
+                        ? 'border-red-300 focus:border-red-500 focus:ring-red-500/20'
+                        : 'border-slate-300 focus:border-blue-500 focus:ring-blue-500/20'
+                    }`}
+                    disabled={urlLoading}
+                  />
+                  <button
+                    type="button"
+                    onClick={handleAddMediaUrl}
+                    disabled={!urlInput.trim() || urlLoading}
+                    className="inline-flex items-center gap-2 rounded-lg bg-green-600 px-4 py-2 text-white font-medium hover:bg-green-700 transition-colors disabled:opacity-50"
+                  >
+                    {urlLoading ? (
+                      <>
+                        <svg className="h-5 w-5 animate-spin" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <circle cx="12" cy="12" r="10" strokeWidth="2" />
+                        </svg>
+                        Validasi...
+                      </>
+                    ) : (
+                      'Tambah'
+                    )}
+                  </button>
+                </div>
+                {urlError && (
+                  <p className="text-sm text-red-600">{urlError}</p>
+                )}
+                <p className="text-xs text-slate-500">Masukkan URL gambar atau video dan klik Tambah untuk menambahkan ke galeri</p>
+              </div>
+              )}
             </div>
 
             <div className="mt-6 flex gap-3">

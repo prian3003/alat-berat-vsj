@@ -28,6 +28,10 @@ export function EquipmentForm({ equipment, onSuccess, onCancel }: EquipmentFormP
   const [loading, setLoading] = useState(false)
   const [uploading, setUploading] = useState(false)
   const [images, setImages] = useState<ImageUpload[]>([])
+  const [imageInputType, setImageInputType] = useState<'upload' | 'url'>('upload')
+  const [urlInput, setUrlInput] = useState('')
+  const [urlLoading, setUrlLoading] = useState(false)
+  const [urlError, setUrlError] = useState<string | null>(null)
   const [formData, setFormData] = useState({
     name: equipment?.name || '',
     category: equipment?.category || '',
@@ -55,6 +59,67 @@ export function EquipmentForm({ equipment, onSuccess, onCancel }: EquipmentFormP
       setImages(existingImages)
     }
   }, [equipment])
+
+  const validateImageUrl = async (url: string) => {
+    if (!url) {
+      setUrlError(null)
+      return false
+    }
+
+    // Basic URL validation
+    try {
+      new URL(url)
+    } catch {
+      setUrlError('URL tidak valid')
+      return false
+    }
+
+    // Check if URL points to an image
+    setUrlLoading(true)
+    setUrlError(null)
+
+    try {
+      const response = await fetch(url, { method: 'HEAD' })
+      const contentType = response.headers.get('content-type')
+
+      if (!contentType?.startsWith('image/')) {
+        setUrlError('URL bukan gambar yang valid')
+        setUrlLoading(false)
+        return false
+      }
+
+      setUrlError(null)
+      setUrlLoading(false)
+      return true
+    } catch (error) {
+      setUrlError('Tidak dapat memuat gambar dari URL ini')
+      setUrlLoading(false)
+      return false
+    }
+  }
+
+  const handleAddImageUrl = async () => {
+    if (!urlInput.trim()) {
+      setUrlError('Masukkan URL gambar terlebih dahulu')
+      return
+    }
+
+    const isValid = await validateImageUrl(urlInput)
+    if (!isValid) return
+
+    setImages([...images, {
+      url: urlInput,
+      isPrimary: images.length === 0,
+    }])
+
+    setUrlInput('')
+    setUrlError(null)
+    toast({
+      variant: "success",
+      title: "Berhasil",
+      description: "Gambar dari URL berhasil ditambahkan",
+    })
+  }
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files
@@ -244,14 +309,45 @@ export function EquipmentForm({ equipment, onSuccess, onCancel }: EquipmentFormP
       <div className="space-y-4 rounded-lg border p-4">
         <div className="flex items-center justify-between">
           <h3 className="font-semibold">Galeri Gambar</h3>
-          <Label htmlFor="image-upload" className="cursor-pointer">
-            <div className="inline-flex items-center gap-2 rounded-lg bg-orange-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-orange-700">
-              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-              </svg>
-              Upload Gambar
+          <div className="flex gap-2">
+            {/* Toggle between Upload and URL */}
+            <div className="flex gap-1 bg-slate-100 rounded-lg p-1">
+              <button
+                type="button"
+                onClick={() => setImageInputType('upload')}
+                className={`px-3 py-1 text-sm font-medium rounded transition-colors ${
+                  imageInputType === 'upload'
+                    ? 'bg-orange-600 text-white'
+                    : 'text-slate-700 hover:bg-slate-200'
+                }`}
+              >
+                Upload
+              </button>
+              <button
+                type="button"
+                onClick={() => setImageInputType('url')}
+                className={`px-3 py-1 text-sm font-medium rounded transition-colors ${
+                  imageInputType === 'url'
+                    ? 'bg-orange-600 text-white'
+                    : 'text-slate-700 hover:bg-slate-200'
+                }`}
+              >
+                Dari URL
+              </button>
             </div>
-          </Label>
+
+            {/* Upload File Button */}
+            {imageInputType === 'upload' && (
+              <Label htmlFor="image-upload" className="cursor-pointer">
+                <div className="inline-flex items-center gap-2 rounded-lg bg-orange-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-orange-700">
+                  <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                  </svg>
+                  Upload Gambar
+                </div>
+              </Label>
+            )}
+          </div>
           <input
             id="image-upload"
             type="file"
@@ -262,6 +358,41 @@ export function EquipmentForm({ equipment, onSuccess, onCancel }: EquipmentFormP
             disabled={uploading}
           />
         </div>
+
+        {/* URL Input Section */}
+        {imageInputType === 'url' && (
+          <div className="space-y-3 p-3 bg-slate-50 rounded-lg">
+            <div className="flex gap-2">
+              <input
+                type="url"
+                value={urlInput}
+                onChange={(e) => {
+                  setUrlInput(e.target.value)
+                  setUrlError(null)
+                }}
+                placeholder="https://example.com/image.jpg"
+                className={`flex-1 rounded-lg border px-3 py-2 text-sm focus:outline-none focus:ring-2 ${
+                  urlError
+                    ? 'border-red-300 focus:border-red-500 focus:ring-red-500/20'
+                    : 'border-slate-300 focus:border-orange-500 focus:ring-orange-500/20'
+                }`}
+                disabled={urlLoading}
+              />
+              <Button
+                type="button"
+                onClick={handleAddImageUrl}
+                disabled={!urlInput.trim() || urlLoading}
+                className="bg-green-600 hover:bg-green-700"
+              >
+                {urlLoading ? 'Validasi...' : 'Tambah'}
+              </Button>
+            </div>
+            {urlError && (
+              <p className="text-sm text-red-600">{urlError}</p>
+            )}
+            <p className="text-xs text-slate-500">Masukkan URL gambar dan klik Tambah untuk menambahkan ke galeri</p>
+          </div>
+        )}
 
         {uploading && (
           <div className="text-center text-sm text-slate-600">
