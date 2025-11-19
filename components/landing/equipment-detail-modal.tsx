@@ -22,7 +22,7 @@ export function EquipmentDetailModal({ equipment, open, onOpenChange }: Equipmen
     e.stopPropagation()
 
     // WhatsApp Business Number for VSJ
-    const whatsappNumber = '6282139659136'
+    const whatsappNumber = '6285813718988'
 
     // Get specs
     const specs = equipment.specifications as Record<string, string> | null

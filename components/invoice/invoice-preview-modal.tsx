@@ -73,7 +73,7 @@ export function InvoicePreviewModal({ open, onOpenChange, invoice }: InvoicePrev
                 <h1 className="text-sm font-bold">PT. VANIA SUGIARTA JAYA</h1>
                 <p>Jl. Raya Denpasar No.16</p>
                 <p>Mangwi - Badung</p>
-                <p>No. HP : 0821-3965-9136</p>
+                <p>No. HP : +62 858-1371-8988 | +62 822-3095-8088</p>
               </div>
             </div>
             <div className="text-right border-2 border-slate-900 p-2">
