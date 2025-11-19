@@ -7,6 +7,12 @@ import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { useToast } from '@/hooks/use-toast'
 
+interface Pekerja {
+  id: string
+  nama: string
+  jabatan: string
+}
+
 interface GajiItem {
   tanggal: string
   keterangan: string
@@ -23,7 +29,10 @@ interface GajiFormProps {
 export function GajiForm({ onSuccess, onCancel }: GajiFormProps) {
   const { toast } = useToast()
   const [loading, setLoading] = useState(false)
+  const [pekerjaloading, setPekerjaLoading] = useState(true)
   const [tipe, setTipe] = useState<'weekly' | 'monthly'>('weekly')
+  const [pekerjaList, setPekerjaList] = useState<Pekerja[]>([])
+  const [selectedPekerja, setSelectedPekerja] = useState<Pekerja | null>(null)
   const [formData, setFormData] = useState({
     tanggalMulai: '',
     tanggalSelesai: '',
@@ -41,6 +50,29 @@ export function GajiForm({ onSuccess, onCancel }: GajiFormProps) {
   })
   const [bulan, setBulan] = useState(new Date().getMonth() + 1)
   const [tahun, setTahun] = useState(new Date().getFullYear())
+
+  // Fetch workers on mount
+  useEffect(() => {
+    fetchPekerja()
+  }, [])
+
+  const fetchPekerja = async () => {
+    try {
+      const response = await fetch('/api/pekerja?status=aktif')
+      if (!response.ok) throw new Error('Failed to fetch workers')
+      const data = await response.json()
+      setPekerjaList(data)
+    } catch (error) {
+      console.error('Error fetching workers:', error)
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Gagal memuat daftar pekerja",
+      })
+    } finally {
+      setPekerjaLoading(false)
+    }
+  }
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('id-ID', {
@@ -97,6 +129,15 @@ export function GajiForm({ onSuccess, onCancel }: GajiFormProps) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
+    if (!selectedPekerja) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Pilih pekerja terlebih dahulu",
+      })
+      return
+    }
+
     if (tipe === 'weekly' && items.length === 0) {
       toast({
         variant: "destructive",
@@ -128,6 +169,13 @@ export function GajiForm({ onSuccess, onCancel }: GajiFormProps) {
         keterangan: formData.keterangan || null,
         status: formData.status,
         items: tipe === 'weekly' ? items : [],
+        pekerjas: [
+          {
+            pekerjaNama: selectedPekerja.nama,
+            pekerjaId: selectedPekerja.id,
+            jabatan: selectedPekerja.jabatan,
+          }
+        ],
       }
 
       const response = await fetch('/api/gaji', {
@@ -184,6 +232,44 @@ export function GajiForm({ onSuccess, onCancel }: GajiFormProps) {
         {/* Form Content */}
         <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto">
           <div className="max-w-7xl mx-auto px-6 py-8 space-y-6">
+            {/* Worker Selection */}
+            <div className="space-y-2">
+              <Label htmlFor="pekerja">Pilih Pekerja *</Label>
+              {pekerjaloading ? (
+                <div className="p-3 bg-slate-100 rounded text-sm text-slate-600">Memuat daftar pekerja...</div>
+              ) : pekerjaList.length > 0 ? (
+                <select
+                  id="pekerja"
+                  value={selectedPekerja?.id || ''}
+                  onChange={(e) => {
+                    const selected = pekerjaList.find(p => p.id === e.target.value)
+                    setSelectedPekerja(selected || null)
+                  }}
+                  className="w-full rounded-lg border border-slate-300 px-3 py-2"
+                  required
+                >
+                  <option value="">-- Pilih Pekerja --</option>
+                  {pekerjaList.map((pekerja) => (
+                    <option key={pekerja.id} value={pekerja.id}>
+                      {pekerja.nama} ({pekerja.jabatan})
+                    </option>
+                  ))}
+                </select>
+              ) : (
+                <div className="p-3 bg-yellow-50 border border-yellow-200 rounded text-sm text-yellow-700">
+                  Tidak ada pekerja aktif. Silakan tambah pekerja di menu Pekerja terlebih dahulu.
+                </div>
+              )}
+            </div>
+
+            {selectedPekerja && (
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <p className="text-sm text-blue-900">
+                  <strong>Pekerja Terpilih:</strong> {selectedPekerja.nama} - {selectedPekerja.jabatan}
+                </p>
+              </div>
+            )}
+
             {/* Type Toggle */}
             <div className="space-y-2">
               <Label>Tipe Gaji</Label>

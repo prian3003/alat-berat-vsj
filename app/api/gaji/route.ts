@@ -78,7 +78,7 @@ export async function POST(request: NextRequest) {
 
   try {
     const body = await request.json()
-    const { items, ...data } = body
+    const { items, pekerjas, ...data } = body
 
     // Generate salary number (format: YYYYMMDD-XXXXXX)
     const now = new Date()
@@ -121,7 +121,14 @@ export async function POST(request: NextRequest) {
     // Calculate total salary
     const totalGaji = items?.reduce((sum: number, item: any) => sum + parseFloat(item.jumlah), 0) || 0
 
-    // Create salary record with items
+    // Process pekerjas data
+    const pekerjaData = pekerjas?.map((pekerja: any) => ({
+      pekerjaNama: pekerja.pekerjaNama,
+      pekerjaId: pekerja.pekerjaId || null,
+      jabatan: pekerja.jabatan,
+    })) || []
+
+    // Create salary record with items and workers
     const gaji = await prisma.gaji.create({
       data: {
         nomorGaji,
@@ -137,9 +144,13 @@ export async function POST(request: NextRequest) {
         items: {
           create: itemsData,
         },
+        pekerjas: {
+          create: pekerjaData,
+        },
       },
       include: {
         items: true,
+        pekerjas: true,
       },
     })
 

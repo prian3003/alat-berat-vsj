@@ -226,6 +226,42 @@ model InvoiceItem {
   @@unique([invoiceId, urutan])
 }
 
+// Pekerja (Worker) model
+model Pekerja {
+  id          String    @id @default(uuid()) @db.Uuid
+  nama        String    @db.VarChar(255)
+  jabatan     String    @db.VarChar(255)
+  nomorTelepon String?   @map("nomor_telepon") @db.VarChar(20)
+  alamat      String?   @db.Text
+  status      String    @default("aktif") @db.VarChar(50) // aktif, tidak aktif
+  createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt   DateTime  @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  // Relations
+  gajis GajiPekerja[]
+
+  @@map("pekerja")
+  @@index([status])
+}
+
+// Gaji Pekerja (Worker Salary - junction table)
+model GajiPekerja {
+  id          String    @id @default(uuid()) @db.Uuid
+  gajiId      String    @map("gaji_id") @db.Uuid
+  pekerjaNama String    @map("pekerja_nama") @db.VarChar(255)
+  pekerjaId   String?   @map("pekerja_id") @db.Uuid
+  jabatan     String    @db.VarChar(255)
+  createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  // Relations
+  gaji Gaji @relation(fields: [gajiId], references: [id], onDelete: Cascade)
+  pekerja Pekerja? @relation(fields: [pekerjaId], references: [id], onDelete: SetNull)
+
+  @@map("gaji_pekerja")
+  @@index([gajiId])
+  @@index([pekerjaId])
+}
+
 // Gaji (Salary) model
 model Gaji {
   id              String    @id @default(uuid()) @db.Uuid
@@ -244,6 +280,7 @@ model Gaji {
 
   // Relations
   items GajiItem[]
+  pekerjas GajiPekerja[]
 
   @@map("gaji")
   @@index([tanggalMulai])
