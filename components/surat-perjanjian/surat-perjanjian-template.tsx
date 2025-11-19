@@ -124,6 +124,44 @@ export function SuratPerjanjianTemplate({
       const MARGIN_MM = 10
       const CONTENT_WIDTH_MM = A4_MM.width - MARGIN_MM * 2
 
+      // DOM-based page break detection - scan Pasal containers BEFORE rendering
+      const getPasalPositions = (): number[] => {
+        const positions: number[] = []
+        const elementRect = element.getBoundingClientRect()
+
+        // Find all Pasal containers (divs with pageBreakInside style)
+        const pasalDivs = Array.from(element.querySelectorAll('div[style*="pageBreakInside"]'))
+
+        pasalDivs.forEach((pasal) => {
+          const pasalRect = pasal.getBoundingClientRect()
+          // Get position relative to the element
+          const relativeY = pasalRect.bottom - elementRect.top
+          positions.push(relativeY)
+        })
+
+        // Also add structural breaks (header sections, signature section, etc)
+        // Find all major section divs that should stay together
+        const sections = Array.from(element.querySelectorAll('div[style*="margin"]')).filter((el) => {
+          const style = el.getAttribute('style') || ''
+          // Look for divs with explicit margins that are section containers
+          return style.includes('marginTop') || style.includes('marginBottom')
+        })
+
+        sections.forEach((section) => {
+          const sectionRect = section.getBoundingClientRect()
+          const relativeY = sectionRect.bottom - elementRect.top
+          if (!positions.includes(relativeY) && relativeY > 0) {
+            positions.push(relativeY)
+          }
+        })
+
+        // Sort and remove duplicates
+        positions.sort((a, b) => a - b)
+        return Array.from(new Set(positions))
+      }
+
+      const breakPositions = getPasalPositions()
+
       const canvas = await html2canvas(element, {
         scale: 2, // Higher scale for better quality
         logging: false,
@@ -145,6 +183,57 @@ export function SuratPerjanjianTemplate({
       const pageHeightPx = MM_TO_PX(A4_MM.height)
       const contentHeightPerPagePx = pageHeightPx - MM_TO_PX(MARGIN_MM * 2)
 
+      // Use DOM Pasal positions to determine smart page breaks
+      const detectPageBreaks = (): number[] => {
+        const breaks: number[] = [0]
+
+        if (breakPositions.length === 0) {
+          // Fallback: use simple pixel-based splitting if no sections found
+          const canvasHeight = canvas.height
+          for (let i = contentHeightPerPagePx; i < canvasHeight; i += contentHeightPerPagePx) {
+            breaks.push(i)
+          }
+          breaks.push(canvasHeight)
+          return breaks
+        }
+
+        // Convert DOM positions to canvas pixels (accounting for scale 2)
+        const sectionPixels = breakPositions.map((pos) => pos * 2)
+
+        let currentPageEnd = contentHeightPerPagePx
+        let sectionIdx = 0
+
+        while (sectionIdx < sectionPixels.length) {
+          // Find the last Pasal/section that fits on this page
+          while (sectionIdx < sectionPixels.length && sectionPixels[sectionIdx] <= currentPageEnd) {
+            sectionIdx++
+          }
+
+          // Back up to last section that fits
+          if (sectionIdx > 0) {
+            const lastSectionThatFits = sectionPixels[sectionIdx - 1]
+            breaks.push(lastSectionThatFits)
+            currentPageEnd = lastSectionThatFits + contentHeightPerPagePx
+          } else {
+            // First section is too long for a page, force it anyway
+            if (sectionPixels[0] > currentPageEnd) {
+              breaks.push(sectionPixels[0])
+              currentPageEnd = sectionPixels[0] + contentHeightPerPagePx
+              sectionIdx++
+            }
+          }
+        }
+
+        // Ensure last page is included
+        if (breaks[breaks.length - 1] !== canvas.height) {
+          breaks.push(canvas.height)
+        }
+
+        return breaks
+      }
+
+      const pageBreaks = detectPageBreaks()
+
       // Create PDF from canvas
       const pdf = new jsPDF({
         orientation: 'portrait',
@@ -154,19 +243,14 @@ export function SuratPerjanjianTemplate({
 
       const imgWidth = CONTENT_WIDTH_MM
       const canvasWidth = canvas.width
-      const canvasHeight = canvas.height
 
-      // Calculate how many pages we need
-      const totalPages = Math.ceil(canvasHeight / contentHeightPerPagePx)
-
-      for (let pageIdx = 0; pageIdx < totalPages; pageIdx++) {
-        if (pageIdx > 0) {
+      for (let breakIdx = 0; breakIdx < pageBreaks.length - 1; breakIdx++) {
+        if (breakIdx > 0) {
           pdf.addPage()
         }
 
-        // Calculate crop area for this page
-        const cropStartPx = pageIdx * contentHeightPerPagePx
-        const cropEndPx = Math.min(cropStartPx + contentHeightPerPagePx, canvasHeight)
+        const cropStartPx = pageBreaks[breakIdx]
+        const cropEndPx = pageBreaks[breakIdx + 1]
         const cropHeightPx = cropEndPx - cropStartPx
 
         // Create a temporary canvas for this page's content
