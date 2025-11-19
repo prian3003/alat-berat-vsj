@@ -2,7 +2,7 @@
 
 import { useSearchParams } from 'next/navigation'
 import { BukuBesarTemplate } from '@/components/buku-besar/buku-besar-template'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, Suspense } from 'react'
 
 interface BukuBesarEntry {
   id: string
@@ -15,7 +15,7 @@ interface BukuBesarEntry {
   keterangan?: string
 }
 
-export default function BukuBesarPreviewPage() {
+function BukuBesarPreviewContent() {
   const searchParams = useSearchParams()
   const [entries, setEntries] = useState<BukuBesarEntry[]>([])
   const [periode, setPeriode] = useState('')
@@ -85,5 +85,13 @@ export default function BukuBesarPreviewPage() {
         </div>
       </div>
     </div>
+  )
+}
+
+export default function BukuBesarPreviewPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-slate-50"><p className="text-slate-600">Memuat...</p></div>}>
+      <BukuBesarPreviewContent />
+    </Suspense>
   )
 }
