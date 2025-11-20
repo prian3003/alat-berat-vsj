@@ -3,6 +3,7 @@ import { Geist, Geist_Mono, Kalam } from "next/font/google";
 import "./globals.css";
 import { ScrollingTitle } from "@/components/shared/scrolling-title";
 import { StructuredData } from "@/components/shared/structured-data";
+import { GoogleAdsTracking } from "@/components/shared/google-ads-tracking";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -114,6 +115,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${kalam.variable} antialiased`}
       >
+        <GoogleAdsTracking />
         <ScrollingTitle />
         {children}
       </body>

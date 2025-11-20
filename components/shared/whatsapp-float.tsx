@@ -3,6 +3,7 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { useState, useEffect, useRef } from 'react'
+import { trackWhatsAppClick } from './google-ads-tracking'
 
 export function WhatsAppFloat() {
   const [isHovered, setIsHovered] = useState(false)
@@ -89,6 +90,8 @@ Terima kasih.`)
             onClick={(e: React.MouseEvent) => {
               e.stopPropagation()
               setIsMobileMenuOpen(false)
+              // Track WhatsApp click in Google Ads
+              trackWhatsAppClick(contact.number, 'whatsapp_float_menu')
             }}
             className="flex items-center gap-2 rounded-full bg-white px-3 py-2 shadow-lg transition-all hover:shadow-xl whitespace-nowrap sm:gap-3 sm:px-4"
           >
@@ -129,6 +132,7 @@ Terima kasih.`)
         href={`https://wa.me/${contacts[0].number}?text=${message}`}
         target="_blank"
         rel="noopener noreferrer"
+        onClick={() => trackWhatsAppClick(contacts[0].number, 'whatsapp_float_desktop')}
         className="hidden sm:flex h-14 w-14 items-center justify-center rounded-full bg-green-500 shadow-lg transition-all hover:scale-110 hover:bg-green-600 hover:shadow-xl"
         aria-label="Contact us on WhatsApp"
       >
