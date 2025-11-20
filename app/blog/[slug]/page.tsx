@@ -6,18 +6,36 @@ import { BlogPostDetailWrapper } from '@/components/blog/blog-post-detail-wrappe
 import { BlogArticleSchema } from '@/components/shared/blog-article-schema'
 import { BreadcrumbSchema } from '@/components/shared/breadcrumb-schema'
 
-// Generate metadata for SEO
+// Generate metadata for SEO - with robust fallback
 export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
+  const baseUrl = 'https://vaniasugiartajaya.com' // Use hardcoded URL for reliability
+
   try {
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://vaniasugiartajaya.com'
+    // Fetch with timeout to prevent hanging
+    const controller = new AbortController()
+    const timeoutId = setTimeout(() => controller.abort(), 8000) // 8 second timeout
+
     const response = await fetch(`${baseUrl}/api/blog/public/${params.slug}`, {
-      cache: 'no-store'
+      cache: 'no-store',
+      signal: controller.signal,
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (compatible; Googlebot/2.1)'
+      }
     })
 
+    clearTimeout(timeoutId)
+
     if (!response.ok) {
+      // Return generic metadata instead of "Not Found" - post might exist but API is slow
       return {
-        title: 'Artikel Tidak Ditemukan - VSJ Sewa Alat Berat Bali',
-        description: 'Artikel yang Anda cari tidak ditemukan.'
+        title: `${params.slug.replace(/-/g, ' ')} - VSJ Sewa Alat Berat Bali`,
+        description: 'Artikel tentang sewa alat berat profesional di Bali untuk proyek konstruksi.',
+        openGraph: {
+          title: `${params.slug.replace(/-/g, ' ')} - VSJ Sewa Alat Berat Bali`,
+          description: 'Artikel tentang sewa alat berat profesional di Bali',
+          url: `${baseUrl}/blog/${params.slug}`,
+          type: 'article'
+        }
       }
     }
 
@@ -41,7 +59,20 @@ export async function generateMetadata({ params }: { params: { slug: string } })
         'crane bali',
         data.category,
         ...data.tags || []
-      ].join(', '),
+      ].filter(Boolean).join(', '),
+      authors: [{ name: data.author || 'VSJ Team' }],
+      creator: 'VSJ Team',
+      robots: {
+        index: true,
+        follow: true,
+        googleBot: {
+          index: true,
+          follow: true,
+          'max-image-preview': 'large',
+          'max-snippet': -1,
+          'max-video-preview': -1,
+        }
+      },
       openGraph: {
         title: data.title,
         description: description,
@@ -52,7 +83,8 @@ export async function generateMetadata({ params }: { params: { slug: string } })
             url: data.featured_image,
             width: 1200,
             height: 630,
-            alt: data.title
+            alt: data.title,
+            type: 'image/jpeg'
           }
         ] : [],
         locale: 'id_ID',
@@ -65,17 +97,29 @@ export async function generateMetadata({ params }: { params: { slug: string } })
         card: 'summary_large_image',
         title: data.title,
         description: description,
-        images: data.featured_image ? [data.featured_image] : []
+        images: data.featured_image ? [data.featured_image] : [],
+        creator: '@vaniasugiartajaya'
       },
       alternates: {
         canonical: `${baseUrl}/blog/${params.slug}`
       }
     }
   } catch (error) {
-    console.error('Error generating metadata:', error)
+    console.error('Error generating blog post metadata:', error)
+    // Return metadata based on slug instead of generic "not found" message
     return {
-      title: 'Blog - VSJ Sewa Alat Berat Bali',
-      description: 'Artikel tentang sewa alat berat di Bali'
+      title: `${params.slug.replace(/-/g, ' ')} - VSJ Sewa Alat Berat Bali`,
+      description: 'Artikel tentang sewa alat berat profesional di Bali untuk proyek konstruksi dan konstruksi bangunan.',
+      robots: {
+        index: true,
+        follow: true
+      },
+      openGraph: {
+        title: `${params.slug.replace(/-/g, ' ')} - VSJ Sewa Alat Berat Bali`,
+        description: 'Artikel tentang sewa alat berat profesional di Bali',
+        url: `${baseUrl}/blog/${params.slug}`,
+        type: 'article'
+      }
     }
   }
 }
