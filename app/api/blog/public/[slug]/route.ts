@@ -29,31 +29,67 @@ export async function GET(
 
     const supabase = getSupabaseAdmin()
 
-    // First try to find published post
+    // First try to find published post - use maybeSingle() to handle edge cases
     const { data, error } = await supabase
       .from('blog_posts')
       .select('id, slug, title, content, excerpt, category, tags, author, featured_image, published_at, updated_at, published')
       .eq('slug', slug.toLowerCase().trim())
       .eq('published', true)
-      .single()
+      .maybeSingle()
 
     if (error) {
-      console.error('Supabase error:', error.code, error.message)
+      console.error('Supabase error for published post:', error.code, error.message, 'Slug:', slug)
 
-      // If PGRST116 (no rows), try without published filter for better error messaging
-      if (error.code === 'PGRST116') {
-        const { data: anyPost } = await supabase
+      // If no rows or error, try without published filter for better error messaging
+      if (error.code === 'PGRST116' || error) {
+        const { data: anyPost, error: anyError } = await supabase
           .from('blog_posts')
-          .select('published')
+          .select('id, published, title')
           .eq('slug', slug.toLowerCase().trim())
-          .single()
+          .maybeSingle()
+
+        if (anyError) {
+          console.error('Database error searching for post:', anyError.code, anyError.message)
+          // Database error
+          return NextResponse.json(
+            { error: 'Database error', message: 'Terjadi kesalahan saat mengakses database' },
+            { status: 500 }
+          )
+        }
+
+        // anyPost is null if not found, or has data if found
+        if (!anyPost) {
+          console.warn('Post not found at all with slug:', slug)
+          return NextResponse.json({ error: 'Post not found' }, { status: 404 })
+        }
 
         if (anyPost && !anyPost.published) {
+          console.warn('Post exists but not published:', anyPost.title)
           return NextResponse.json(
             { error: 'Post not published', message: 'Artikel belum dipublikasikan' },
             { status: 404 }
           )
         }
+
+        // Post exists and IS published but first query had issues
+        console.warn('Post exists and published but first query failed. Title:', anyPost.title)
+        // Retry fetching full post
+        const { data: fullPost, error: retryError } = await supabase
+          .from('blog_posts')
+          .select('id, slug, title, content, excerpt, category, tags, author, featured_image, published_at, updated_at, published')
+          .eq('slug', slug.toLowerCase().trim())
+          .eq('published', true)
+          .maybeSingle()
+
+        if (retryError || !fullPost) {
+          console.error('Retry also failed:', retryError?.message)
+          return NextResponse.json(
+            { error: 'Failed to fetch post', message: 'Terjadi kesalahan saat mengambil data' },
+            { status: 500 }
+          )
+        }
+
+        return NextResponse.json({ data: fullPost })
       }
 
       return NextResponse.json({ error: 'Post not found' }, { status: 404 })
