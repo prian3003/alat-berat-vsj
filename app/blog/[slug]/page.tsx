@@ -7,15 +7,25 @@ import { BlogArticleSchema } from '@/components/shared/blog-article-schema'
 import { BreadcrumbSchema } from '@/components/shared/breadcrumb-schema'
 
 // Generate metadata for SEO - with robust fallback
-export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const baseUrl = 'https://vaniasugiartajaya.com' // Use hardcoded URL for reliability
 
   try {
+    // Await params Promise - CRITICAL in Next.js 16
+    const { slug } = await params
+
+    if (!slug) {
+      return {
+        title: 'Artikel - VSJ Sewa Alat Berat Bali',
+        description: 'Artikel tentang sewa alat berat profesional di Bali untuk proyek konstruksi.',
+      }
+    }
+
     // Fetch with timeout to prevent hanging
     const controller = new AbortController()
     const timeoutId = setTimeout(() => controller.abort(), 8000) // 8 second timeout
 
-    const response = await fetch(`${baseUrl}/api/blog/public/${params.slug}`, {
+    const response = await fetch(`${baseUrl}/api/blog/public/${slug}`, {
       cache: 'no-store',
       signal: controller.signal,
       headers: {
@@ -27,13 +37,14 @@ export async function generateMetadata({ params }: { params: { slug: string } })
 
     if (!response.ok) {
       // Return generic metadata instead of "Not Found" - post might exist but API is slow
+      const slugTitle = slug.replace(/-/g, ' ')
       return {
-        title: `${params.slug.replace(/-/g, ' ')} - VSJ Sewa Alat Berat Bali`,
+        title: `${slugTitle} - VSJ Sewa Alat Berat Bali`,
         description: 'Artikel tentang sewa alat berat profesional di Bali untuk proyek konstruksi.',
         openGraph: {
-          title: `${params.slug.replace(/-/g, ' ')} - VSJ Sewa Alat Berat Bali`,
+          title: `${slugTitle} - VSJ Sewa Alat Berat Bali`,
           description: 'Artikel tentang sewa alat berat profesional di Bali',
-          url: `${baseUrl}/blog/${params.slug}`,
+          url: `${baseUrl}/blog/${slug}`,
           type: 'article'
         }
       }
@@ -76,7 +87,7 @@ export async function generateMetadata({ params }: { params: { slug: string } })
       openGraph: {
         title: data.title,
         description: description,
-        url: `${baseUrl}/blog/${params.slug}`,
+        url: `${baseUrl}/blog/${slug}`,
         siteName: 'PT. Vania Sugiarta Jaya',
         images: data.featured_image ? [
           {
@@ -101,25 +112,40 @@ export async function generateMetadata({ params }: { params: { slug: string } })
         creator: '@vaniasugiartajaya'
       },
       alternates: {
-        canonical: `${baseUrl}/blog/${params.slug}`
+        canonical: `${baseUrl}/blog/${slug}`
       }
     }
   } catch (error) {
     console.error('Error generating blog post metadata:', error)
-    // Return metadata based on slug instead of generic "not found" message
-    return {
-      title: `${params.slug.replace(/-/g, ' ')} - VSJ Sewa Alat Berat Bali`,
-      description: 'Artikel tentang sewa alat berat profesional di Bali untuk proyek konstruksi dan konstruksi bangunan.',
-      robots: {
-        index: true,
-        follow: true
-      },
-      openGraph: {
-        title: `${params.slug.replace(/-/g, ' ')} - VSJ Sewa Alat Berat Bali`,
-        description: 'Artikel tentang sewa alat berat profesional di Bali',
-        url: `${baseUrl}/blog/${params.slug}`,
-        type: 'article'
+
+    // Try to get slug from params, with fallback
+    try {
+      const { slug } = await params
+      if (slug) {
+        const slugTitle = slug.replace(/-/g, ' ')
+        return {
+          title: `${slugTitle} - VSJ Sewa Alat Berat Bali`,
+          description: 'Artikel tentang sewa alat berat profesional di Bali untuk proyek konstruksi.',
+          robots: {
+            index: true,
+            follow: true
+          },
+          openGraph: {
+            title: `${slugTitle} - VSJ Sewa Alat Berat Bali`,
+            description: 'Artikel tentang sewa alat berat profesional di Bali',
+            url: `${baseUrl}/blog/${slug}`,
+            type: 'article'
+          }
+        }
       }
+    } catch (slugError) {
+      console.error('Error extracting slug:', slugError)
+    }
+
+    // Fallback if everything fails
+    return {
+      title: 'Artikel - VSJ Sewa Alat Berat Bali',
+      description: 'Artikel tentang sewa alat berat profesional di Bali untuk proyek konstruksi.',
     }
   }
 }
