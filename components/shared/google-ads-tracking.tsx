@@ -15,7 +15,7 @@
  * - Development mode support
  */
 
-import { useEffect } from 'react'
+import { useEffect, Suspense } from 'react'
 import { usePathname, useSearchParams } from 'next/navigation'
 
 // Google Ads Conversion ID
@@ -256,11 +256,10 @@ export function trackGalleryView() {
 }
 
 /**
- * Google Ads Tracking Component
+ * Google Ads Tracking Component (Internal)
  * This component initializes Google Ads tracking and tracks page views
- * Place this component in your root layout
  */
-export function GoogleAdsTracking() {
+function GoogleAdsTrackingInternal() {
   const pathname = usePathname()
   const searchParams = useSearchParams()
 
@@ -290,6 +289,18 @@ export function GoogleAdsTracking() {
 
   // This component doesn't render anything
   return null
+}
+
+/**
+ * Google Ads Tracking Component (Wrapped in Suspense)
+ * Place this component in your root layout
+ */
+export function GoogleAdsTracking() {
+  return (
+    <Suspense fallback={null}>
+      <GoogleAdsTrackingInternal />
+    </Suspense>
+  )
 }
 
 /**
