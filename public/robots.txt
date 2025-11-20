@@ -1,0 +1,43 @@
+# Robots.txt for VSJ - Vania Sugiarta Jaya
+# Allow all search engines to crawl the entire website
+
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /api
+
+# Sitemap location
+Sitemap: https://vaniasugiartajaya.com/sitemap.xml
+
+# Crawl delay (optional - remove if not needed)
+# Crawl-delay: 1
+
+# Allow specific crawlers with different rules
+User-agent: Googlebot
+Allow: /
+Disallow: /admin
+Disallow: /api
+
+User-agent: Bingbot
+Allow: /
+Disallow: /admin
+Disallow: /api
+
+User-agent: baiduspider
+Allow: /
+Disallow: /admin
+Disallow: /api
+
+# Block bad bots
+User-agent: AhrefsBot
+User-agent: SemrushBot
+User-agent: DotBot
+User-agent: MJ12bot
+Disallow: /
+
+# Allow social media crawlers
+User-agent: facebookexternalhit
+User-agent: Twitterbot
+User-agent: LinkedInBot
+User-agent: WhatsApp
+Allow: /
