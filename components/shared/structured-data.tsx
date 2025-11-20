@@ -83,7 +83,8 @@ export function StructuredData() {
     },
     "numberOfEmployees": {
       "@type": "QuantitativeValue",
-      "value": "50+"
+      "minValue": 50,
+      "maxValue": 100
     },
     "aggregateRating": {
       "@type": "AggregateRating",
