@@ -166,13 +166,16 @@ async function getBlogPostForSchema(slug: string) {
   }
 }
 
-export default async function BlogPostPage({ params }: { params: { slug: string } }) {
-  const post = await getBlogPostForSchema(params.slug)
+export default async function BlogPostPage({ params }: { params: Promise<{ slug: string }> }) {
+  // Await params Promise - CRITICAL in Next.js 16
+  const { slug } = await params
+
+  const post = await getBlogPostForSchema(slug)
 
   const breadcrumbItems = [
     { name: 'Home', url: 'https://vaniasugiartajaya.com' },
     { name: 'Blog', url: 'https://vaniasugiartajaya.com/blog' },
-    { name: post?.title || 'Article', url: `https://vaniasugiartajaya.com/blog/${params.slug}` }
+    { name: post?.title || 'Article', url: `https://vaniasugiartajaya.com/blog/${slug}` }
   ]
 
   return (
@@ -186,7 +189,7 @@ export default async function BlogPostPage({ params }: { params: { slug: string 
             author={post.author || 'VSJ Team'}
             datePublished={post.published_at}
             dateModified={post.updated_at}
-            slug={params.slug}
+            slug={slug}
             category={post.category}
             tags={post.tags}
           />
@@ -196,7 +199,7 @@ export default async function BlogPostPage({ params }: { params: { slug: string 
       <Navbar />
       <WhatsAppFloat />
       <main>
-        <BlogPostDetailWrapper slug={params.slug} />
+        <BlogPostDetailWrapper slug={slug} />
       </main>
       <Footer />
     </div>
