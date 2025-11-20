@@ -28,82 +28,106 @@ export async function GET(
     }
 
     const supabase = getSupabaseAdmin()
+    const normalizedSlug = slug.toLowerCase().trim()
 
-    // First try to find published post - use maybeSingle() to handle edge cases
+    // First try to find published post with all fields - use maybeSingle() to handle edge cases
     const { data, error } = await supabase
       .from('blog_posts')
       .select('id, slug, title, content, excerpt, category, tags, author, featured_image, published_at, updated_at, published')
-      .eq('slug', slug.toLowerCase().trim())
+      .eq('slug', normalizedSlug)
       .eq('published', true)
       .maybeSingle()
 
+    // Success case - got the post data
+    if (data && !error) {
+      const response = NextResponse.json({ data })
+      response.headers.set('Cache-Control', 'public, s-maxage=3600, stale-while-revalidate=86400')
+      return response
+    }
+
+    // Error case - diagnose what went wrong
     if (error) {
-      console.error('Supabase error for published post:', error.code, error.message, 'Slug:', slug)
+      console.error('First query failed - Supabase error:', error.code, error.message, 'Slug:', normalizedSlug)
+    } else if (!data) {
+      console.warn('First query returned no data (null), trying minimal query...')
+    }
 
-      // If no rows or error, try without published filter for better error messaging
-      if (error.code === 'PGRST116' || error) {
-        const { data: anyPost, error: anyError } = await supabase
-          .from('blog_posts')
-          .select('id, published, title')
-          .eq('slug', slug.toLowerCase().trim())
-          .maybeSingle()
+    // Try a minimal query to check if post exists at all
+    const { data: minimalPost, error: minimalError } = await supabase
+      .from('blog_posts')
+      .select('id, published, title')
+      .eq('slug', normalizedSlug)
+      .maybeSingle()
 
-        if (anyError) {
-          console.error('Database error searching for post:', anyError.code, anyError.message)
-          // Database error
-          return NextResponse.json(
-            { error: 'Database error', message: 'Terjadi kesalahan saat mengakses database' },
-            { status: 500 }
-          )
-        }
+    if (minimalError) {
+      console.error('Minimal query also failed:', minimalError.code, minimalError.message)
+      return NextResponse.json(
+        { error: 'Database error', message: 'Terjadi kesalahan saat mengakses database' },
+        { status: 500 }
+      )
+    }
 
-        // anyPost is null if not found, or has data if found
-        if (!anyPost) {
-          console.warn('Post not found at all with slug:', slug)
-          return NextResponse.json({ error: 'Post not found' }, { status: 404 })
-        }
+    // No post found at all
+    if (!minimalPost) {
+      console.warn('Post not found with slug:', normalizedSlug)
+      return NextResponse.json({ error: 'Post not found' }, { status: 404 })
+    }
 
-        if (anyPost && !anyPost.published) {
-          console.warn('Post exists but not published:', anyPost.title)
-          return NextResponse.json(
-            { error: 'Post not published', message: 'Artikel belum dipublikasikan' },
-            { status: 404 }
-          )
-        }
+    // Post exists but check if published
+    if (!minimalPost.published) {
+      console.warn('Post exists but not published:', minimalPost.title)
+      return NextResponse.json(
+        { error: 'Post not published', message: 'Artikel belum dipublikasikan' },
+        { status: 404 }
+      )
+    }
 
-        // Post exists and IS published but first query had issues
-        console.warn('Post exists and published but first query failed. Title:', anyPost.title)
-        // Retry fetching full post
-        const { data: fullPost, error: retryError } = await supabase
-          .from('blog_posts')
-          .select('id, slug, title, content, excerpt, category, tags, author, featured_image, published_at, updated_at, published')
-          .eq('slug', slug.toLowerCase().trim())
-          .eq('published', true)
-          .maybeSingle()
+    // Post exists AND is published, but full query failed - fetch with retry
+    console.warn('Post exists and published, but full field query failed. Retrying with timeout...')
 
-        if (retryError || !fullPost) {
-          console.error('Retry also failed:', retryError?.message)
-          return NextResponse.json(
-            { error: 'Failed to fetch post', message: 'Terjadi kesalahan saat mengambil data' },
-            { status: 500 }
-          )
-        }
+    // Add timeout to prevent hanging
+    const controller = new AbortController()
+    const timeoutId = setTimeout(() => controller.abort(), 5000) // 5 second timeout
 
-        return NextResponse.json({ data: fullPost })
+    try {
+      const { data: fullPost, error: retryError } = await supabase
+        .from('blog_posts')
+        .select('*')
+        .eq('slug', normalizedSlug)
+        .eq('published', true)
+        .maybeSingle()
+
+      clearTimeout(timeoutId)
+
+      if (retryError) {
+        console.error('Retry query error:', retryError.code, retryError.message)
+        // Return what we know - post exists and is published
+        return NextResponse.json(
+          { error: 'Partial data available', message: 'Artikel ditemukan tetapi gagal mengambil konten lengkap', data: { id: minimalPost.id, title: minimalPost.title, published: minimalPost.published } },
+          { status: 206 } // 206 Partial Content
+        )
       }
 
-      return NextResponse.json({ error: 'Post not found' }, { status: 404 })
+      if (!fullPost) {
+        console.error('Retry returned null despite post existing')
+        // Return minimal data we have
+        return NextResponse.json(
+          { error: 'Partial data available', message: 'Artikel ditemukan tetapi gagal mengambil konten lengkap', data: { id: minimalPost.id, title: minimalPost.title, published: minimalPost.published } },
+          { status: 206 }
+        )
+      }
+
+      const response = NextResponse.json({ data: fullPost })
+      response.headers.set('Cache-Control', 'public, s-maxage=3600, stale-while-revalidate=86400')
+      return response
+    } catch (timeoutError) {
+      clearTimeout(timeoutId)
+      console.error('Retry query timeout:', timeoutError)
+      return NextResponse.json(
+        { error: 'Request timeout', message: 'Permintaan memakan waktu terlalu lama' },
+        { status: 504 }
+      )
     }
-
-    if (!data) {
-      return NextResponse.json({ error: 'Post not found' }, { status: 404 })
-    }
-
-    // Cache response for 1 hour
-    const response = NextResponse.json({ data })
-    response.headers.set('Cache-Control', 'public, s-maxage=3600, stale-while-revalidate=86400')
-
-    return response
   } catch (error) {
     console.error('Server error:', error)
     return NextResponse.json(
