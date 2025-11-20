@@ -74,11 +74,6 @@ export function BlogArticleSchema({
       "@id": "https://vaniasugiartajaya.com",
       "name": "VSJ - Sewa Alat Berat Bali",
       "url": "https://vaniasugiartajaya.com"
-    },
-    "aggregateRating": {
-      "@type": "AggregateRating",
-      "ratingValue": "4.8",
-      "reviewCount": "127"
     }
   }
 
