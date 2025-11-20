@@ -42,24 +42,28 @@ Mohon informasi lebih lanjut.
 
 Terima kasih.`)
 
-  const toggleMobileMenu = () => {
+  const toggleMobileMenu = (e: React.MouseEvent) => {
+    e.stopPropagation()
     setIsMobileMenuOpen(!isMobileMenuOpen)
   }
 
-  // Close mobile menu when clicking outside
+  // Close mobile menu when clicking outside (handle both mouse and touch events)
   useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
+    const handleClickOutside = (event: Event) => {
       if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
         setIsMobileMenuOpen(false)
       }
     }
 
     if (isMobileMenuOpen) {
+      // Use both mousedown and touchstart to handle mobile/desktop properly
       document.addEventListener('mousedown', handleClickOutside)
+      document.addEventListener('touchstart', handleClickOutside)
     }
 
     return () => {
       document.removeEventListener('mousedown', handleClickOutside)
+      document.removeEventListener('touchstart', handleClickOutside)
     }
   }, [isMobileMenuOpen])
 
@@ -82,7 +86,10 @@ Terima kasih.`)
             href={`https://wa.me/${contact.number}?text=${message}`}
             target="_blank"
             rel="noopener noreferrer"
-            onClick={() => setIsMobileMenuOpen(false)}
+            onClick={(e: React.MouseEvent) => {
+              e.stopPropagation()
+              setIsMobileMenuOpen(false)
+            }}
             className="flex items-center gap-2 rounded-full bg-white px-3 py-2 shadow-lg transition-all hover:shadow-xl whitespace-nowrap sm:gap-3 sm:px-4"
           >
             <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-green-500">

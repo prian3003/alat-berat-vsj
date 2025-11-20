@@ -23,21 +23,24 @@ function BukuBesarPreviewContent() {
 
   useEffect(() => {
     try {
-      const periodeParam = searchParams.get('periode')
-      const entriesParam = searchParams.get('entries')
+      const sessionId = searchParams.get('sessionId')
 
-      if (periodeParam && entriesParam) {
-        const parsedEntries = JSON.parse(entriesParam)
-        setEntries(parsedEntries)
+      if (sessionId) {
+        // Retrieve data from sessionStorage
+        const storedData = sessionStorage.getItem(sessionId)
+        if (storedData) {
+          const { periode: periodKey, entries: entriesData } = JSON.parse(storedData)
+          setEntries(entriesData)
 
-        // Format periode display
-        const [year, month] = periodeParam.split('-')
-        const monthNames = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember']
-        const monthIndex = parseInt(month) - 1
-        setPeriode(`${monthNames[monthIndex]} ${year}`)
+          // Format periode display
+          const [year, month] = periodKey.split('-')
+          const monthNames = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember']
+          const monthIndex = parseInt(month) - 1
+          setPeriode(`${monthNames[monthIndex]} ${year}`)
+        }
       }
     } catch (error) {
-      console.error('Error parsing URL parameters:', error)
+      console.error('Error retrieving preview data:', error)
     } finally {
       setLoading(false)
     }
