@@ -404,7 +404,7 @@ export function SuratPerjanjianTemplate({
             <p className="ml-8 mb-1">b) Harga sewa alat berat :</p>
             <div className="ml-12 space-y-0.5 mb-3">
               {items.map((item) => (
-                <p key={item.urutan}>• {item.jenisAlat}     Rp. {formatCurrency(item.hargaSewa)} / Jam</p>
+                <p key={item.urutan}>• {item.jenisAlat}     Rp. {formatCurrency(item.hargaSewa)} / Jam (All In)</p>
               ))}
             </div>
 
@@ -428,12 +428,12 @@ export function SuratPerjanjianTemplate({
             {biayaMobilisasi ? (
               <>
                 <p className="ml-6 mb-1">1. Biaya Mobilisasi dan Demobilisasi alat berat adalah senilai Rp. {formatCurrency(biayaMobilisasi)} (sesuai kesepakatan kedua belah pihak).</p>
-                <p className="ml-6">2. Biaya Mobilisasi ditanggung oleh PIHAK KEDUA.</p>
+                <p className="ml-6">2. Biaya Mobilisasi ditanggung oleh PIHAK KEDUA dan di bayarkan di awal.</p>
               </>
             ) : (
               <>
                 <p className="ml-6 mb-1">1. Biaya Mobilisasi dan Demobilisasi alat berat akan ditentukan berdasarkan kesepakatan kedua belah pihak.</p>
-                <p className="ml-6">2. Biaya Mobilisasi ditanggung oleh PIHAK KEDUA.</p>
+                <p className="ml-6">2. Biaya Mobilisasi ditanggung oleh PIHAK KEDUA dan di bayarkan di awal.</p>
               </>
             )}
           </div>
@@ -444,7 +444,8 @@ export function SuratPerjanjianTemplate({
               <p className="font-bold mb-2 text-center" style={{ fontSize: "11pt", wordWrap: 'break-word', overflowWrap: 'break-word', margin: 0 }}>Pasal 4</p>
               <p className="font-bold text-center" style={{ wordWrap: 'break-word', overflowWrap: 'break-word', margin: '8px 0 0 0' }}>Biaya Operasi, Pemeliharaan dan Perbaikan Alat</p>
             <p className="ml-6 mb-1">1. Selama masa penyewaan alat berat, keperluan olie, perbaikan kerusakan, penggantian sparepart dan Mekanik menjadi tanggung jawab PIHAK PERTAMA.</p>
-            <p className="ml-6">2. Pemakaian BBM (Bahan Bakar Minyak) untuk keperluan operasi menjadi tanggung jawab PIHAK KEDUA.</p>
+            <p className="ml-6 mb-1">2. Pemakaian BBM (Bahan Bakar Minyak) untuk keperluan operasi menjadi tanggung jawab PIHAK KEDUA.</p>
+            <p className="ml-6">3. Pemakaian BBM untuk keperluan operasi menjadi tanggung jawab PIHAK PERTAMA.</p>
           </div>
 
           {/* Pasal 5 */}
@@ -465,7 +466,7 @@ export function SuratPerjanjianTemplate({
           <div style={{ marginBottom: "12px", pageBreakInside: 'avoid' }}>
             <p className="font-bold mb-2 text-center" style={{ fontSize: "11pt", wordWrap: 'break-word', overflowWrap: 'break-word', margin: 0 }}>Pasal 7</p>
             <p className="font-bold text-center" style={{ wordWrap: 'break-word', overflowWrap: 'break-word', margin: '8px 0 8px 0' }}>Pembayaran Sewa</p>
-            <p className="ml-6 mb-1">1. PIHAK KEDUA berkewajiban menyelesaikan pembayaran sewa alat berat dimuka sebesar 100 jam/unitnya serta ditambah biaya mobilisasi.</p>
+            <p className="ml-6 mb-1">1. PIHAK KEDUA berkewajiban menyelesaikan pembayaran sewa alat berat dimuka sesuai kesepakatan serta ditambah biaya mobilisasi.</p>
             <p className="ml-6 mb-1">2. Uang pembayaran sewa alat berat dibayarkan secara tunai atau sesuai kesepakatan kedua belah pihak.</p>
             <p className="ml-6">3. Jika pekerjaan sudah hampir mencapai nilai dari dana masuk dan PIHAK KEDUA masih akan memperpanjang masa sewa maka harus memberitahukan kepada PIHAK PERTAMA minimal dua (2) hari sebelum habis masa sewa alat berat.</p>
           </div>
