@@ -286,9 +286,29 @@ export function GajiTemplate({ gaji }: GajiTemplateProps) {
           {/* Signature Section */}
           <div style={{ marginTop: '32px', display: 'flex', justifyContent: 'space-between', fontSize: '8.5pt' }}>
             <div style={{ width: '45%' }}>
-              <p style={{ margin: '0 0 32px 0', fontWeight: 'bold' }}>Admin</p>
-              <div style={{ borderBottom: '1pt solid #000', height: '40px' }}></div>
-              <p style={{ margin: '4px 0 0 0', fontSize: '7.5pt' }}>Tanda Tangan</p>
+              <p style={{ margin: '0 0 12px 0', fontWeight: 'bold' }}>Admin</p>
+              {/* TTD Signature Image Container */}
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                height: '50px',
+                marginBottom: '8px',
+                overflow: 'hidden'
+              }}>
+                <img
+                  src="/ttd.png"
+                  alt="TTD Admin"
+                  style={{
+                    height: '100%',
+                    width: 'auto',
+                    maxWidth: '80px',
+                    objectFit: 'contain'
+                  }}
+                />
+              </div>
+              <div style={{ borderBottom: '1pt solid #000', height: '8px' }}></div>
+              <p style={{ margin: '4px 0 0 0', fontSize: '7pt', fontWeight: '600' }}>TTD</p>
             </div>
             <div style={{ width: '45%', textAlign: 'center' }}>
               <p style={{ margin: '0 0 4px 0', fontSize: '7.5pt', color: '#666' }}>Dicetak pada: {formatDate(new Date().toISOString())}</p>
