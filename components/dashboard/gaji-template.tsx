@@ -203,7 +203,7 @@ export function GajiTemplate({ gaji }: GajiTemplateProps) {
             </div>
           )}
 
-          {/* Items Table for Weekly */}
+          {/* Items Table for Weekly - Grouped by Date */}
           {gaji.tipe === 'weekly' && gaji.items && gaji.items.length > 0 && (
             <>
               <div style={{ marginTop: '12px', marginBottom: '8px', fontSize: '8.5pt', fontWeight: 'bold' }}>
@@ -220,17 +220,48 @@ export function GajiTemplate({ gaji }: GajiTemplateProps) {
                   </tr>
                 </thead>
                 <tbody>
-                  {gaji.items.map((item, index) => (
-                    <tr key={index} style={{ backgroundColor: index % 2 === 0 ? '#fff' : '#f9f9f9' }}>
-                      <td style={{ border: '0.5pt solid #ddd', padding: '3px', textAlign: 'center', fontSize: '8pt' }}>{item.urutan}</td>
-                      <td style={{ border: '0.5pt solid #ddd', padding: '3px', textAlign: 'center', fontSize: '8pt' }}>{formatDateShort(item.tanggal)}</td>
-                      <td style={{ border: '0.5pt solid #ddd', padding: '3px', fontSize: '8pt' }}>{item.keterangan}</td>
-                      <td style={{ border: '0.5pt solid #ddd', padding: '3px', textAlign: 'center', fontSize: '8pt' }}>{item.jam ? item.jam : '-'}</td>
-                      <td style={{ border: '0.5pt solid #ddd', padding: '3px', textAlign: 'right', fontSize: '8pt' }}>
-                        Rp {formatCurrency(Number(item.jumlah))}
-                      </td>
-                    </tr>
-                  ))}
+                  {(() => {
+                    // Group items by date - robust grouping logic
+                    const groupedByDate = gaji.items.reduce((acc, item) => {
+                      const date = formatDateShort(item.tanggal)
+                      if (!acc[date]) {
+                        acc[date] = []
+                      }
+                      acc[date].push(item)
+                      return acc
+                    }, {} as Record<string, typeof gaji.items>)
+
+                    // Convert to sorted array and render with one number per date
+                    let rowNumber = 0
+                    const rows = Object.entries(groupedByDate).flatMap(([date, items], dateIndex) => {
+                      rowNumber++
+                      return items.map((item, itemIndex) => (
+                        <tr key={`${dateIndex}-${itemIndex}`} style={{ backgroundColor: dateIndex % 2 === 0 ? '#fff' : '#f9f9f9' }}>
+                          {/* Show No. only on first item of each date */}
+                          <td style={{ border: '0.5pt solid #ddd', padding: '3px', textAlign: 'center', fontSize: '8pt', fontWeight: itemIndex === 0 ? 'bold' : 'normal' }}>
+                            {itemIndex === 0 ? rowNumber : ''}
+                          </td>
+                          {/* Show Date only on first item of each date */}
+                          <td style={{ border: '0.5pt solid #ddd', padding: '3px', textAlign: 'center', fontSize: '8pt', fontWeight: itemIndex === 0 ? 'bold' : 'normal' }}>
+                            {itemIndex === 0 ? date : ''}
+                          </td>
+                          {/* Keterangan - shows for all items of that date */}
+                          <td style={{ border: '0.5pt solid #ddd', padding: '3px', fontSize: '8pt' }}>
+                            {item.keterangan}
+                          </td>
+                          {/* Jam - shows for all items */}
+                          <td style={{ border: '0.5pt solid #ddd', padding: '3px', textAlign: 'center', fontSize: '8pt' }}>
+                            {item.jam ? item.jam : '-'}
+                          </td>
+                          {/* Jumlah - shows for all items */}
+                          <td style={{ border: '0.5pt solid #ddd', padding: '3px', textAlign: 'right', fontSize: '8pt' }}>
+                            Rp {formatCurrency(Number(item.jumlah))}
+                          </td>
+                        </tr>
+                      ))
+                    })
+                    return rows
+                  })()}
                 </tbody>
               </table>
             </>
