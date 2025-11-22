@@ -9,7 +9,7 @@ import { Toaster } from '@/components/ui/toaster'
 import { useConfirm } from '@/hooks/use-confirm'
 import { GajiForm } from '@/components/dashboard/gaji-form'
 import { GajiTemplate } from '@/components/dashboard/gaji-template'
-import { Plus, Eye, CheckCircle, Trash2, ArrowLeft, Calendar, Search } from 'lucide-react'
+import { Plus, Eye, CheckCircle, Trash2, ArrowLeft, Calendar, Search, Edit } from 'lucide-react'
 
 interface GajiItem {
   id: string
@@ -85,6 +85,11 @@ export default function AdminGajiPage() {
     } finally {
       setLoading(false)
     }
+  }
+
+  const handleEdit = (gaji: Gaji) => {
+    setSelectedGaji(gaji)
+    setShowForm(true)
   }
 
   const handleDelete = async (id: string, nomorGaji: string) => {
@@ -466,22 +471,29 @@ export default function AdminGajiPage() {
                   </div>
 
                   {/* Action Buttons */}
-                  <div className="flex gap-2">
+                  <div className="flex gap-2 flex-wrap">
                     <button
                       onClick={() => {
                         setSelectedGaji(gaji)
                         setShowPreview(true)
                       }}
-                      className="flex-1 flex items-center justify-center gap-2 text-sm font-medium text-orange-600 hover:text-orange-700 bg-orange-50 hover:bg-orange-100 rounded-lg py-2 transition-colors"
+                      className="flex-1 min-w-24 flex items-center justify-center gap-2 text-sm font-medium text-orange-600 hover:text-orange-700 bg-orange-50 hover:bg-orange-100 rounded-lg py-2 transition-colors"
                     >
                       <Eye className="h-4 w-4" />
                       Preview
+                    </button>
+                    <button
+                      onClick={() => handleEdit(gaji)}
+                      className="flex-1 min-w-20 flex items-center justify-center gap-2 text-sm font-medium text-blue-600 hover:text-blue-700 bg-blue-50 hover:bg-blue-100 rounded-lg py-2 transition-colors"
+                    >
+                      <Edit className="h-4 w-4" />
+                      Edit
                     </button>
                     {gaji.status !== 'completed' && (
                       <button
                         onClick={() => handleMarkAsPaid(gaji.id)}
                         disabled={updatingStatus === gaji.id}
-                        className="flex-1 flex items-center justify-center gap-2 text-sm font-medium text-green-600 hover:text-green-700 bg-green-50 hover:bg-green-100 rounded-lg py-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="flex-1 min-w-20 flex items-center justify-center gap-2 text-sm font-medium text-green-600 hover:text-green-700 bg-green-50 hover:bg-green-100 rounded-lg py-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                       >
                         {updatingStatus === gaji.id ? (
                           <>
@@ -498,7 +510,7 @@ export default function AdminGajiPage() {
                     )}
                     <button
                       onClick={() => handleDelete(gaji.id, gaji.nomorGaji)}
-                      className="flex-1 flex items-center justify-center gap-2 text-sm font-medium text-red-600 hover:text-red-700 bg-red-50 hover:bg-red-100 rounded-lg py-2 transition-colors"
+                      className="flex-1 min-w-20 flex items-center justify-center gap-2 text-sm font-medium text-red-600 hover:text-red-700 bg-red-50 hover:bg-red-100 rounded-lg py-2 transition-colors"
                     >
                       <Trash2 className="h-4 w-4" />
                       Hapus
