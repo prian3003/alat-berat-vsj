@@ -292,7 +292,7 @@ export function GajiTemplate({ gaji }: GajiTemplateProps) {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                height: '50px',
+                height: '80px',
                 marginBottom: '8px',
                 overflow: 'hidden'
               }}>
@@ -302,7 +302,7 @@ export function GajiTemplate({ gaji }: GajiTemplateProps) {
                   style={{
                     height: '100%',
                     width: 'auto',
-                    maxWidth: '80px',
+                    maxWidth: '140px',
                     objectFit: 'contain'
                   }}
                 />
