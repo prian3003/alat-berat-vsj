@@ -167,7 +167,7 @@ export function GajiTemplate({ gaji }: GajiTemplateProps) {
               <h1 style={{ fontSize: '11pt', fontWeight: 'bold', margin: '0 0 2px 0' }}>PT. VANIA SUGIARTA JAYA</h1>
               <p style={{ margin: '0' }}>Jl. Raya Denpasar No.16</p>
               <p style={{ margin: '0' }}>Mangwi - Badung</p>
-              <p style={{ margin: '0' }}>Telp. +62 813-2580-5326 | +62 822-3095-8088</p>
+              <p style={{ margin: '0' }}>Telp. +62 822-3095-8088</p>
             </div>
           </div>
 

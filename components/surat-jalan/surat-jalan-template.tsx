@@ -295,7 +295,7 @@ export function SuratJalanTemplate({
             margin: '8px 0 0 0'
           }}>
             <span style={{ display: 'block', margin: '2px 0' }}>Jln. Werdi Bhuwana, Kec. Mengwi, Kab. Badung-Bali, 80351</span>
-            <span style={{ display: 'block', margin: '2px 0' }}>Telp. +62 813-2580-5326 | +62 822-3095-8088 | Email: vaniasugiartajaya25@gmail.com</span>
+            <span style={{ display: 'block', margin: '2px 0' }}>Telp. +62 822-3095-8088 | Email: vaniasugiartajaya25@gmail.com</span>
             <span style={{ display: 'block', margin: '2px 0' }}>www.vaniasugiartajaya.com</span>
           </p>
         </div>
