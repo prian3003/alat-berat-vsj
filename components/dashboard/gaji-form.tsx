@@ -25,9 +25,10 @@ interface GajiItem {
 interface GajiFormProps {
   onSuccess: () => void
   onCancel: () => void
+  initialData?: any // Gaji data for editing
 }
 
-export function GajiForm({ onSuccess, onCancel }: GajiFormProps) {
+export function GajiForm({ onSuccess, onCancel, initialData }: GajiFormProps) {
   const { toast } = useToast()
   const [loading, setLoading] = useState(false)
   const [pekerjaloading, setPekerjaLoading] = useState(true)
@@ -58,6 +59,57 @@ export function GajiForm({ onSuccess, onCancel }: GajiFormProps) {
     fetchPekerja()
   }, [])
 
+  // Populate form when editing (initialData provided)
+  useEffect(() => {
+    if (initialData) {
+      setTipe(initialData.tipe || 'weekly')
+
+      // Format dates to YYYY-MM-DD for date input
+      const formatDateForInput = (dateString: string) => {
+        if (!dateString) return ''
+        const date = new Date(dateString)
+        const year = date.getFullYear()
+        const month = String(date.getMonth() + 1).padStart(2, '0')
+        const day = String(date.getDate()).padStart(2, '0')
+        return `${year}-${month}-${day}`
+      }
+
+      setFormData({
+        tanggalMulai: formatDateForInput(initialData.tanggalMulai) || '',
+        tanggalSelesai: formatDateForInput(initialData.tanggalSelesai) || '',
+        totalGaji: Number(initialData.totalGaji) || 0,
+        bonAmount: Number(initialData.bonAmount) || 0,
+        keterangan: initialData.keterangan || '',
+        status: initialData.status || 'draft',
+      })
+
+      if (initialData.items && initialData.items.length > 0) {
+        setItems(initialData.items.map((item: any) => ({
+          tanggal: formatDateForInput(item.tanggal),
+          keterangan: item.keterangan,
+          jam: Number(item.jam) || 0,
+          jumlah: Number(item.jumlah),
+          tipe: item.tipe || 'regular',
+        })))
+      }
+
+      if (initialData.tipe === 'monthly') {
+        setBulan(initialData.bulan || new Date().getMonth() + 1)
+        setTahun(initialData.tahun || new Date().getFullYear())
+      }
+
+      // Set selected pekerja if available
+      if (initialData.pekerjas && initialData.pekerjas.length > 0) {
+        const pekerja = initialData.pekerjas[0]
+        setSelectedPekerja({
+          id: pekerja.pekerjaId,
+          nama: pekerja.pekerjaNama,
+          jabatan: pekerja.jabatan,
+        })
+      }
+    }
+  }, [initialData])
+
   const fetchPekerja = async () => {
     try {
       const response = await fetch('/api/pekerja?status=aktif')
@@ -79,15 +131,19 @@ export function GajiForm({ onSuccess, onCancel }: GajiFormProps) {
   }
 
   const formatCurrency = (amount: number) => {
+    const numericAmount = Number(amount) || 0
     return new Intl.NumberFormat('id-ID', {
       style: 'currency',
       currency: 'IDR',
       minimumFractionDigits: 0,
-    }).format(amount)
+    }).format(numericAmount)
   }
 
   const calculateTotal = (itemsList: GajiItem[]) => {
-    return itemsList.reduce((sum, item) => sum + item.jumlah, 0)
+    return itemsList.reduce((sum, item) => {
+      const amount = typeof item.jumlah === 'string' ? parseFloat(item.jumlah) : item.jumlah
+      return sum + (isNaN(amount) ? 0 : amount)
+    }, 0)
   }
 
   const handleAddItem = () => {
@@ -100,7 +156,16 @@ export function GajiForm({ onSuccess, onCancel }: GajiFormProps) {
       return
     }
 
-    const updatedItems = [...items, { ...newItem }]
+    // Ensure all numeric values are properly converted to numbers
+    const itemToAdd: GajiItem = {
+      tanggal: newItem.tanggal,
+      keterangan: newItem.keterangan,
+      jam: typeof newItem.jam === 'string' ? parseFloat(newItem.jam) || 0 : newItem.jam || 0,
+      jumlah: typeof newItem.jumlah === 'string' ? parseFloat(newItem.jumlah) : newItem.jumlah,
+      tipe: newItem.tipe,
+    }
+
+    const updatedItems = [...items, itemToAdd]
     setItems(updatedItems)
     setFormData(prev => ({
       ...prev,
@@ -188,8 +253,12 @@ export function GajiForm({ onSuccess, onCancel }: GajiFormProps) {
         ] : [],
       }
 
-      const response = await fetch('/api/gaji', {
-        method: 'POST',
+      const isEditing = !!initialData?.id
+      const url = isEditing ? `/api/gaji/${initialData.id}` : '/api/gaji'
+      const method = isEditing ? 'PUT' : 'POST'
+
+      const response = await fetch(url, {
+        method,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
       })
@@ -202,7 +271,7 @@ export function GajiForm({ onSuccess, onCancel }: GajiFormProps) {
       toast({
         variant: "success",
         title: "Berhasil",
-        description: "Data gaji berhasil disimpan",
+        description: isEditing ? "Data gaji berhasil diperbarui" : "Data gaji berhasil disimpan",
       })
 
       onSuccess()
@@ -225,7 +294,9 @@ export function GajiForm({ onSuccess, onCancel }: GajiFormProps) {
         <div className="border-b sticky top-0 bg-white z-10 p-6">
           <div className="flex items-center justify-between max-w-7xl mx-auto">
             <div>
-              <h2 className="text-2xl font-bold text-slate-900">Tambah Gaji</h2>
+              <h2 className="text-2xl font-bold text-slate-900">
+                {initialData ? 'Edit Gaji' : 'Tambah Gaji'}
+              </h2>
               <p className="text-sm text-slate-600 mt-1">Mingguan atau Bulanan</p>
             </div>
             <button
@@ -359,9 +430,14 @@ export function GajiForm({ onSuccess, onCancel }: GajiFormProps) {
                   <Label htmlFor="totalGaji">Total Gaji</Label>
                   <Input
                     id="totalGaji"
-                    type="number"
-                    value={formData.totalGaji}
-                    onChange={(e) => setFormData({ ...formData, totalGaji: parseFloat(e.target.value) })}
+                    type="text"
+                    placeholder="5.000.000"
+                    value={formData.totalGaji === 0 ? '' : new Intl.NumberFormat('id-ID').format(formData.totalGaji)}
+                    onChange={(e) => {
+                      const rawValue = e.target.value.replace(/\./g, '')
+                      const numericValue = rawValue === '' ? 0 : parseFloat(rawValue)
+                      setFormData({ ...formData, totalGaji: isNaN(numericValue) ? 0 : numericValue })
+                    }}
                     required
                   />
                 </div>
@@ -410,8 +486,8 @@ export function GajiForm({ onSuccess, onCancel }: GajiFormProps) {
                         type="number"
                         step="0.5"
                         placeholder="8"
-                        value={newItem.jam || ''}
-                        onChange={(e) => setNewItem({ ...newItem, jam: e.target.value ? parseFloat(e.target.value) : 0 })}
+                        value={newItem.jam === 0 ? '' : newItem.jam}
+                        onChange={(e) => setNewItem({ ...newItem, jam: e.target.value === '' ? 0 : parseFloat(e.target.value) })}
                         className="h-9"
                       />
                     </div>
@@ -419,10 +495,14 @@ export function GajiForm({ onSuccess, onCancel }: GajiFormProps) {
                       <Label htmlFor="itemJumlah" className="text-xs font-semibold">Jumlah *</Label>
                       <Input
                         id="itemJumlah"
-                        type="number"
-                        placeholder="250000"
-                        value={newItem.jumlah || ''}
-                        onChange={(e) => setNewItem({ ...newItem, jumlah: parseFloat(e.target.value) || 0 })}
+                        type="text"
+                        placeholder="250.000"
+                        value={newItem.jumlah === 0 ? '' : new Intl.NumberFormat('id-ID').format(newItem.jumlah)}
+                        onChange={(e) => {
+                          const rawValue = e.target.value.replace(/\./g, '')
+                          const numericValue = rawValue === '' ? 0 : parseFloat(rawValue)
+                          setNewItem({ ...newItem, jumlah: isNaN(numericValue) ? 0 : numericValue })
+                        }}
                         className="h-9"
                       />
                     </div>
@@ -485,12 +565,14 @@ export function GajiForm({ onSuccess, onCancel }: GajiFormProps) {
                 <Label htmlFor="bonAmount">Bon (Advance/Pinjaman)</Label>
                 <Input
                   id="bonAmount"
-                  type="number"
-                  min="0"
-                  step="10000"
-                  placeholder="0"
-                  value={formData.bonAmount || ''}
-                  onChange={(e) => setFormData({ ...formData, bonAmount: parseFloat(e.target.value) || 0 })}
+                  type="text"
+                  placeholder="100.000"
+                  value={formData.bonAmount === 0 ? '' : new Intl.NumberFormat('id-ID').format(formData.bonAmount)}
+                  onChange={(e) => {
+                    const rawValue = e.target.value.replace(/\./g, '')
+                    const numericValue = rawValue === '' ? 0 : parseFloat(rawValue)
+                    setFormData({ ...formData, bonAmount: isNaN(numericValue) ? 0 : numericValue })
+                  }}
                 />
                 <p className="text-xs text-red-600">{formatCurrency(formData.bonAmount || 0)}</p>
               </div>

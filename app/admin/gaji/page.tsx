@@ -60,6 +60,7 @@ export default function AdminGajiPage() {
   const [filterType, setFilterType] = useState<'all' | 'weekly' | 'monthly'>('all')
   const [searchQuery, setSearchQuery] = useState('')
   const [updatingStatus, setUpdatingStatus] = useState<string | null>(null)
+  const [editingId, setEditingId] = useState<string | null>(null)
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -87,9 +88,29 @@ export default function AdminGajiPage() {
     }
   }
 
-  const handleEdit = (gaji: Gaji) => {
-    setSelectedGaji(gaji)
-    setShowForm(true)
+  const handleEdit = async (gaji: Gaji) => {
+    try {
+      setEditingId(gaji.id)
+      // Fetch complete gaji data with items
+      const response = await fetch(`/api/gaji/${gaji.id}`)
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch gaji data')
+      }
+
+      const fullGajiData = await response.json()
+      setSelectedGaji(fullGajiData)
+      setShowForm(true)
+    } catch (error) {
+      console.error('Error fetching gaji for edit:', error)
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Gagal memuat data gaji untuk diedit",
+      })
+    } finally {
+      setEditingId(null)
+    }
   }
 
   const handleDelete = async (id: string, nomorGaji: string) => {
@@ -213,11 +234,16 @@ export default function AdminGajiPage() {
   if (showForm) {
     return (
       <GajiForm
+        initialData={selectedGaji}
         onSuccess={() => {
           setShowForm(false)
+          setSelectedGaji(null)
           fetchGaji()
         }}
-        onCancel={() => setShowForm(false)}
+        onCancel={() => {
+          setShowForm(false)
+          setSelectedGaji(null)
+        }}
       />
     )
   }
@@ -484,10 +510,20 @@ export default function AdminGajiPage() {
                     </button>
                     <button
                       onClick={() => handleEdit(gaji)}
-                      className="flex-1 min-w-20 flex items-center justify-center gap-2 text-sm font-medium text-blue-600 hover:text-blue-700 bg-blue-50 hover:bg-blue-100 rounded-lg py-2 transition-colors"
+                      disabled={editingId === gaji.id}
+                      className="flex-1 min-w-20 flex items-center justify-center gap-2 text-sm font-medium text-blue-600 hover:text-blue-700 bg-blue-50 hover:bg-blue-100 rounded-lg py-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                      <Edit className="h-4 w-4" />
-                      Edit
+                      {editingId === gaji.id ? (
+                        <>
+                          <div className="h-4 w-4 animate-spin rounded-full border-2 border-blue-600 border-t-transparent"></div>
+                          Memuat...
+                        </>
+                      ) : (
+                        <>
+                          <Edit className="h-4 w-4" />
+                          Edit
+                        </>
+                      )}
                     </button>
                     {gaji.status !== 'completed' && (
                       <button
